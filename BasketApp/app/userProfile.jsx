@@ -1,104 +1,115 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, Button } from 'react-native';
+import { Menu, Provider, Divider } from 'react-native-paper';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+export default function UserProfile() {
+  const [visible, setVisible] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
-import SwitchSelector from 'react-native-switch-selector';
+  const showMenu = (menuName) => {
+    setSelectedMenu(menuName);
+    setVisible(true);
+  };
 
-const options = [
-  { label: 'Casual Play', value: '1' },
-  { label: 'Competitive', value: '2' }
-];
+  const hideMenu = () => {
+    setVisible(false);
+    setSelectedMenu(null);
+  };
 
-export default function TabTwoScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">User Profile</ThemedText>
-      </ThemedView>
-      <ThemedText>Tap each of the dropdowns to get started.</ThemedText>
+    <Provider>
+      <View style={styles.container}>
+        <Text style={styles.title}>User Profile</Text>
+        
+        {/* User Dropdown */}
+        <Menu
+          visible={visible && selectedMenu === 'User'}
+          onDismiss={hideMenu}
+          anchor={<Button title="User" onPress={() => showMenu('User')} />}
+        >
+          <Menu.Item onPress={() => console.log('User Info')} title="User Information" />
+          <Menu.Item onPress={() => console.log('Change User Info')} title="Change Info" />
+        </Menu>
 
-      <Collapsible title="User">
-        <ThemedText>
-          Name:
-        </ThemedText>
-        <ThemedText>
-          Photo:
-        </ThemedText>
-        <ThemedText>
-          Age:
-        </ThemedText>
-        <ThemedText>
-          Location:
-        </ThemedText>
-        <ThemedText>
-          Experience:
-        </ThemedText>
-      </Collapsible>
+        <Divider style={styles.divider} />
 
+        {/* Contact Dropdown */}
+        <Menu
+          visible={visible && selectedMenu === 'Contact'}
+          onDismiss={hideMenu}
+          anchor={<Button title="Contact" onPress={() => showMenu('Contact')} />}
+        >
+          <Menu.Item onPress={() => console.log('Contact Info')} title="Contact Information" />
+          <Menu.Item onPress={() => console.log('Change Contact Info')} title="Change Contact Info" />
+        </Menu>
 
-      <Collapsible title="Contact">
-        <ThemedText>
-          Phone Number:
-        </ThemedText>
-        <ThemedText>
-          Email:
-        </ThemedText>
-      </Collapsible>
-      
+        <Divider style={styles.divider} />
 
-      <Collapsible title="Skill Prefrence">
-        <SwitchSelector options={options} initial={1} onPress={value => console.log(`Call onPress with value: ${value}`)} />
-      </Collapsible>
+        {/* Skill Preference Dropdown */}
+        <Menu
+          visible={visible && selectedMenu === 'SkillPreference'}
+          onDismiss={hideMenu}
+          anchor={<Button title="Skill Preference" onPress={() => showMenu('SkillPreference')} />}
+        >
+          <Menu.Item onPress={() => console.log('Skill Preferences')} title="View Skill Preferences" />
+          <Menu.Item onPress={() => console.log('Change Skill Preferences')} title="Change Skill Preferences" />
+        </Menu>
 
+        <Divider style={styles.divider} />
 
-      <Collapsible title="Availability">
-        <ThemedText>
-          Calendar View?
-        </ThemedText>
-      </Collapsible>
+        {/* Availability Dropdown */}
+        <Menu
+          visible={visible && selectedMenu === 'Availability'}
+          onDismiss={hideMenu}
+          anchor={<Button title="Availability" onPress={() => showMenu('Availability')} />}
+        >
+          <Menu.Item onPress={() => console.log('View Availability')} title="View Availability" />
+          <Menu.Item onPress={() => console.log('Change Availability')} title="Change Availability" />
+        </Menu>
 
+        <Divider style={styles.divider} />
 
-      <Collapsible title="Stats">
-      <ThemedText>
-          Link to stat page
-        </ThemedText>
-      </Collapsible>
+        {/* Stats Dropdown */}
+        <Menu
+          visible={visible && selectedMenu === 'Stats'}
+          onDismiss={hideMenu}
+          anchor={<Button title="Stats" onPress={() => showMenu('Stats')} />}
+        >
+          <Menu.Item onPress={() => console.log('View Stats')} title="View Stats" />
+          <Menu.Item onPress={() => console.log('Update Stats')} title="Update Stats" />
+        </Menu>
 
+        <Divider style={styles.divider} />
 
-      <Collapsible title="Yelp Review">
-      <ThemedText>
-          Yelp reviews with time, data, and user who wrote the review
-        </ThemedText>
-      </Collapsible>
-
-
-    </ParallaxScrollView>
+        {/* Yelp Review Dropdown */}
+        <Menu
+          visible={visible && selectedMenu === 'YelpReview'}
+          onDismiss={hideMenu}
+          anchor={<Button title="Yelp Review" onPress={() => showMenu('YelpReview')} />}
+        >
+          <Menu.Item onPress={() => console.log('View Yelp Reviews')} title="View Yelp Reviews" />
+          <Menu.Item onPress={() => console.log('Add Yelp Review')} title="Add Yelp Review" />
+        </Menu>
+        
+      </View>
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 20,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
+  divider: {
+    width: '80%',
+    marginVertical: 10,
+  }
 });
