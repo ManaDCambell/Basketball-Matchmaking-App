@@ -9,7 +9,7 @@ async function initializeDatabase(db) {
     try {
         await db.execAsync(`
             PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS students (
+            CREATE TABLE IF NOT EXISTS user (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 firstName TEXT,
                 lastName TEXT,
@@ -23,43 +23,43 @@ async function initializeDatabase(db) {
     }
 }
 
-//StudentButton component
-const StudentButton = ({student, deleteStudent, updateStudent}) => {
+//UserButton component
+const UserButton = ({user, deleteUser, updateUser}) => {
 
-    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [editedStudent, setEditedStudent] = useState({
-        firstName: student.firstName,
-        lastName: student.lastName,
-        age: student.age,
-        email: student.email
+    const [editedUser, setEditedUser] = useState({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        age: user.age,
+        email: user.email
     })
 
-    //function to confirm to delete a student
+    //function to confirm to delete a User
     const handleDelete = () => {
         Alert.alert(
             'Attention!',
-            'Are you sure you want to delete the student ?',
+            'Are you sure you want to delete the user?',
             [
                 { text: 'No', onPress: () => { }, style: 'cancel'},
-                { text: 'Yes', onPress: () =>  deleteStudent(student.id)},
+                { text: 'Yes', onPress: () =>  deleteUser(user.id)},
             ],
             { cancelable: true }
         );
     };
 
     const handleEdit = () => {
-        updateStudent(student.id, editedStudent.firstName, editedStudent.lastName, editedStudent.age, editedStudent.email);
+        updateUser(user.id, editedUser.firstName, editedUser.lastName, editedUser.age, editedUser.email);
         setIsEditing(false);
     }
 
     return (
         <View>
             <Pressable
-                onPress={() => {setSelectedStudent(selectedStudent === student.id ? null : student.id)}}
+                onPress={() => {setSelectedUser(selectedUser === user.id ? null : user.id)}}
             >
-                <Text> {student.id} - {student.lastName}</Text>
-                {selectedStudent === student.id && (
+                <Text> {user.id} - {user.lastName}</Text>
+                {selectedUser === user.id && (
                     <View >
                         <AntDesign 
                             name='edit'
@@ -76,48 +76,48 @@ const StudentButton = ({student, deleteStudent, updateStudent}) => {
                     </View>
                 )}
             </Pressable>
-            {selectedStudent === student.id && !isEditing &&(
+            {selectedUser === user.id && !isEditing &&(
             <View>
-                <Text>First name : {student.firstName}</Text>
-                <Text>Last name : {student.lastName}</Text>
-                <Text>Age : {student.age}</Text>
-                <Text>email : {student.email}</Text>
+                <Text>First name : {user.firstName}</Text>
+                <Text>Last name : {user.lastName}</Text>
+                <Text>Age : {user.age}</Text>
+                <Text>email : {user.email}</Text>
 
             </View>
             )}
-            {selectedStudent === student.id && isEditing && (
-                <StudentForm student={editedStudent} setStudent={setEditedStudent} onSave={handleEdit} setShowForm={setIsEditing}/>
+            {selectedUser === user.id && isEditing && (
+                <UserForm user={editedUser} setUser={setEditedUser} onSave={handleEdit} setShowForm={setIsEditing}/>
             )}
         </View>
     )
 }
 
-//StudentForm component
-const StudentForm = ({student, setStudent, onSave, setShowForm}) => {
+//UserForm component
+const UserForm = ({user, setUser, onSave, setShowForm}) => {
 
     
     return (
         <View>
             <TextInput 
                 placeholder='First name'
-                value={student.firstName}
-                onChangeText={(text) => setStudent({...student, firstName: text})}
+                value={user.firstName}
+                onChangeText={(text) => setUser({...user, firstName: text})}
             />
             <TextInput 
                 placeholder='Last name'
-                value={student.lastName}
-                onChangeText={(text) => setStudent({...student, lastName: text})}
+                value={user.lastName}
+                onChangeText={(text) => setUser({...user, lastName: text})}
             />
             <TextInput 
                 placeholder='Age'
-                value={student.age}
-                onChangeText={(text) => setStudent({...student, age: text})}
+                value={user.age}
+                onChangeText={(text) => setUser({...user, age: text})}
                 keyboardType='numeric'
             />
             <TextInput 
                 placeholder='email'
-                value={student.email}
-                onChangeText={(text) => setStudent({...student, email: text})}
+                value={user.email}
+                onChangeText={(text) => setUser({...user, email: text})}
                 keyboardType='email-address'
             />
 
@@ -139,7 +139,7 @@ export default function App() {
   return (
     <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
         <View>
-          <Text>List of students</Text>
+          <Text>List of users</Text>
           <Content />
           <StatusBar style="auto" />
         </View>
@@ -149,106 +149,106 @@ export default function App() {
 
 const Content = () => {
     const db = useSQLiteContext();
-    const [students, setStudents] = useState([]);
+    const [users, setUsers] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const [student, setStudent] = useState({id: 0, firstName:'', lastName:'', age:0, email:''});
+    const [user, setUser] = useState({id: 0, firstName:'', lastName:'', age:0, email:''});
 
     const handleSave = () => {
 
-        if(student.firstName.length === 0 || student.lastName.length === 0 || student.age === 0 || student.email.length ===0 ) {
+        if(user.firstName.length === 0 || user.lastName.length === 0 || user.age === 0 || user.email.length ===0 ) {
             Alert.alert('Attention', 'Please enter all the data !')
         } else {
-            addStudent(student);
-            setStudent({id: 0, firstName:'', lastName:'', age:0, email:''});
+            addUser(user);
+            setUser({id: 0, firstName:'', lastName:'', age:0, email:''});
             setShowForm(false);
         }
     }
     
-    //function to get all the students
-    const getStudents = async () => {
+    //function to get all the users
+    const getUsers = async () => {
         try {
-            const allRows = await db.getAllAsync('SELECT * FROM students');
-            setStudents(allRows);
+            const allRows = await db.getAllAsync('SELECT * FROM user');
+            setUsers(allRows);
         } catch (error) {
-            console.log('Error while loading students : ', error);
+            console.log('Error while loading user : ', error);
         }
     };
 
-    //function to add a student
-    const addStudent = async (newStudent) => {
+    //function to add a user
+    const addUser = async (newUser) => {
         try {
-            const statement = await db.prepareAsync('INSERT INTO students (firstName, lastName, age, email) VALUES (?,?,?,?)');
-            await statement.executeAsync([newStudent.firstName, newStudent.lastName, newStudent.age, newStudent.email]);
-            await getStudents();
+            const statement = await db.prepareAsync('INSERT INTO user (firstName, lastName, age, email) VALUES (?,?,?,?)');
+            await statement.executeAsync([newUser.firstName, newUser.lastName, newUser.age, newUser.email]);
+            await getUsers();
         } catch (error) {
-            console.log('Error while adding student : ', error);
+            console.log('Error while adding user : ', error);
         }
     };
 
-    //function to delete all students
-    const deleteAllStudents = async () => {
+    //function to delete all users
+    const deleteAllUsers = async () => {
         try {
-            await db.runAsync('DELETE FROM students');
-            await getStudents();
+            await db.runAsync('DELETE FROM user');
+            await getUsers();
         } catch (error) {
-            console.log('Error while deleting all the students : ', error);
+            console.log('Error while deleting all the users : ', error);
         }
     };
 
-    //function to confirm deleting all students
+    //function to confirm deleting all usera
     const confirmDeleteAll = () => {
         Alert.alert(
             'Attention!',
-            'Are you sure you want to delete all the students ?',
+            'Are you sure you want to delete all the users ?',
             [
                 { text: 'No', onPress: () => { }, style: 'cancel'},
-                { text: 'Yes', onPress: deleteAllStudents},
+                { text: 'Yes', onPress: deleteAllUsers},
             ],
             { cancelable: true}
         )
     };
 
-    //function to update a student
-    const updateStudent = async (studentId, newFirstName, newLastName, newAge, newEmail) => {
+    //function to update a user
+    const updateUser = async (userId, newFirstName, newLastName, newAge, newEmail) => {
         try {
-            await db.runAsync('UPDATE students SET firstName = ?, lastName = ?, age = ?, email = ? WHERE id = ?', [newFirstName, newLastName, newAge, newEmail, studentId]);
-            await getStudents();
+            await db.runAsync('UPDATE user SET firstName = ?, lastName = ?, age = ?, email = ? WHERE id = ?', [newFirstName, newLastName, newAge, newEmail, userId]);
+            await getUsers();
         } catch (error) {
-            console.log('Error while updating student');
+            console.log('Error while updating user');
         }
     };
 
-    //function to delete a student
-    const deleteStudent = async (id) => {
+    //function to delete a user
+    const deleteUser = async (id) => {
         try {
-            await db.runAsync('DELETE FROM students WHERE id = ?', [id]);
-            await getStudents();
+            await db.runAsync('DELETE FROM user WHERE id = ?', [id]);
+            await getUsers();
         } catch (error) {
-            console.log('Error while deleting the student : ', error);
+            console.log('Error while deleting the user : ', error);
         }
     }
 
-    //get all the students at  the first render of the app
+    //get all the users at  the first render of the app
     useEffect(() => {
-        //addStudent({firstName:'Lucas', lastName:'Smith', age: 22, email: 'lucas.smith@ex.com'})
-        //deleteAllStudents();
-        getStudents();
+        //addUser({firstName:'Lucas', lastName:'Smith', age: 22, email: 'lucas.smith@ex.com'})
+        //deleteAllUsers();
+        getUsers();
     }, []);
 
     return (
         <View>
-            {students.length === 0 ? (
-              <Text>No students to load !</Text>
+            {user.length === 0 ? (
+              <Text>No users to load !</Text>
             ) : (
               <FlatList 
-                  data = {students}
+                  data = {users}
                   renderItem={({item}) => (
-                      <StudentButton student={item} deleteStudent={deleteStudent} updateStudent={updateStudent}/>  
+                      <UserButton user={item} deleteUser={deleteUser} updateUser={updateUser}/>  
                   )}
                   keyExtractor={(item) => item.id.toString()}
               />
             )}
-            {showForm && (<StudentForm student={student} setStudent={setStudent} onSave={handleSave} setShowForm={setShowForm}/>)}
+            {showForm && (<UserForm user={user} setUser={setUser} onSave={handleSave} setShowForm={setShowForm}/>)}
             <View>
 
             <AntDesign 
