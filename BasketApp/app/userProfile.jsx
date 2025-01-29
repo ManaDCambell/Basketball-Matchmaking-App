@@ -26,7 +26,7 @@ export default function UserProfile({ navigation }) {
         <Svg height="100%" width="100%" style={styles.background}>
           <Defs>
             <LinearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">
-              <Stop offset="20%" stopColor="rgb(233, 155, 10)" stopOpacity="1" />
+              <Stop offset="20%" stopColor="rgb(218, 113, 15)" stopOpacity="1" />
               <Stop offset="85%" stopColor="rgb(63, 62, 61)" stopOpacity="2" />
             </LinearGradient>
           </Defs>
