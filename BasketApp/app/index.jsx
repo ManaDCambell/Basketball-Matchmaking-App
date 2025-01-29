@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import UserProfile from './userProfile';
 import Matchmaking from './matchmaking'; // Correct import
 import Friends from './friends'; // Correct import
+import UserProfileSettings from './userProfileSettings';
 
 const Stack = createStackNavigator();
 
@@ -15,6 +16,7 @@ function Index() {
       <Stack.Screen name="UserProfile" component={UserProfile} />
       <Stack.Screen name="Matchmaking" component={Matchmaking} /> 
       <Stack.Screen name="Friends" component={Friends} /> 
+      <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
     </Stack.Navigator>
   );
 }
