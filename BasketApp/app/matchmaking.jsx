@@ -5,24 +5,7 @@ import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
 import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
-/*
-import playerinformation from './playerinformation.json';
 
-const Pablo = new playerinformation("Pablo", "Bronze", 0);
-
-const getImageForRank = (rank) => {
-    if (rank === 'Bronze') {
-        return require('./bronze.png');
-    } else if (rank === 'Gold') {
-        return require('./gold.png');
-    } else if (rank === 'Platinum') {
-        return require('./platinum.png');
-    } else if (rank === 'Diamond') {
-        return require('./diamond.png');
-    }
-    return null;
-};
-*/
 const Matchmaking = () => {
     const [rankPoints] = useState(52); //Temporary example ELO of 250
 
