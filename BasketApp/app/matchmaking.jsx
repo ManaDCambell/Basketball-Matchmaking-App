@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { View, Text, Image, Button, StyleSheet } from 'react-native';
 import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
@@ -23,11 +24,35 @@ const getImageForRank = (rank) => {
 };
 */
 const Matchmaking = () => {
+    const [rankPoints] = useState(52); //Temporary example ELO of 250
+
+    // Change image of rank based on ELO passed thru useState()
+    let rank, rankImage, distanceFromRankUp;
+
+    if (rankPoints >= 300) {
+        rank = 'Diamond';
+        rankImage = diamond;
+        distanceFromRankUp = 0;
+    } else if (rankPoints >= 200) {
+        rank = 'Platinum';
+        rankImage = platinum;
+        distanceFromRankUp = 300 - rankPoints;
+    } else if (rankPoints >= 100) {
+        rank = 'Gold';
+        rankImage = gold;
+        distanceFromRankUp = 200 - rankPoints;
+    } else {
+        rank = 'Bronze';
+        rankImage = bronze;
+        distanceFromRankUp = 100 - rankPoints;
+    }
     return (
         <View>
             <View style={styles.container}>
-                <Text style={styles.text}>Current Rank: Gold</Text>
-                <Image source={gold} style={styles.image} />
+                <Text style={styles.text}>Current Rank: {rank}</Text>
+                <Text style={styles.text}>Current Elo: {rankPoints}</Text>
+                <Text style={styles.text}>You're {distanceFromRankUp} points away from ranking up!</Text>
+                <Image source={rankImage} style={styles.image} />
             </View>
             <View style={styles.buttonContainer}>
                 <View style={styles.buttonWrapper}>
