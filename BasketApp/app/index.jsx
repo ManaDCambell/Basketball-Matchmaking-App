@@ -9,11 +9,12 @@ async function initializeDatabase(db) {
     try {
         await db.execAsync(`
             PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS user (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                firstName TEXT,
-                lastName TEXT,
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER AUTOINCREMENT,
+                fullName text,
+                userName TEXT PRIMARY KEY,
                 age INTEGER,
+                phoneNumber INTEGER,
                 email TEXT
             );
         `);
@@ -29,9 +30,10 @@ const UserButton = ({user, deleteUser, updateUser}) => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedUser, setEditedUser] = useState({
-        firstName: user.firstName,
-        lastName: user.lastName,
+        fullName: user.fullName,
+        userName: user.userName,
         age: user.age,
+        phoneNumber: user.phoneNumber,
         email: user.email
     })
 
@@ -44,12 +46,12 @@ const UserButton = ({user, deleteUser, updateUser}) => {
                 { text: 'No', onPress: () => { }, style: 'cancel'},
                 { text: 'Yes', onPress: () =>  deleteUser(user.id)},
             ],
-            { cancelable: true }
+            { cancelable: true } 
         );
     };
 
     const handleEdit = () => {
-        updateUser(user.id, editedUser.firstName, editedUser.lastName, editedUser.age, editedUser.email);
+        updateUser(user.id, editedUser.fullName, editedUser.userName, editedUser.age, editedUser.phoneNumber, editedUser.email);
         setIsEditing(false);
     }
 
@@ -58,7 +60,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
             <Pressable
                 onPress={() => {setSelectedUser(selectedUser === user.id ? null : user.id)}}
             >
-                <Text> {user.id} - {user.lastName}</Text>
+                <Text> {user.id} - {user.userName}</Text>
                 {selectedUser === user.id && (
                     <View >
                         <AntDesign 
@@ -78,10 +80,11 @@ const UserButton = ({user, deleteUser, updateUser}) => {
             </Pressable>
             {selectedUser === user.id && !isEditing &&(
             <View>
-                <Text>First name : {user.firstName}</Text>
-                <Text>Last name : {user.lastName}</Text>
+                <Text>Full Name : {user.fullName}</Text>
+                <Text>UserName : {user.userName}</Text>
                 <Text>Age : {user.age}</Text>
-                <Text>email : {user.email}</Text>
+                <Text>Phone Number : {user.phoneNumber}</Text>
+                <Text>Email : {user.email}</Text>
 
             </View>
             )}
@@ -99,19 +102,25 @@ const UserForm = ({user, setUser, onSave, setShowForm}) => {
     return (
         <View>
             <TextInput 
-                placeholder='First name'
-                value={user.firstName}
-                onChangeText={(text) => setUser({...user, firstName: text})}
+                placeholder='FullName'
+                value={user.fullName}
+                onChangeText={(text) => setUser({...user, fullName: text})}
             />
             <TextInput 
-                placeholder='Last name'
-                value={user.lastName}
-                onChangeText={(text) => setUser({...user, lastName: text})}
+                placeholder='UserName'
+                value={user.userName}
+                onChangeText={(text) => setUser({...user, userName: text})}
             />
             <TextInput 
                 placeholder='Age'
                 value={user.age}
                 onChangeText={(text) => setUser({...user, age: text})}
+                keyboardType='numeric'
+            />
+            <TextInput 
+                placeholder='Phone Number'
+                value={user.age}
+                onChangeText={(text) => setUser({...user, phoneNumber: text})}
                 keyboardType='numeric'
             />
             <TextInput 
@@ -151,15 +160,15 @@ const Content = () => {
     const db = useSQLiteContext();
     const [users, setUsers] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const [user, setUser] = useState({id: 0, firstName:'', lastName:'', age:0, email:''});
+    const [user, setUser] = useState({id: 0, fullName:'', userName:'', age:0, phoneNumber:0, email:''});
 
     const handleSave = () => {
 
-        if(user.firstName.length === 0 || user.lastName.length === 0 || user.age === 0 || user.email.length ===0 ) {
+        if(user.fullName.length === 0 || user.userName.length === 0 || user.age === 0 || user.phoneNumber === 0 || user.email.length ===0 ) {
             Alert.alert('Attention', 'Please enter all the data !')
         } else {
             addUser(user);
-            setUser({id: 0, firstName:'', lastName:'', age:0, email:''});
+            setUser({id: 0, fullName:'', userName:'', age:0, phoneNumber:0, email:''});
             setShowForm(false);
         }
     }
@@ -167,7 +176,7 @@ const Content = () => {
     //function to get all the users
     const getUsers = async () => {
         try {
-            const allRows = await db.getAllAsync('SELECT * FROM user');
+            const allRows = await db.getAllAsync('SELECT * FROM users');
             setUsers(allRows);
         } catch (error) {
             console.log('Error while loading user : ', error);
@@ -177,8 +186,8 @@ const Content = () => {
     //function to add a user
     const addUser = async (newUser) => {
         try {
-            const statement = await db.prepareAsync('INSERT INTO user (firstName, lastName, age, email) VALUES (?,?,?,?)');
-            await statement.executeAsync([newUser.firstName, newUser.lastName, newUser.age, newUser.email]);
+            const statement = await db.prepareAsync('INSERT INTO users (fullName, userName, age, phoneNumber, email) VALUES (?,?,?,?,?)');
+            await statement.executeAsync([newUser.fullName, newUser.userName, newUser.age, newUser.phoneNumber, newUser.email]);
             await getUsers();
         } catch (error) {
             console.log('Error while adding user : ', error);
@@ -188,7 +197,7 @@ const Content = () => {
     //function to delete all users
     const deleteAllUsers = async () => {
         try {
-            await db.runAsync('DELETE FROM user');
+            await db.runAsync('DELETE FROM users');
             await getUsers();
         } catch (error) {
             console.log('Error while deleting all the users : ', error);
@@ -209,9 +218,9 @@ const Content = () => {
     };
 
     //function to update a user
-    const updateUser = async (userId, newFirstName, newLastName, newAge, newEmail) => {
+    const updateUser = async (userId, newFullName, newUserName, newAge, newPhoneNumber, newEmail) => {
         try {
-            await db.runAsync('UPDATE user SET firstName = ?, lastName = ?, age = ?, email = ? WHERE id = ?', [newFirstName, newLastName, newAge, newEmail, userId]);
+            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, age = ?, phoneNumber = ?, email = ? WHERE id = ?', [newFullName, newUserName, newAge, newPhoneNumber ,newEmail, userId]);
             await getUsers();
         } catch (error) {
             console.log('Error while updating user');
@@ -221,7 +230,7 @@ const Content = () => {
     //function to delete a user
     const deleteUser = async (id) => {
         try {
-            await db.runAsync('DELETE FROM user WHERE id = ?', [id]);
+            await db.runAsync('DELETE FROM users WHERE id = ?', [id]);
             await getUsers();
         } catch (error) {
             console.log('Error while deleting the user : ', error);
@@ -230,8 +239,6 @@ const Content = () => {
 
     //get all the users at  the first render of the app
     useEffect(() => {
-        //addUser({firstName:'Lucas', lastName:'Smith', age: 22, email: 'lucas.smith@ex.com'})
-        //deleteAllUsers();
         getUsers();
     }, []);
 
