@@ -13,8 +13,11 @@ async function initializeDatabase(db) {
                 id INTEGER AUTOINCREMENT,
                 fullName text,
                 userName TEXT PRIMARY KEY,
+                pasword TEXT,
+                elo INT,
                 age INTEGER,
                 phoneNumber INTEGER,
+                location TEXT,
                 email TEXT
             );
         `);
@@ -32,8 +35,10 @@ const UserButton = ({user, deleteUser, updateUser}) => {
     const [editedUser, setEditedUser] = useState({
         fullName: user.fullName,
         userName: user.userName,
+        password: user.password,
         age: user.age,
         phoneNumber: user.phoneNumber,
+        location: user.location,
         email: user.email
     })
 
@@ -51,7 +56,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
     };
 
     const handleEdit = () => {
-        updateUser(user.id, editedUser.fullName, editedUser.userName, editedUser.age, editedUser.phoneNumber, editedUser.email);
+        updateUser(user.id, editedUser.fullName, editedUser.userName, editedUser.password, editedUser.age, editedUser.phoneNumber, editedUser.location, editedUser.email);
         setIsEditing(false);
     }
 
@@ -82,8 +87,10 @@ const UserButton = ({user, deleteUser, updateUser}) => {
             <View>
                 <Text>Full Name : {user.fullName}</Text>
                 <Text>UserName : {user.userName}</Text>
+                <Text>Password : {user.password}</Text>
                 <Text>Age : {user.age}</Text>
                 <Text>Phone Number : {user.phoneNumber}</Text>
+                <Text>Location-county : {user.location}</Text>
                 <Text>Email : {user.email}</Text>
 
             </View>
@@ -112,6 +119,11 @@ const UserForm = ({user, setUser, onSave, setShowForm}) => {
                 onChangeText={(text) => setUser({...user, userName: text})}
             />
             <TextInput 
+                placeholder='Password'
+                value={user.password}
+                onChangeText={(text) => setUser({...user, password: text})}
+            />
+            <TextInput 
                 placeholder='Age'
                 value={user.age}
                 onChangeText={(text) => setUser({...user, age: text})}
@@ -122,6 +134,11 @@ const UserForm = ({user, setUser, onSave, setShowForm}) => {
                 value={user.age}
                 onChangeText={(text) => setUser({...user, phoneNumber: text})}
                 keyboardType='numeric'
+            />
+            <TextInput 
+                placeholder='county'
+                value={user.location}
+                onChangeText={(text) => setUser({...user, location: text})}
             />
             <TextInput 
                 placeholder='email'
@@ -160,15 +177,15 @@ const Content = () => {
     const db = useSQLiteContext();
     const [users, setUsers] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const [user, setUser] = useState({id: 0, fullName:'', userName:'', age:0, phoneNumber:0, email:''});
+    const [user, setUser] = useState({id: 0, fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
 
     const handleSave = () => {
 
-        if(user.fullName.length === 0 || user.userName.length === 0 || user.age === 0 || user.phoneNumber === 0 || user.email.length ===0 ) {
+        if(user.fullName.length === 0 || user.userName.length === 0 || user.password.length === 0 ||user.age === 0 || user.phoneNumber === 0 || user.location === 0 || user.email.length ===0 ) {
             Alert.alert('Attention', 'Please enter all the data !')
         } else {
             addUser(user);
-            setUser({id: 0, fullName:'', userName:'', age:0, phoneNumber:0, email:''});
+            setUser({id: 0, fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
             setShowForm(false);
         }
     }
@@ -186,8 +203,8 @@ const Content = () => {
     //function to add a user
     const addUser = async (newUser) => {
         try {
-            const statement = await db.prepareAsync('INSERT INTO users (fullName, userName, age, phoneNumber, email) VALUES (?,?,?,?,?)');
-            await statement.executeAsync([newUser.fullName, newUser.userName, newUser.age, newUser.phoneNumber, newUser.email]);
+            const statement = await db.prepareAsync('INSERT INTO users (fullName, userName, password, age, phoneNumber, email) VALUES (?,?,?,?,?,?)');
+            await statement.executeAsync([newUser.fullName, newUser.userName, newUser.password, newUser.age, newUser.phoneNumber, newUser.location, newUser.email]);
             await getUsers();
         } catch (error) {
             console.log('Error while adding user : ', error);
@@ -218,9 +235,9 @@ const Content = () => {
     };
 
     //function to update a user
-    const updateUser = async (userId, newFullName, newUserName, newAge, newPhoneNumber, newEmail) => {
+    const updateUser = async (userId, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation, newEmail) => {
         try {
-            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, age = ?, phoneNumber = ?, email = ? WHERE id = ?', [newFullName, newUserName, newAge, newPhoneNumber ,newEmail, userId]);
+            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, location = ?, email = ? WHERE id = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation ,newEmail, userId]);
             await getUsers();
         } catch (error) {
             console.log('Error while updating user');
