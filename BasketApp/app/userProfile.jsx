@@ -4,21 +4,26 @@ import { Menu, Provider, Divider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import profileImage from '../assets/images/default_profile_picture.jpg';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { getProfileRank } from './matchmaking';
+
+import bronze from '../assets/images/bronze.png';
+import gold from '../assets/images/gold.png';
+import platinum from '../assets/images/platinum.png';
+import diamond from '../assets/images/diamond.png';
+
+const rankPoints = 150; // Change this is update the rank
+const rank = getProfileRank(rankPoints);
+
+const rankImages = {
+    Bronze: bronze,
+    Gold: gold,
+    Platinum: platinum,
+    Diamond: diamond,
+};
+
+const rankImage = rankImages[rank];
 
 export default function UserProfile({ navigation }) {
-  const [visible, setVisible] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState(null);
-
-  const showMenu = (menuName) => {
-    setSelectedMenu(menuName);
-    setVisible(true);
-  };
-
-  const hideMenu = () => {
-    setVisible(false);
-    setSelectedMenu(null);
-  };
-
   return (
     <Provider>
       <View style={styles.container}>
@@ -41,12 +46,12 @@ export default function UserProfile({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Profile Picture */}
+        {/* Profile Picture with Rank Icon */}
         <View style={styles.profilePictureContainer}>
-          <Image
-            source={profileImage}
-            style={styles.profilePicture}
-          />
+          <Image source={profileImage} style={styles.profilePicture} />
+            <View style={styles.rankIconContainer}>
+              <Image source={rankImage} style={styles.rankIcon} />
+            </View>
         </View>
 
         {/* Name and Email */}
@@ -54,6 +59,7 @@ export default function UserProfile({ navigation }) {
           <Text style={styles.name}>Name</Text>
           <Text style={styles.email}>name@example.com</Text>
           <Text style={styles.email}>248-123-1234</Text>
+          <Text style={styles.email}>Rank: {rank}</Text>
         </View>
 
         {/* Divider */}
@@ -88,8 +94,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   profilePictureContainer: {
-    marginTop: 20,
+    position: 'relative',
+    width: 150,
+    height: 150,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   profilePicture: {
     width: 150,
@@ -97,6 +106,23 @@ const styles = StyleSheet.create({
     borderRadius: 75,
     borderWidth: 2,
     borderColor: 'black',
+  },
+  rankIconContainer: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    width: 50,
+    height: 50, 
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgb(168, 168, 168)',
+  },
+  rankIcon: {
+    width: 45,
+    height: 45,
   },
   profileInfoContainer: {
     alignItems: 'center',

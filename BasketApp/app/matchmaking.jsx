@@ -7,7 +7,7 @@ import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
 
 const Matchmaking = () => {
-    const [rankPoints] = useState(52); //Temporary example ELO of 250
+    const [rankPoints] = useState(26); //Temporary example ELO of 250
 
     // Change image of rank based on ELO passed thru useState()
     let rank, rankImage, distanceFromRankUp;
@@ -80,5 +80,17 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
 });
+
+export const getProfileRank = (rankPoints) => {
+    if (rankPoints >= 300) {
+        return 'Diamond';
+    } else if (rankPoints >= 200) {
+        return 'Platinum';
+    } else if (rankPoints >= 100) {
+        return 'Gold';
+    } else {
+        return 'Bronze';
+    }
+};
 
 export default Matchmaking;
