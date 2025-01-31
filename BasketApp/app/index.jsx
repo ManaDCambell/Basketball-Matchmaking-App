@@ -10,11 +10,10 @@ async function initializeDatabase(db) {
         await db.execAsync(`
             PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER AUTOINCREMENT,
-                fullName text,
                 userName TEXT PRIMARY KEY,
-                pasword TEXT,
-                elo INT,
+                fullName TEXT,
+                password TEXT,
+                elo INTEGER,
                 age INTEGER,
                 phoneNumber INTEGER,
                 location TEXT,
@@ -49,24 +48,24 @@ const UserButton = ({user, deleteUser, updateUser}) => {
             'Are you sure you want to delete the user?',
             [
                 { text: 'No', onPress: () => { }, style: 'cancel'},
-                { text: 'Yes', onPress: () =>  deleteUser(user.id)},
+                { text: 'Yes', onPress: () =>  deleteUser(user.userName)},
             ],
             { cancelable: true } 
         );
     };
 
     const handleEdit = () => {
-        updateUser(user.id, editedUser.fullName, editedUser.userName, editedUser.password, editedUser.age, editedUser.phoneNumber, editedUser.location, editedUser.email);
+        updateUser(user.userName, editedUser.fullName, editedUser.userName, editedUser.password, editedUser.age, editedUser.phoneNumber, editedUser.location, editedUser.email);
         setIsEditing(false);
     }
 
     return (
         <View>
             <Pressable
-                onPress={() => {setSelectedUser(selectedUser === user.id ? null : user.id)}}
+                onPress={() => {setSelectedUser(selectedUser === user.userName ? null : user.userName)}}
             >
-                <Text> {user.id} - {user.userName}</Text>
-                {selectedUser === user.id && (
+                <Text> {user.userName} - {user.fullName}</Text>
+                {selectedUser === user.userName && (
                     <View >
                         <AntDesign 
                             name='edit'
@@ -83,7 +82,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
                     </View>
                 )}
             </Pressable>
-            {selectedUser === user.id && !isEditing &&(
+            {selectedUser === user.userName && !isEditing &&(
             <View>
                 <Text>Full Name : {user.fullName}</Text>
                 <Text>UserName : {user.userName}</Text>
@@ -95,7 +94,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
 
             </View>
             )}
-            {selectedUser === user.id && isEditing && (
+            {selectedUser === user.userName && isEditing && (
                 <UserForm user={editedUser} setUser={setEditedUser} onSave={handleEdit} setShowForm={setIsEditing}/>
             )}
         </View>
@@ -131,7 +130,7 @@ const UserForm = ({user, setUser, onSave, setShowForm}) => {
             />
             <TextInput 
                 placeholder='Phone Number'
-                value={user.age}
+                value={user.phoneNumber}
                 onChangeText={(text) => setUser({...user, phoneNumber: text})}
                 keyboardType='numeric'
             />
@@ -177,7 +176,7 @@ const Content = () => {
     const db = useSQLiteContext();
     const [users, setUsers] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const [user, setUser] = useState({id: 0, fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
+    const [user, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
 
     const handleSave = () => {
 
@@ -185,7 +184,7 @@ const Content = () => {
             Alert.alert('Attention', 'Please enter all the data !')
         } else {
             addUser(user);
-            setUser({id: 0, fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
+            setUser({fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
             setShowForm(false);
         }
     }
@@ -203,8 +202,8 @@ const Content = () => {
     //function to add a user
     const addUser = async (newUser) => {
         try {
-            const statement = await db.prepareAsync('INSERT INTO users (fullName, userName, password, age, phoneNumber, email) VALUES (?,?,?,?,?,?)');
-            await statement.executeAsync([newUser.fullName, newUser.userName, newUser.password, newUser.age, newUser.phoneNumber, newUser.location, newUser.email]);
+            const statement = await db.prepareAsync('INSERT INTO users (userName, fullName,  password, elo, age, phoneNumber, location, email) VALUES (?,?,?,0,?,?,?,?)');
+            await statement.executeAsync([newUser.userName, newUser.fullName, newUser.password, newUser.age, newUser.phoneNumber, newUser.location, newUser.email]);
             await getUsers();
         } catch (error) {
             console.log('Error while adding user : ', error);
@@ -235,9 +234,9 @@ const Content = () => {
     };
 
     //function to update a user
-    const updateUser = async (userId, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation, newEmail) => {
+    const updateUser = async (userName, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation, newEmail) => {
         try {
-            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, location = ?, email = ? WHERE id = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation ,newEmail, userId]);
+            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, location = ?, email = ? WHERE userName = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation ,newEmail, userName]);
             await getUsers();
         } catch (error) {
             console.log('Error while updating user');
@@ -245,9 +244,9 @@ const Content = () => {
     };
 
     //function to delete a user
-    const deleteUser = async (id) => {
+    const deleteUser = async (userName) => {
         try {
-            await db.runAsync('DELETE FROM users WHERE id = ?', [id]);
+            await db.runAsync('DELETE FROM users WHERE userName = ?', [userName]);
             await getUsers();
         } catch (error) {
             console.log('Error while deleting the user : ', error);
@@ -269,11 +268,11 @@ const Content = () => {
                   renderItem={({item}) => (
                       <UserButton user={item} deleteUser={deleteUser} updateUser={updateUser}/>  
                   )}
-                  keyExtractor={(item) => item.id.toString()}
+                  keyExtractor={(item) => item.userName.toString()}
               />
             )}
             {showForm && (<UserForm user={user} setUser={setUser} onSave={handleSave} setShowForm={setShowForm}/>)}
-            <View>
+            {<View>
 
             <AntDesign 
                     name='pluscircleo'
@@ -288,7 +287,7 @@ const Content = () => {
                     onPress={confirmDeleteAll}
                 />
 
-            </View>
+            </View>}
         </View>
     )
 }
