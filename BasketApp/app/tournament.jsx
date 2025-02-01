@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const tournament = () => {
+const Tournament = () => {
     const [tournamentData] = useState(null);
     return (
         <View>
@@ -10,4 +10,4 @@ const tournament = () => {
     )
 }
 
-export default tournament;
+export default Tournament;
