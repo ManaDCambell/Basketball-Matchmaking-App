@@ -54,3 +54,5 @@ const styles = StyleSheet.create({
         backgroundcolor: '#ffa500'
     }
 })
+
+export default Signup;
