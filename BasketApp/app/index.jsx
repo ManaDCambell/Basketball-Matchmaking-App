@@ -6,6 +6,9 @@ import UserProfile from './userProfile';
 import Matchmaking from './matchmaking'; // Correct import
 import Friends from './friends'; // Correct import
 import UserProfileSettings from './userProfileSettings';
+import Tournament from './tournament';
+import Login from './login';
+import Signup from './signup';
 
 const Stack = createStackNavigator();
 
@@ -17,6 +20,9 @@ function Index() {
       <Stack.Screen name="Matchmaking" component={Matchmaking} /> 
       <Stack.Screen name="Friends" component={Friends} /> 
       <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
+      <Stack.Screen name="Tournament" component={Tournament} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup"component={Signup} />
     </Stack.Navigator>
   );
 }
