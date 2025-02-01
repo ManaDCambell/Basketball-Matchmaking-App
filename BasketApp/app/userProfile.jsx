@@ -1,96 +1,69 @@
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Menu, Provider, Divider } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/Ionicons';
+import profileImage from '../assets/images/default_profile_picture.jpg';
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { getProfileRank } from './matchmaking';
 
-export default function UserProfile() {
-  const [visible, setVisible] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState(null);
+import bronze from '../assets/images/bronze.png';
+import gold from '../assets/images/gold.png';
+import platinum from '../assets/images/platinum.png';
+import diamond from '../assets/images/diamond.png';
 
-  const showMenu = (menuName) => {
-    setSelectedMenu(menuName);
-    setVisible(true);
-  };
+const rankPoints = 150; // Change this is update the rank
+const rank = getProfileRank(rankPoints);
 
-  const hideMenu = () => {
-    setVisible(false);
-    setSelectedMenu(null);
-  };
+const rankImages = {
+    Bronze: bronze,
+    Gold: gold,
+    Platinum: platinum,
+    Diamond: diamond,
+};
 
+const rankImage = rankImages[rank];
+
+export default function UserProfile({ navigation }) {
   return (
     <Provider>
       <View style={styles.container}>
-        <Text style={styles.title}>User Profile</Text>
-        
-        {/* User Dropdown */}
-        <Menu
-          visible={visible && selectedMenu === 'User'}
-          onDismiss={hideMenu}
-          anchor={<Button title="User" onPress={() => showMenu('User')} />}
-        >
-          <Menu.Item onPress={() => console.log('User Info')} title="User Information" />
-          <Menu.Item onPress={() => console.log('Change User Info')} title="Change Info" />
-        </Menu>
+        {/* Gradient Background */}
+        <Svg height="100%" width="100%" style={styles.background}>
+          <Defs>
+            <LinearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">
+              <Stop offset="20%" stopColor="rgb(218, 113, 15)" stopOpacity="1" />
+              <Stop offset="85%" stopColor="rgb(63, 62, 61)" stopOpacity="2" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#grad1)" />
+        </Svg>
 
+        {/* Header with Settings Button */}
+        <View style={styles.header}>
+          <Text style={styles.title}>PROFILE</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
+            <Icon name="settings-outline" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Profile Picture with Rank Icon */}
+        <View style={styles.profilePictureContainer}>
+          <Image source={profileImage} style={styles.profilePicture} />
+            <View style={styles.rankIconContainer}>
+              <Image source={rankImage} style={styles.rankIcon} />
+            </View>
+        </View>
+
+        {/* Name and Email */}
+        <View style={styles.profileInfoContainer}>
+          <Text style={styles.name}>Name</Text>
+          <Text style={styles.email}>name@example.com</Text>
+          <Text style={styles.email}>248-123-1234</Text>
+          <Text style={styles.email}>Rank: {rank}</Text>
+        </View>
+
+        {/* Divider */}
         <Divider style={styles.divider} />
-
-        {/* Contact Dropdown */}
-        <Menu
-          visible={visible && selectedMenu === 'Contact'}
-          onDismiss={hideMenu}
-          anchor={<Button title="Contact" onPress={() => showMenu('Contact')} />}
-        >
-          <Menu.Item onPress={() => console.log('Contact Info')} title="Contact Information" />
-          <Menu.Item onPress={() => console.log('Change Contact Info')} title="Change Contact Info" />
-        </Menu>
-
-        <Divider style={styles.divider} />
-
-        {/* Skill Preference Dropdown */}
-        <Menu
-          visible={visible && selectedMenu === 'SkillPreference'}
-          onDismiss={hideMenu}
-          anchor={<Button title="Skill Preference" onPress={() => showMenu('SkillPreference')} />}
-        >
-          <Menu.Item onPress={() => console.log('Skill Preferences')} title="View Skill Preferences" />
-          <Menu.Item onPress={() => console.log('Change Skill Preferences')} title="Change Skill Preferences" />
-        </Menu>
-
-        <Divider style={styles.divider} />
-
-        {/* Availability Dropdown */}
-        <Menu
-          visible={visible && selectedMenu === 'Availability'}
-          onDismiss={hideMenu}
-          anchor={<Button title="Availability" onPress={() => showMenu('Availability')} />}
-        >
-          <Menu.Item onPress={() => console.log('View Availability')} title="View Availability" />
-          <Menu.Item onPress={() => console.log('Change Availability')} title="Change Availability" />
-        </Menu>
-
-        <Divider style={styles.divider} />
-
-        {/* Stats Dropdown */}
-        <Menu
-          visible={visible && selectedMenu === 'Stats'}
-          onDismiss={hideMenu}
-          anchor={<Button title="Stats" onPress={() => showMenu('Stats')} />}
-        >
-          <Menu.Item onPress={() => console.log('View Stats')} title="View Stats" />
-          <Menu.Item onPress={() => console.log('Update Stats')} title="Update Stats" />
-        </Menu>
-
-        <Divider style={styles.divider} />
-
-        {/* Yelp Review Dropdown */}
-        <Menu
-          visible={visible && selectedMenu === 'YelpReview'}
-          onDismiss={hideMenu}
-          anchor={<Button title="Yelp Review" onPress={() => showMenu('YelpReview')} />}
-        >
-          <Menu.Item onPress={() => console.log('View Yelp Reviews')} title="View Yelp Reviews" />
-          <Menu.Item onPress={() => console.log('Add Yelp Review')} title="Add Yelp Review" />
-        </Menu>
-        
       </View>
     </Provider>
   );
@@ -101,15 +74,72 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%',
     marginTop: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+  },
+  profilePictureContainer: {
+    position: 'relative',
+    width: 150,
+    height: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profilePicture: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 2,
+    borderColor: 'black',
+  },
+  rankIconContainer: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    width: 50,
+    height: 50, 
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgb(168, 168, 168)',
+  },
+  rankIcon: {
+    width: 45,
+    height: 45,
+  },
+  profileInfoContainer: {
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  email: {
+    fontSize: 16,
+    color: 'black',
+    marginTop: 5,
   },
   divider: {
     width: '80%',
     marginVertical: 10,
-  }
+  },
 });
