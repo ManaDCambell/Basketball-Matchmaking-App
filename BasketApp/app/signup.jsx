@@ -1,5 +1,5 @@
 import React, { useState, UseState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 const Signup = () => {
     const [firstname, setfirstname] = useState("");
@@ -44,9 +44,12 @@ const Signup = () => {
             type="phonenumber"
             onChangeText={(text)=>setphonenumber(text)}
             />
+            <Button title="Register" color="orange"></Button>
         </View>
     )
 }
+
+export default Signup;
 
 const styles = StyleSheet.create({
     container: {
@@ -55,4 +58,3 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Signup;
