@@ -5,11 +5,14 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import profileImage from '../assets/images/default_profile_picture.jpg';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { getProfileRank } from './matchmaking';
+import { getUser, initializeDatabase } from './database';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 
 import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
 import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
+
 
 const rankPoints = 150; // Change this is update the rank
 const rank = getProfileRank(rankPoints);
@@ -25,8 +28,36 @@ const rankImage = rankImages[rank];
 
 export default function UserProfile({ navigation }) {
   return (
+    <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
     <Provider>
-      <View style={styles.container}>
+        {/* Gradient Background */}
+        <Svg height="100%" width="100%" style={styles.background}>
+          <Defs>
+            <LinearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">
+              <Stop offset="20%" stopColor="rgb(218, 113, 15)" stopOpacity="1" />
+              <Stop offset="85%" stopColor="rgb(63, 62, 61)" stopOpacity="2" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#grad1)" />
+        </Svg>
+        {/* Header with Settings Button */}
+        <View style={styles.header}>
+          <Text style={styles.title}>PROFILE</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
+            <Icon name="settings-outline" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+      <Content />
+    </Provider>
+    </SQLiteProvider>
+  );
+}
+const Content = () => {
+  //user = dbCode("Mana")
+  const db = useSQLiteContext();
+  const user = getUser(db,"Mana");
+  return (
+    <View style={styles.container}>
         {/* Gradient Background */}
         <Svg height="100%" width="100%" style={styles.background}>
           <Defs>
@@ -38,14 +69,6 @@ export default function UserProfile({ navigation }) {
           <Rect width="100%" height="100%" fill="url(#grad1)" />
         </Svg>
 
-        {/* Header with Settings Button */}
-        <View style={styles.header}>
-          <Text style={styles.title}>PROFILE</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
-            <Icon name="settings-outline" size={30} color="black" />
-          </TouchableOpacity>
-        </View>
-
         {/* Profile Picture with Rank Icon */}
         <View style={styles.profilePictureContainer}>
           <Image source={profileImage} style={styles.profilePicture} />
@@ -56,19 +79,17 @@ export default function UserProfile({ navigation }) {
 
         {/* Name and Email */}
         <View style={styles.profileInfoContainer}>
-          <Text style={styles.name}>Name</Text>
-          <Text style={styles.email}>name@example.com</Text>
-          <Text style={styles.email}>248-123-1234</Text>
+          <Text style={styles.name}>{user.userName}</Text>
+          <Text style={styles.email}>{user.email}</Text>
+          <Text style={styles.email}>{user.phoneNumber}</Text>
           <Text style={styles.email}>Rank: {rank}</Text>
         </View>
 
         {/* Divider */}
         <Divider style={styles.divider} />
       </View>
-    </Provider>
-  );
+  )
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

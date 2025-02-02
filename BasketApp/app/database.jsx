@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import {AntDesign} from '@expo/vector-icons';
 
 //Initilize the database
-async function initializeDatabase(db) {
+export async function initializeDatabase(db) {
     try {
         await db.execAsync(`
             PRAGMA journal_mode = WAL;
@@ -20,9 +20,19 @@ async function initializeDatabase(db) {
                 email TEXT
             );
         `);
-        console.log('Database initialised')
+        console.log('Database initialised') 
     } catch (error) {
         console.log('Error while initializing database : ', error);
+    }
+}
+//Initilize the database
+export function getUser(db,userName) {
+    try {
+        const user = db.getFirstSync('SELECT * FROM Users WHERE userName = ?', userName);
+        return user;
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+        return null;
     }
 }
 
@@ -235,6 +245,7 @@ const Content = () => {
 
     //function to update a user
     const updateUser = async (userName, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation, newEmail) => {
+        console.log(userName);
         try {
             await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, location = ?, email = ? WHERE userName = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation ,newEmail, userName]);
             await getUsers();
