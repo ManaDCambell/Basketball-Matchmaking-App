@@ -29,10 +29,13 @@ export async function initializeDatabase(db) {
 export function getUser(db,userName) {
     try {
         const user = db.getFirstSync('SELECT * FROM Users WHERE userName = ?', userName);
-        return user;
+        if (user == null)
+            return "fail";
+        else
+            return user;
     } catch (error) {
         console.log('Error while initializing database : ', error);
-        return null;
+        return "fail";
     }
 }
 

@@ -79,9 +79,15 @@ const Content = () => {
 
         {/* Name and Email */}
         <View style={styles.profileInfoContainer}>
-          <Text style={styles.name}>{user.userName}</Text>
-          <Text style={styles.email}>{user.email}</Text>
-          <Text style={styles.email}>{user.phoneNumber}</Text>
+          <Text style={styles.name}>
+            {user.value != "fail"? <Text>{user.userName}</Text>: null }
+          </Text>
+          <Text style={styles.email}>
+            {user.value != "fail"? <Text>{user.email}</Text>: null }
+          </Text>
+          <Text style={styles.email}>
+            {user.value != "fail"? <Text>{user.phoneNumber}</Text>: null }
+          </Text>
           <Text style={styles.email}>Rank: {rank}</Text>
         </View>
 
