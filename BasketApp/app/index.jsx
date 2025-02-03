@@ -56,14 +56,32 @@ function HomeScreen({ navigation }) {
         onPress={() => navigation.navigate('Matchmaking')} 
       />
       </View>
-
       <View style={styles.buttonWrapper}>
-      <Button
-        title="Friends" 
-        color="rgb(0, 0, 0)"
-        onPress={() => navigation.navigate('Friends')} 
-      />
-      </View>
+  <Button
+    title="Friends" 
+    color="rgb(0, 0, 0)"
+    onPress={() => navigation.navigate('Friends')} 
+  />
+</View>  {/* This closing tag was missing */}
+
+<View style={styles.buttonWrapper}>
+  <Button
+    title="Login" 
+    color="rgb(0, 0, 0)"
+    onPress={() => navigation.navigate('Login')} 
+  />
+</View>
+<View style={styles.buttonWrapper}>
+  <Button
+    title="Signup" 
+    color="rgb(0, 0, 0)"
+    onPress={() => navigation.navigate('Signup')} 
+  />
+</View>
+
+
+      
+     
       </View>
       </View>
   );
