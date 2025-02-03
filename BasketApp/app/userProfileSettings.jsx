@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%',
+    width: '110%',
     paddingVertical: 30,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
@@ -183,13 +183,13 @@ const styles = StyleSheet.create({
   },
   menu: {
     backgroundColor: 'rgb(218, 113, 5)',
-    width: '100%',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    width: '120%',
+    borderWidth: 2,
+    borderColor: 'rgb(0, 0, 0)',
   },
   menuItem: {
     paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
   },
   menuText: {
     fontSize: 16,
