@@ -31,7 +31,6 @@ export default function UserProfile({ navigation }) {
   return (
     <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
     <Provider>
-        {/* Gradient Background */}
         <Svg height="100%" width="100%" style={styles.background}>
           <Defs>
             <LinearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">
@@ -41,7 +40,6 @@ export default function UserProfile({ navigation }) {
           </Defs>
           <Rect width="100%" height="100%" fill="url(#grad1)" />
         </Svg>
-        {/* Header with Settings Button */}
         <View style={styles.header}>
           <Text style={styles.title}>PROFILE</Text>
           <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
@@ -59,7 +57,6 @@ const Content = () => {
   const user = getUser(db,"Mana");
   return (
     <View style={styles.container}>
-        {/* Gradient Background */}
         <Svg height="100%" width="100%" style={styles.background}>
           <Defs>
             <LinearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">
@@ -92,7 +89,6 @@ const Content = () => {
           <Text style={styles.email}>Rank: {rank}</Text>
         </View>
 
-        {/* Divider */}
         <Divider style={styles.divider} />
       </View>
   )
@@ -114,12 +110,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '90%',
+    width: '96%',
     marginTop: 20,
+    marginRight: 50,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginLeft: 24,
   },
   profilePictureContainer: {
     position: 'relative',
