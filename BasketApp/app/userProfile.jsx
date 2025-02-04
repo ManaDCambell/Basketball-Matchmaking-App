@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Menu, Provider, Divider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import profileImage from '../assets/images/default_profile_picture.jpg';
@@ -14,8 +14,9 @@ import gold from '../assets/images/gold.png';
 import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
 
+const { width, height } = Dimensions.get('window');
 
-const rankPoints = 150; // Change this is update the rank
+const rankPoints = 500;// Change this is update the rank
 const rank = getProfileRank(rankPoints);
 
 const rankImages = {

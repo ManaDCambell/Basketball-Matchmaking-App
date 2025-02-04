@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Switch, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+const { width, height } = Dimensions.get('window');
+
 const App = ({ navigation }) => {
+
+  const [titleWidth, setTitleWidth] = useState(0);
+  
+  const handleTitleLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    setTitleWidth(width);
+  };
+
   const [isMenuVisible, setIsMenuVisible] = useState({
     account: false,
     contact: false,
@@ -44,11 +54,13 @@ const App = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
 
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={35} color="rgb(0, 0," />
-      </TouchableOpacity>
+<View style={styles.header}>
+    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={35} color="rgb(0, 0, 0)" />
+    </TouchableOpacity>
+    <Text style={styles.title}>Settings</Text>
+  </View>
 
-      <Text style={styles.title}>Settings</Text>
 
       {/* Account */}
       <TouchableOpacity style={styles.settingOptionFirst} onPress={() => toggleMenu('account')}>
@@ -182,14 +194,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 20,
+    textAlign: 'center',
     backgroundColor: 'rgb(180, 173, 168)',
   },
   settingOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '115%',
+    width: width,
     paddingVertical: 30,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
@@ -200,18 +212,18 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: 18,
-    textAlign: 'left',
+    textAlign: 'center',
     fontWeight: 'bold',
   },
   menu: {
     backgroundColor: 'rgb(218, 113, 5)',
-    width: '120%',
+    width: width,
     borderWidth: 1,
     borderColor: 'rgb(78, 78, 78)',
   },
   menuItem: {
     paddingVertical: 20,
-    paddingHorizontal: 30,
+    paddingHorizontal: 10,
   },
   menuItemLast: {
     paddingVertical: 20,
@@ -223,29 +235,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    alignSelf: 'center',
-  },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 30,
+    paddingHorizontal: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center', 
+    position: 'relative',
+    paddingVertical: 32,
   },
   backButton: {
     position: 'absolute',
-    left: 15,
-    top: 25,
+    left: 20,
   },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    left: width / 2 - 55,
+  
+  },
+
   settingOptionFirst: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '115%',
+    width: width,
     paddingVertical: 30,
     paddingHorizontal: 20,
     borderTopWidth: 2,
@@ -258,7 +277,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '115%',
+    width: width,
     paddingVertical: 30,
     paddingHorizontal: 20,
     borderTopWidth: 1,
