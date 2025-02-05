@@ -72,7 +72,7 @@ const WeeklyAvailability = () => {
             <Switch value={availability[day].enabled} onValueChange={() => toggleDay(day)} />
             <Text style={styles.dayText}>{day}</Text>
             <Text style={styles.timeText}>
-              {availability[day].enabled ? `${availability[day].startTime} - ${availability[day].endTime}` : "Busy all day"}
+              {availability[day].enabled ? `${availability[day].startTime} - ${availability[day].endTime}` : "Not Available"}
             </Text>
             <TouchableOpacity style={styles.editButton} onPress={() => openEditModal(day)}>
               <Text style={styles.editText}>Edit</Text>
