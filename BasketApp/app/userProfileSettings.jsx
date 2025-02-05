@@ -129,8 +129,7 @@ const App = ({ navigation }) => {
         </View>
       )}
 
-      {/* Availability */}
-      <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('availability')}>
+      {/* <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('availability')}>
         <Ionicons name="bar-chart-outline" size={35} color="rgb(218, 113, 15)" />
         <Text style={styles.settingText}>Availability</Text>
         <Ionicons 
@@ -150,7 +149,6 @@ const App = ({ navigation }) => {
         </View>
       )}
 
-      {/* Stats */}
       <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('stats')}>
         <Ionicons name="calendar-outline" size={35} color="rgb(218, 113, 15)" />
         <Text style={styles.settingText}>Stats</Text>
@@ -168,7 +166,6 @@ const App = ({ navigation }) => {
         </View>
       )}
 
-      {/* Match Review */}
       <TouchableOpacity style={styles.settingOptionLast} onPress={() => toggleMenu('yelp')}>
         <Ionicons name="star-half-outline" size={35} color="rgb(218, 113, 15)" />
         <Text style={styles.settingText}>Match Review</Text>
@@ -184,7 +181,7 @@ const App = ({ navigation }) => {
             <Text style={styles.menuText}>View Match Reviews</Text>
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
     </SafeAreaView>
   );
 };
