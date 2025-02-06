@@ -157,13 +157,13 @@ export function setEmail(db,userName,newEmail) {
 export async function checkCredentials(db,userName,password) {
     try {
         const user = await db.getFirstAsync('SELECT password FROM Users WHERE userName = ?', userName);
-        if (user == null)
-            return false;
-        else
+        if (user)
             if (password === user.password)
                 return true;
             else
                 return false;
+        else
+            return false;
     } catch (error) {
         console.log('Error while initializing database : ', error);
         return false;
