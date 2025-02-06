@@ -5,7 +5,7 @@ import { getUser, initializeDatabase } from './database';
 
 const Content = () => {
     const db = useSQLiteContext();
-    const {form, setForm} = useState({
+    const [form, setForm] = useState({
         username: '',
         password: '',
     });
@@ -124,9 +124,12 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Login;
+const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
             <Content />
         </SQLiteProvider>
     );
+};
+
+export default Login;
