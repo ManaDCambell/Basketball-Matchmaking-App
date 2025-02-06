@@ -154,9 +154,9 @@ export function setEmail(db,userName,newEmail) {
         console.log('Error while initializing database : ', error);
     }
 }
-export function checkCredentials(db,userName,password) {
+export async function checkCredentials(db,userName,password) {
     try {
-        const user = db.getFirstSync('SELECT password FROM Users WHERE userName = ?', userName);
+        const user = await db.getFirstAsync('SELECT password FROM Users WHERE userName = ?', userName);
         if (user == null)
             return false;
         else
