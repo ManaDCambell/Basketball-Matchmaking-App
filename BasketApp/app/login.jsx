@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 
 const Login = () => {
     const {form, setForm} = useState({
@@ -36,7 +37,7 @@ const Login = () => {
                     placeholder='********'
                     placeholderTextColor='#6b7280'
                         value={form.password}
-                        onChangeText={username => setForm({ ...form, password })}
+                        onChangeText={password => setForm({ ...form, password })}
                     />    
                 </View>
 
