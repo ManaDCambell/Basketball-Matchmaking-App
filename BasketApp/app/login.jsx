@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { getUser, initializeDatabase } from './database';
 
-const Login = () => {
+const Content = () => {
     const {form, setForm} = useState({
         username: '',
         password: '',
     });
     return (
+        <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
         <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
             <View style={styles.container}>
                 <Text style={styles.title}>Login</Text>
@@ -58,6 +60,7 @@ const Login = () => {
                     </TouchableOpacity>
             </View>
         </SafeAreaView>
+        </SQLiteProvider>
     );
 }
 
@@ -123,3 +126,8 @@ const styles = StyleSheet.create({
 });
 
 export default Login;
+    return (
+        <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
+            <Content />
+        </SQLiteProvider>
+    );
