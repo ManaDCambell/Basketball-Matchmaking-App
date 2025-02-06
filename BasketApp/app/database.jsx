@@ -111,6 +111,49 @@ export function getEmail(db,userName) {
         return "fail";
     }
 }
+export function setFullName(db,userName,newFullName) {
+    try {
+        db.getFirstSync('UPDATE users SET fullName = ? WHERE userName = ?', [newFullName, userName]);
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+    }
+}
+export function setElo(db,userName,newElo) {
+    try {
+        db.getFirstSync('UPDATE users SET elo = ? WHERE userName = ?', [newElo, userName]);
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+    }
+}
+export function setAge(db,userName,newAge) {
+    try {
+        db.getFirstSync('UPDATE users SET age = ? WHERE userName = ?', [newAge, userName]);
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+    }
+}
+//
+export function setPhoneNumber(db,userName,newPhoneNumber) {
+    try {
+        db.getFirstSync('UPDATE users SET phoneNumber = ? WHERE userName = ?', [newPhoneNumber, userName]);
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+    }
+}
+export function setLocation(db,userName,newLocation) {
+    try {
+        db.getFirstSync('UPDATE users SET location = ? WHERE userName = ?', [newLocation, userName]);
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+    }
+}
+export function setEmail(db,userName,newEmail) {
+    try {
+        db.getFirstSync('UPDATE users SET email = ? WHERE userName = ?', [newEmail, userName]);
+    } catch (error) {
+        console.log('Error while initializing database : ', error);
+    }
+}
 export function checkCredentials(db,userName,password) {
     try {
         const user = db.getFirstSync('SELECT password FROM Users WHERE userName = ?', userName);
