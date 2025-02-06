@@ -4,12 +4,12 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { getUser, initializeDatabase } from './database';
 
 const Content = () => {
+    const db = useSQLiteContext();
     const {form, setForm} = useState({
         username: '',
         password: '',
     });
     return (
-        <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
         <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
             <View style={styles.container}>
                 <Text style={styles.title}>Login</Text>
@@ -60,7 +60,6 @@ const Content = () => {
                     </TouchableOpacity>
             </View>
         </SafeAreaView>
-        </SQLiteProvider>
     );
 }
 
