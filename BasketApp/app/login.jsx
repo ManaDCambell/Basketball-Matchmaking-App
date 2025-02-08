@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, Pressable , View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { getUser, initializeDatabase } from './database';
 
@@ -127,6 +127,23 @@ const styles = StyleSheet.create({
 const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
+            onPress={() => {
+            checkCredentials(db,userName,password);
+            getUser(db,userName);
+            getFullName(db,userName);
+            getElo(db,userName);
+            getAge(db,userName);
+            getAge(db,userName);
+            getPhoneNumber(db,userName);
+            getLocation(db,userName);
+            getEmail(db,userName);
+            setFullName(db,userName,newFullName);
+            setElo(db,userName,newElo);
+            setAge(db,userName,newAge);
+            setPhoneNumber(db,userName,newPhoneNumber);
+            setLocation(db,userName,newLocation);
+            setEmail(db,userName,newEmail);
+            }} 
             <Content />
         </SQLiteProvider>
     );
