@@ -129,20 +129,6 @@ const Login = () => {
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
             onPress={() => {
             checkCredentials(db,userName,password);
-            getUser(db,userName);
-            getFullName(db,userName);
-            getElo(db,userName);
-            getAge(db,userName);
-            getAge(db,userName);
-            getPhoneNumber(db,userName);
-            getLocation(db,userName);
-            getEmail(db,userName);
-            setFullName(db,userName,newFullName);
-            setElo(db,userName,newElo);
-            setAge(db,userName,newAge);
-            setPhoneNumber(db,userName,newPhoneNumber);
-            setLocation(db,userName,newLocation);
-            setEmail(db,userName,newEmail);
             }} 
             <Content />
         </SQLiteProvider>
