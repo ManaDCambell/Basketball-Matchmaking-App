@@ -7,7 +7,7 @@ import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
 
 const Matchmaking = () => {
-    const [rankPoints] = useState(26); //Temporary example ELO of 250
+    const [rankPoints] = useState(150); //Temporary example ELO of 250
 
     // Change image of rank based on ELO passed thru useState()
     let rank, rankImage, distanceFromRankUp;
@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
         padding: 30,
     },
     buttonWrapper: {
-        width: 400, 
-        height: 100,
-        margin: 1, 
+        flex: 1,
+        minwidth: 100, 
+        
     },
     text: {
         fontSize: 18,
