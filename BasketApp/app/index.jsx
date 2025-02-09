@@ -3,10 +3,14 @@ import { Text, View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Svg, { Line, Circle, Path } from "react-native-svg";
 
+import Database from './database';
 import UserProfile from './userProfile';
 import Matchmaking from './matchmaking'; 
 import Friends from './friends'; 
 import UserProfileSettings from './userProfileSettings';
+import Tournament from './tournament';
+import Login from './login';
+import Signup from './signup';
 
 const Stack = createStackNavigator();
 
@@ -15,9 +19,13 @@ function Index() {
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
+      <Stack.Screen name="Database" component={Database} />
       <Stack.Screen name="Matchmaking" component={Matchmaking} /> 
       <Stack.Screen name="Friends" component={Friends} /> 
       <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
+      <Stack.Screen name="Tournament" component={Tournament} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup"component={Signup} />
     </Stack.Navigator>
   );
 }
@@ -109,7 +117,7 @@ function HomeScreen({ navigation }) {
 
        
         </View>
-      </View>
+    </View>
     </View>
   );
 }
