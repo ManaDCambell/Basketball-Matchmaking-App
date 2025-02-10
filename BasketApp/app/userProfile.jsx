@@ -7,7 +7,7 @@ import { getProfileRank } from './matchmaking';
 import { getUser, initializeDatabase } from './database';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 
-import WeekAvailability from './WeekAvailability'; // Import the component
+import WeekAvailability from './WeekAvailability';
 
 import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
@@ -53,7 +53,7 @@ export default function UserProfile({ navigation }) {
 
 const Content = () => {
   const db = useSQLiteContext();
-  const user = getUser(db, "Mana");
+  const user = getUser(db, "Mana2");
 
   const [selectedMenu, setSelectedMenu] = useState('Availability');
 
