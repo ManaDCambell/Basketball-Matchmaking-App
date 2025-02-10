@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Svg, { Line, Circle, Path } from "react-native-svg";
 
@@ -13,6 +13,7 @@ import Login from './login';
 import Signup from './signup';
 
 const Stack = createStackNavigator();
+const { width, height } = Dimensions.get('window');
 
 function Index() {
   return (
@@ -84,39 +85,19 @@ function HomeScreen({ navigation }) {
       />
       <View style={styles.buttonContainer}>
 
-        <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.buttonWrapper}
-          onPress={() => navigation.navigate('UserProfile')}
-        >
-          <Image 
-            source={require('../assets/images/UserProfileButton.png')} 
-            style={styles.UPbuttonImage}
-          />
-        </TouchableOpacity>
+      <View style={styles.footer}>
+  <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
+    <Image source={require('../assets/images/UserProfileButton.png')} style={styles.buttonImage} />
+  </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.buttonWrapper}
-          onPress={() => navigation.navigate('Matchmaking')}
-        >
-          <Image 
-            source={require('../assets/images/matchmakingButton.png')} 
-            style={styles.MbuttonImage}
-          />
-        </TouchableOpacity>
+  <TouchableOpacity onPress={() => navigation.navigate('Matchmaking')}>
+    <Image source={require('../assets/images/matchmakingButton.png')} style={styles.buttonImage} />
+  </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.buttonWrapper}
-          onPress={() => navigation.navigate('Friends')}
-        >
-          <Image 
-            source={require('../assets/images/friendsButton.png')} 
-            style={styles.FbuttonImage}
-          />
-        </TouchableOpacity>
-
-       
-        </View>
+  <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
+    <Image source={require('../assets/images/friendsButton.png')} style={styles.buttonImage} />
+  </TouchableOpacity>
+</View>
     </View>
     </View>
   );
@@ -124,12 +105,12 @@ function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, // This ensures the full height of the screen is used
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#F57C00',
-   // overflow: 'hidden',
+    backgroundColor: '#F57C00',
   },
+  
   logoImage: {
     width: 600, 
     height: 600, 
@@ -146,9 +127,8 @@ const styles = StyleSheet.create({
     top: '60%', 
   },
   buttonWrapper: {
-    marginBottom: 10,
-    width: 80, 
-    height: 80, 
+    width: 80,
+    height: 80,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
@@ -179,14 +159,14 @@ const styles = StyleSheet.create({
     ],
   },
   SbuttonImage:{
-    width: '100%', 
-    height: '100%', 
+    width: '75%', 
+    height: '75%', 
     backgroundColor: 'transparent',
     marginBottom: 0,
     zIndex: 1,
     transform: [
-      { translateX: '380%' },
-      { translateY: '-0' }, 
+      { translateX: '550%' },
+      { translateY: '-10%' }, 
     ],
   },
   FbuttonImage:{
@@ -235,14 +215,21 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     position: 'absolute',
+    bottom: -(height/2.75), // Ensures it sticks to the bottom of the screen
+    left: 0,     // Aligns it to the left edge
+    right: 0,    // Aligns it to the right edge
     backgroundColor: '#283237',
-    height: 120,
+    height: 85,  // Adjust height if needed
     width: '100%',
-    transform: [
-      { translateX: 0 },
-      { translateY: '26%' }, 
-    ],
+    justifyContent: 'space-evenly', // Ensures buttons are spaced evenly
+    alignItems: 'center',
     zIndex: 1,
+  },
+  
+  buttonImage: {
+    width: 60, 
+    height: 60, 
+    resizeMode: 'contain'
   }
 });
 
