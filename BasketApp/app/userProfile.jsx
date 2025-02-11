@@ -16,18 +16,6 @@ import diamond from '../assets/images/diamond.png';
 
 const { width, height } = Dimensions.get('window');
 
-const rankPoints = 500; // Change this to update the rank
-const rank = getProfileRank(rankPoints);
-
-const rankImages = {
-    Bronze: bronze,
-    Gold: gold,
-    Platinum: platinum,
-    Diamond: diamond,
-};
-
-const rankImage = rankImages[rank];
-
 export default function UserProfile({ navigation }) {
   return (
     <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
@@ -57,6 +45,18 @@ const Content = () => {
 
   const [selectedMenu, setSelectedMenu] = useState('Availability');
 
+  const rankPoints = user.elo;
+  const rank = getProfileRank(rankPoints);
+
+  const rankImages = {
+      Bronze: bronze,
+      Gold: gold,
+      Platinum: platinum,
+      Diamond: diamond,
+  };
+
+  const rankImage = rankImages[rank];
+
   return (
     <View style={styles.contentContainer}>
       {/* Profile Picture with Rank Icon */}
@@ -72,7 +72,7 @@ const Content = () => {
         <Text style={styles.name}>{user.value !== "fail" ? user.userName : null}</Text>
         <Text style={styles.email}>{user.value !== "fail" ? user.email : null}</Text>
         <Text style={styles.email}>{user.value !== "fail" ? user.phoneNumber : null}</Text>
-        <Text style={styles.email}>Rank: {rank}</Text>
+        <Text style={styles.email}>Elo: {user.value !== "fail" ? user.elo : null}<Text style={styles.verticalDiv}> | </Text>{rank}</Text>
       </View>
 
       <Divider style={styles.divider} />
@@ -210,6 +210,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 2,
   },
+  verticalDiv: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white'
+  }
 });
 
 
