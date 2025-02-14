@@ -181,6 +181,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
         password: user.password,
         age: user.age,
         phoneNumber: user.phoneNumber,
+        elo: user.elo,
         location: user.location,
         email: user.email
     })
@@ -199,7 +200,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
     };
 
     const handleEdit = () => {
-        updateUser(user.userName, editedUser.fullName, editedUser.userName, editedUser.password, editedUser.age, editedUser.phoneNumber, editedUser.location, editedUser.email);
+        updateUser(user.userName, editedUser.fullName, editedUser.userName, editedUser.password, editedUser.age, editedUser.phoneNumber, editedUser.elo, editedUser.location, editedUser.email);
         setIsEditing(false);
     }
 
@@ -232,6 +233,7 @@ const UserButton = ({user, deleteUser, updateUser}) => {
                 <Text>UserName : {user.userName}</Text>
                 <Text>Password : {user.password}</Text>
                 <Text>Age : {user.age}</Text>
+                <Text>Elo : {user.elo}</Text>
                 <Text>Phone Number : {user.phoneNumber}</Text>
                 <Text>Location-county : {user.location}</Text>
                 <Text>Email : {user.email}</Text>
@@ -279,6 +281,12 @@ const UserForm = ({user, setUser, onSave, setShowForm}) => {
                 keyboardType='numeric'
             />
             <TextInput 
+                placeholder='Elo'
+                value={user.elo}
+                onChangeText={(text) => setUser({...user, elo: text})}
+                keyboardType='numeric'
+            />
+            <TextInput 
                 placeholder='county'
                 value={user.location}
                 onChangeText={(text) => setUser({...user, location: text})}
@@ -320,7 +328,7 @@ const Content = () => {
     const db = useSQLiteContext();
     const [users, setUsers] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const [user, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
+    const [user, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:''});
 
     const handleSave = () => {
 
@@ -346,8 +354,8 @@ const Content = () => {
     //function to add a user
     const addUser = async (newUser) => {
         try {
-            const statement = await db.prepareAsync('INSERT INTO users (userName, fullName,  password, elo, age, phoneNumber, location, email) VALUES (?,?,?,0,?,?,?,?)');
-            await statement.executeAsync([newUser.userName, newUser.fullName, newUser.password, newUser.age, newUser.phoneNumber, newUser.location, newUser.email]);
+            const statement = await db.prepareAsync('INSERT INTO users (userName, fullName,  password, elo, age, phoneNumber, location, email) VALUES (?,?,?,?,?,?,?,?)');
+            await statement.executeAsync([newUser.userName, newUser.fullName, newUser.password, newUser.elo, newUser.age, newUser.phoneNumber, newUser.location, newUser.email]);
             await getUsers();
         } catch (error) {
             console.log('Error while adding user : ', error);
@@ -378,10 +386,10 @@ const Content = () => {
     };
 
     //function to update a user
-    const updateUser = async (userName, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation, newEmail) => {
+    const updateUser = async (userName, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newElo, newLocation, newEmail) => {
         console.log(userName);
         try {
-            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, location = ?, email = ? WHERE userName = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation ,newEmail, userName]);
+            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, elo=?, location = ?, email = ? WHERE userName = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newElo, newLocation ,newEmail, userName]);
             await getUsers();
         } catch (error) {
             console.log('Error while updating user');
