@@ -5,6 +5,8 @@ import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
 import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
+import Header from './Header';
+import Footer from './footer';
 
 const Matchmaking = () => {
     const [rankPoints] = useState(150); //Temporary example ELO of 250
@@ -32,6 +34,8 @@ const Matchmaking = () => {
     return (
         <View>
             <View style={styles.container}>
+                {/* Add Header */}
+                <Header />
                 <Text style={styles.text}>Current Rank: {rank}</Text>
                 <Text style={styles.text}>Current Elo: {rankPoints}</Text>
                 <Text style={styles.text}>You're {distanceFromRankUp} points away from ranking up!</Text>
@@ -48,6 +52,8 @@ const Matchmaking = () => {
                     <Button title="3v3" onPress={() => alert('3v3 Button Pressed')} />
                 </View>
             </View>
+            {/* Add Footer */}
+            <Footer />
         </View>
     );
 };

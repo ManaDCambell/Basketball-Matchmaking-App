@@ -7,6 +7,9 @@ import { getProfileRank } from './matchmaking';
 import { getUser, initializeDatabase } from './database';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 
+import Header from './Header';
+import Footer from './footer';
+
 import WeekAvailability from './WeekAvailability';
 
 import bronze from '../assets/images/bronze.png';
@@ -21,6 +24,8 @@ export default function UserProfile({ navigation }) {
     <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
       <Provider>
         <View style={styles.container}>
+          {/* Add Header */}
+          <Header />
           <View style={styles.topHalf} />
           <View style={styles.bottomHalf} />
 
@@ -33,6 +38,7 @@ export default function UserProfile({ navigation }) {
           </View>
 
           <Content />
+          
         </View>
       </Provider>
     </SQLiteProvider>
@@ -93,6 +99,8 @@ const Content = () => {
 
       {/* Display different sections based on selected menu */}
       {selectedMenu === 'Availability' && <WeekAvailability />}
+      {/* Add Footer */}
+      <Footer />
     </View>
   );
 };
@@ -100,6 +108,7 @@ const Content = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 0,  // Adds space for the header
   },
   topHalf: {
     position: 'absolute',

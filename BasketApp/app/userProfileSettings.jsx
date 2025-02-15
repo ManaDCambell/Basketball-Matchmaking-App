@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Switch, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import Header from './Header';
+import Footer from './footer';
+
 const { width, height } = Dimensions.get('window');
 
 const App = ({ navigation }) => {
@@ -53,7 +56,8 @@ const App = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-
+{/* Add Header */}
+<Header />
 <View style={styles.header}>
     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
       <Ionicons name="arrow-back" size={35} color="rgb(0, 0, 0)" />
@@ -126,6 +130,8 @@ const App = ({ navigation }) => {
               style={{ transform: [{ scale: 1.2}] }}
             />
           </View>
+          {/* Add Footer */}
+      <Footer />
         </View>
       )}
 

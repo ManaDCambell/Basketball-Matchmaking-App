@@ -48,22 +48,22 @@ function HomeScreen({ navigation }) {
 
       <Svg height="100%" width="100%" style={styles.svgContainer}>
 
-        <Path d="M -10 305 Q 190 500 370 330 T 800 330" 
+        <Path d="M -10 305 Q 190 500 370 330 T 840 330" 
         stroke="black" 
         strokeWidth="10" 
         fill="none" />
 
-        <Path d="M 220 50 A 50 300 0 0 0 270 750" 
+        <Path d="M 220 50 A 50 300 0 0 0 260 750" 
         stroke="black" 
         strokeWidth="10" 
         fill="none" />
 
-        <Path d="M -10 95 A 400 200 0 0 0 390 95" 
+        <Path d="M -10 95 A 400 200 0 0 0 420 95" 
         stroke="black" 
         strokeWidth="10" 
         fill="none" />
 
-        <Path d="M -10 635 A 400 200 0 0 1 390 635" 
+        <Path d="M -10 635 A 400 200 0 0 1 420 635" 
         stroke="black" 
         strokeWidth="10" 
         fill="none" />
