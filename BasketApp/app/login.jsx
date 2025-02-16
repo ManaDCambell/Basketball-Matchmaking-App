@@ -44,12 +44,12 @@ const Content = () => {
                 </View>
 
                 <View style={styles.formAction}>
-                    <TouchableOpacity
+                    <TouchableOpacity>
                     style ={{ marginTop: 'auto' }}
                     onPress={() => {
 
                         Alert.alert('Successfully logged in!');
-                }}>
+                }}
                         <View style={styles.btn}>
                             <Text style={styles.btnText}>Login</Text>
                         </View>
@@ -128,13 +128,11 @@ const styles = StyleSheet.create({
 const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
-            <Pressable>
             <Content
             onPress={() => {
             getUser(db,userName);
             checkCredentials(db,userName,password);
             }} />
-            </Pressable>
         </SQLiteProvider>
     );
 };
