@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Pressable , View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { getUser, checkCredentials, initializeDatabase } from './database';
 
@@ -45,7 +45,6 @@ const Content = () => {
 
                 <View style={styles.formAction}>
                     <TouchableOpacity
-                    style ={{ marginTop: 'auto' }}
                     onPress={() => {
 
                         Alert.alert('Successfully logged in!');
