@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, Pressable , View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { getUser, initializeDatabase } from './database';
+import { getUser, checkCredentials, initializeDatabase } from './database';
 
 const Content = () => {
     const db = useSQLiteContext();
@@ -44,18 +44,19 @@ const Content = () => {
                 </View>
 
                 <View style={styles.formAction}>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                    style ={{ marginTop: 'auto' }}
+                    onPress={() => {
+
+                        Alert.alert('Successfully logged in!');
+                }}>
                         <View style={styles.btn}>
                             <Text style={styles.btnText}>Login</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity 
-                    style={{ marginTop: 'auto' }}
-                    onPress={() => {
-
-                        Alert.alert('Successfully logged in!');
-                }}> 
+                
+                <TouchableOpacity> 
                     <Text style={styles.formFooter}>Create an account</Text>
                     </TouchableOpacity>
             </View>
@@ -127,10 +128,13 @@ const styles = StyleSheet.create({
 const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
+            <Pressable>
+            <Content
             onPress={() => {
+            getUser(db,userName);
             checkCredentials(db,userName,password);
-            }} 
-            <Content />
+            }} />
+            </Pressable>
         </SQLiteProvider>
     );
 };
