@@ -25,7 +25,7 @@ export default function UserProfile({ navigation }) {
       <Provider>
         <View style={styles.container}>
           {/* Add Header */}
-          <Header />
+          {/* <Header /> */}
           <View style={styles.topHalf} />
           <View style={styles.bottomHalf} />
 

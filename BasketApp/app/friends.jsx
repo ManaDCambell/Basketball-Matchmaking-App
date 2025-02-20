@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'reac
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { getUser } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Header from './Header';
+import Footer from './footer';
 
 const Friends = () => {
   const db = useSQLiteContext();
@@ -72,6 +74,7 @@ const Friends = () => {
           </View>
         ))}
       </View>
+      <Footer />
     </View>
   );
 };
