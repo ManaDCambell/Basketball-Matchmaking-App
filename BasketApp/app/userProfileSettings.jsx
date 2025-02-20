@@ -57,7 +57,7 @@ const App = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
 {/* Add Header */}
-<Header />
+{/* <Header /> */}
 <View style={styles.header}>
     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
       <Ionicons name="arrow-back" size={35} color="rgb(0, 0, 0)" />
