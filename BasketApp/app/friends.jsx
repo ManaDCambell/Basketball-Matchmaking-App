@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { getUser } from './database';
+import { getUser, getUsernames } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from './Header';
 import Footer from './footer';
 
 const Friends = () => {
@@ -18,14 +17,20 @@ const Friends = () => {
 
   const fetchUsers = async () => {
     console.log('Fetching users...');
-    const usernames = ["Mana", "Mana2", "Mana3", "NotMana", "Beans"]; // Add users here
+  
     try {
-      const usersData = [];
-      for (const username of usernames) {
-        const user = await getUser(db, username);
-        if (user.value !== "fail") {
-          usersData.push(user);
+      const usernameObjects = await getUsernames(db);
+        if (!usernameObjects || usernameObjects.length === 0) {
+          console.log('No usernames found.');
+          return;
         }
+      const usersData = [];
+      for (let i = 0; i < usernameObjects.length; i++) {
+          const username = usernameObjects[i].userName;
+          const user = await getUser(db, username);
+          if (user && user.value !== "fail") {
+              usersData.push(user);
+          }
       }
       console.log('Fetched users:', usersData);
       setUsers(usersData);
@@ -33,13 +38,13 @@ const Friends = () => {
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }
-  };
+};
 
-  const handleSearch = (text) => {
-    setSearchTerm(text);
-    const filtered = users.filter(user => user.userName.toLowerCase().includes(text.toLowerCase()));
-    setFilteredUsers(filtered);
-  };
+const handleSearch = (text) => {
+  setSearchTerm(text);
+  const filtered = users.filter(user => user.userName.toLowerCase().includes(text.toLowerCase()));
+  setFilteredUsers(filtered);
+};
 
   return (
     <View style={styles.container}>
@@ -52,14 +57,14 @@ const Friends = () => {
 
       <View style={styles.searchContainer}>
         <Icon name="search-outline" size={20} color="white" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search current friends"
-          value={searchTerm}
-          onChangeText={handleSearch}
-          placeholderTextColor="white"
-        />
-      </View>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search current friends"
+            value={searchTerm}
+            onChangeText={handleSearch}
+            placeholderTextColor="white"
+          />
+        </View>
 
       <View style={styles.userList}>
         {filteredUsers.map((user, index) => (
@@ -78,7 +83,6 @@ const Friends = () => {
     </View>
   );
 };
-
 
 const FriendsWithDatabase = () => (
   <SQLiteProvider databaseName="example.db">
@@ -125,7 +129,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     color: 'white',
     width: '100%',
-    
   },
   userList: {
     marginTop: 20,

@@ -170,15 +170,16 @@ export async function checkCredentials(db,userName,password) {
     }
 }
 //function to get all the users
-export function getUsernames(db)  {
+export function getUsernames(db) {
     try {
         const allRows = db.getAllSync('SELECT userName FROM users');
         console.log(allRows);
         return allRows;
     } catch (error) {
-        console.log('Error while loading user : ', error);
+        console.log('Error while loading user:', error);
+        return [];
     }
-};
+}
 
 //UserButton component
 const UserButton = ({user, deleteUser, updateUser}) => {
