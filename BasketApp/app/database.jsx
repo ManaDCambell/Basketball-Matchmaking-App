@@ -169,6 +169,16 @@ export async function checkCredentials(db,userName,password) {
         return false;
     }
 }
+//function to get all the users
+export function getUsernames(db)  {
+    try {
+        const allRows = db.getAllSync('SELECT userName FROM users');
+        console.log(allRows);
+        return allRows;
+    } catch (error) {
+        console.log('Error while loading user : ', error);
+    }
+};
 
 //UserButton component
 const UserButton = ({user, deleteUser, updateUser}) => {
@@ -410,7 +420,6 @@ const Content = () => {
     useEffect(() => {
         getUsers();
     }, []);
-
     return (
         <View>
             {user.length === 0 ? (
