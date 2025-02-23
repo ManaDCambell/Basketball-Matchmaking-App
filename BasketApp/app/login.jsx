@@ -46,11 +46,7 @@ const Content = () => {
                 <View style={styles.formAction}>
                     <TouchableOpacity
                     onPress={() => {
-<<<<<<< HEAD
                         if (checkCredentials(db, userName, password)) {
-=======
-                        if (checkCredentials(db, username, password)) {
->>>>>>> 43da9cb403b28d6446b385f209ff142423f9befd
                             Alert.alert('Successfully logged in!');
                         } else {
                             Alert.alert("Incorrect username & password! Please try again!");
