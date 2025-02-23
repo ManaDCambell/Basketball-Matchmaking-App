@@ -45,11 +45,12 @@ const Content = () => {
 
                 <View style={styles.formAction}>
                     <TouchableOpacity
-                    onPress={() => {
-                        if (checkCredentials(db, userName, password)) {
-                            console.log('Successfully logged in!');
+                    onPress={async () => {
+                        const isValid = await checkCredentials(db, userName, password);
+                        if (isValid) {
+                            Alert.alert('Successfully logged in!');
                         } else {
-                            console.log("Incorrect username & password! Please try again!");
+                            Alert.alert("Incorrect username or password! Please try again!");
                         }
                 }}>
                         <View style={styles.btn}>
