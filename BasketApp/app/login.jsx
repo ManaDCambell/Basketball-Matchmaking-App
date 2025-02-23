@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, Pressable, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { getUser, checkCredentials, initializeDatabase } from './database';
+import { checkCredentials, getUser, initializeDatabase } from './database';
 
 const Content = () => {
     const db = useSQLiteContext();
@@ -46,8 +46,11 @@ const Content = () => {
                 <View style={styles.formAction}>
                     <TouchableOpacity
                     onPress={() => {
-
-                        Alert.alert('Successfully logged in!');
+                        if (checkCredentials(db, userName, password)) {
+                            Alert.alert('Successfully logged in!');
+                        } else {
+                            Alert.alert("Incorrect username & password! Please try again!");
+                        }
                 }}>
                         <View style={styles.btn}>
                             <Text style={styles.btnText}>Login</Text>
@@ -131,7 +134,6 @@ const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
             onPress={() => {
-            getUser(db,userName);
             checkCredentials(db,userName,password);
             }} 
             <Content />
