@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
 const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
-            onPress={() => {
+            onPress={async () => {
             checkCredentials(db,userName,password);
             }} 
             <Content />
