@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Pressable, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, Pressable, View, Text, StyleSheet, TextInput, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { checkCredentials, getUser, initializeDatabase } from './database';
 
@@ -44,27 +44,27 @@ const Content = () => {
                 </View>
 
                 <View style={styles.formAction}>
-                    <TouchableOpacity
-                    onPress={async () => {
-                        const isValid = await checkCredentials(db, userName, password);
+                    <Pressable
+                    onPress={() => {
+                        const isValid = () => {
                         if (isValid) {
                             Alert.alert('Successfully logged in!');
                         } else {
                             Alert.alert("Incorrect username or password! Please try again!");
                         }
-                }}>
+                }}}>
                         <View style={styles.btn}>
                             <Text style={styles.btnText}>Login</Text>
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
                 
-                <TouchableOpacity 
+                <Pressable 
                 style ={{ marginTop: 'auto' }}
                     onPress={() => {
                 }}> 
                     <Text style={styles.formFooter}>Create an account</Text>
-                    </TouchableOpacity>
+                    </Pressable>
             </View>
         </SafeAreaView>
     );
