@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Pressable, View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { checkCredentials, getUser, initializeDatabase } from './database';
 
@@ -9,6 +9,18 @@ const Content = () => {
         username: '',
         password: '',
     });
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        let errors = {};
+
+        if (!username) errors.username = "Username is required";
+        if (!password) errors.password = "Password is required";
+
+        setErrors(errors);
+
+        return Object.keys(errors).length === 0;
+    }
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
             <View style={styles.container}>
@@ -29,6 +41,9 @@ const Content = () => {
                         onChangeText={username => setForm({ ...form, username })}
                     />    
                 </View>
+                {
+                    errors.username ? <Text style={styles.errorText}>{errors.username}</Text> : null
+                }
 
                 <View style={styles.input}>
                     <Text style={styles.inputLabel}>Password</Text>
@@ -43,28 +58,26 @@ const Content = () => {
                     />    
                 </View>
 
+                {
+                    errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null
+                }
+
                 <View style={styles.formAction}>
-                    <Pressable
-                    onPress={() => {
-                        const isValid = () => {
-                        if (isValid) {
-                            Alert.alert('Successfully logged in!');
-                        } else {
-                            Alert.alert("Incorrect username or password! Please try again!");
-                        }
-                }}}>
+                    <TouchableOpacity
+                        onPress={() => {
+                }}>
                         <View style={styles.btn}>
                             <Text style={styles.btnText}>Login</Text>
                         </View>
-                    </Pressable>
+                    </TouchableOpacity>
                 </View>
                 
-                <Pressable 
+                <TouchableOpacity 
                 style ={{ marginTop: 'auto' }}
                     onPress={() => {
                 }}> 
                     <Text style={styles.formFooter}>Create an account</Text>
-                    </Pressable>
+                    </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -128,6 +141,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         color: '#fff'
+    },
+    errortext: {
+        color: "red",
+        marginBottom: 10,
     }
 });
 
@@ -135,6 +152,7 @@ const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
             onPress={async () => {
+            getUser(db,userName);
             checkCredentials(db,userName,password);
             }} 
             <Content />
