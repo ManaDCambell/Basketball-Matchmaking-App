@@ -13,6 +13,7 @@ const Content = () => {
 
     const validateForm = () => {
         let errors = {};
+        const { username, password } = form;
 
         if (!username) errors.username = "Username is required";
         if (!password) errors.password = "Password is required";
@@ -20,7 +21,7 @@ const Content = () => {
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
-    }
+    };
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
             <View style={styles.container}>
