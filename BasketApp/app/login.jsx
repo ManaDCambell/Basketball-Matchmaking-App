@@ -5,10 +5,8 @@ import { checkCredentials, getUser, initializeDatabase } from './database';
 
 const Content = () => {
     const db = useSQLiteContext();
-    const [form, setForm] = useState({
-        username: '',
-        password: '',
-    });
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
 
     const validateForm = () => {
@@ -21,6 +19,14 @@ const Content = () => {
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
+    };
+
+    const handleSubmit = () => {
+        if (validateForm()) {
+            setUsername("");
+            setPassword("");
+            setErrors({});
+        }
     };
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
