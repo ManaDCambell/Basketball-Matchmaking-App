@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { checkCredentials, getUser, initializeDatabase } from './database';
+import { checkCredentials, initializeDatabase } from './database';
 
 const Content = () => {
     const db = useSQLiteContext();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState({});
+    const [form, setForm] = useState({
+        username: '',
+        password: '',
+    });
 
-    const validateForm = () => {
-        let errors = {};
-        const { username, password } = form;
+    const handleLogin = async () => {
+        const { userName, password } = form;
 
-        if (!username) errors.username = "Username is required";
-        if (!password) errors.password = "Password is required";
+        if (!userName && !password) {
+            Alert.alert("Please fill out both fields!")
+            return;
+        }
 
-        setErrors(errors);
+        try {
+            const isValid = await checkCredentials(db, userName, password);
 
-        return Object.keys(errors).length === 0;
-    };
-
-    const handleSubmit = () => {
-        if (validateForm()) {
-            setUsername("");
-            setPassword("");
-            setErrors({});
+            if (isValid) {
+                Alert.alert("Login successful!");
+            } else {
+                Alert.alert("Incorrect username and password! Please create an account!");
+            }
+        } catch {
+            Alert.alert("Error!", "An error occured while logging in!");
+            console.error(error);
         }
     };
     return (
@@ -40,7 +43,7 @@ const Content = () => {
                     <TextInput
                     autoCapitalize="none"
                     autoCorrect={false}
-                    keyboardType="username"
+                    keyboardType="default"
                     style={styles.inputControl}
                     placeholder='john.doe'
                     placeholderTextColor='#6b7280'
@@ -48,9 +51,6 @@ const Content = () => {
                         onChangeText={username => setForm({ ...form, username })}
                     />    
                 </View>
-                {
-                    errors.username ? <Text style={styles.errorText}>{errors.username}</Text> : null
-                }
 
                 <View style={styles.input}>
                     <Text style={styles.inputLabel}>Password</Text>
@@ -65,14 +65,9 @@ const Content = () => {
                     />    
                 </View>
 
-                {
-                    errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null
-                }
-
                 <View style={styles.formAction}>
                     <TouchableOpacity
-                        onPress={() => {
-                }}>
+                        onPress={handleLogin}>
                         <View style={styles.btn}>
                             <Text style={styles.btnText}>Login</Text>
                         </View>
@@ -158,10 +153,6 @@ const styles = StyleSheet.create({
 const Login = () => {
     return (
         <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
-            onPress={async () => {
-            getUser(db,userName);
-            checkCredentials(db,userName,password);
-            }} 
             <Content />
         </SQLiteProvider>
     );
