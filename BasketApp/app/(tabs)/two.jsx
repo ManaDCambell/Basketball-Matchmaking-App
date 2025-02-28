@@ -1,15 +1,191 @@
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import {  collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+
+const usersCollection = collection(db, 'users');
+export async function getUser(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState();
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data());
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getFullName(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data().fullName);
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getElo(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data().elo);
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getAge(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data().age);
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getPhoneNumber(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data().phoneNumber);
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getLocation(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data().location);
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getEmail(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(q).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        const firstDoc = querySnapshot.docs[0];
+        console.log("First document:", firstDoc.data());
+        setData(firstDoc.data().email);
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
 
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
   const [usert, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});
   const auth = getAuth();
   const user = auth.currentUser;
-  const usersCollection = collection(db, 'users');
   useEffect(() => {
     fetchUsers();
   }, [user]);
@@ -17,10 +193,6 @@ export default function TabTwoScreen() {
   const fetchUsers = async () => {
     if (user) {
       const data = await getDocs(collection(db, "users"));
-      data.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
-      });
       setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     } else {
       console.log("No user logged in");
@@ -49,7 +221,7 @@ export default function TabTwoScreen() {
         <Text style={styles.mainTitle}>Todo List</Text>
         <View style={styles.inputContainer}>
           <TextInput
-            placeholder="fullName"
+            placeholder="fullname"
             value={usert.fullName}
             onChangeText={(text) => setUser({...usert, fullName: text})}
           />
