@@ -3,15 +3,56 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
 import {auth} from '../FirebaseConfig';
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
-import {  collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const usersCollection = collection(db, 'users');
+export function createAccount(fullName, userName, password, age, phoneNumber, location,email){
+  const [data, setData] = useState();
+  useEffect(() => {
+    signUp();
+  }, [data]);
+  const signUp = async() => {
+    try {
+      const user = await createUserWithEmailAndPassword(auth,email,password);
+      if (user) {
+        await addDoc(usersCollection,  {fullName : fullName , userName: userName, password : password, age : age, phoneNumber : phoneNumber, elo : 100, location : location, email : email, friends : []});
+        setData(true);
+      }
+      else
+        setData(false);
+    } catch(error){
+      console.log(error);
+      alert('sign up failed');
+      setData(false);
+    }
+  };
+  return data;
+}
+export function checkCredential(email,password){
+  const [data, setData] = useState();
+  useEffect(() => {
+    signIn();
+  }, [data]);
+  const signIn = async() => {
+    try {
+      const user = await signInWithEmailAndPassword(auth,email,password);
+      if (user) 
+        setData(true);
+      else
+        setData(false);
+    } catch(error){
+      setData(false);
+      console.log(error);
+      alert('signin failed');
+    }
+  };
+}
 export function getUsers() {
   const [users, setUsers] = useState([]);
   useEffect(() => {
     fetchData();
-  }, [data]);
+  }, [users]);
   const fetchData = async () => {
     getDocs(usersCollection).then((querySnapshot) => {
       // Process the results here.  This code executes AFTER the query completes.
@@ -27,7 +68,7 @@ export function getUsers() {
       setData("fail");
     });
   }
-  return data;
+  return users;
 }
 export function getUser(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
