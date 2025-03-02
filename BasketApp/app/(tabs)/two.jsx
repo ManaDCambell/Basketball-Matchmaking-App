@@ -1,11 +1,35 @@
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
-import {  collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import {auth} from '../FirebaseConfig';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
+import {  collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const usersCollection = collection(db, 'users');
-export async function getUser(userName) {
+export function getUsers() {
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    fetchData();
+  }, [data]);
+  const fetchData = async () => {
+    getDocs(usersCollection).then((querySnapshot) => {
+      // Process the results here.  This code executes AFTER the query completes.
+      if (!querySnapshot.empty) {
+        setUsers(querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      } else {
+        console.log("No documents found.");
+        setData("fail");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+      setData("fail");
+    });
+  }
+  return data;
+}
+export function getUser(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const [data, setData] = useState();
   useEffect(() => {
@@ -180,6 +204,92 @@ export function getEmail(userName) {
   }
   return data;
 }
+export async function setFullName(userName,newFullName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      fullName: newFullName
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setElo(userName,newElo) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      elo: newElo
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setAge(userName,newAge) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      age: newAge
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setPhoneNumber(userName,newPhoneNumber) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      phoneNumber: newPhoneNumber
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setLocation(userName,newLocation) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      location: newLocation
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setEmail(userName,newEmail) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      email: newEmail
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setUserName(oldUserName,newUserName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", oldUserName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      userName: newUserName
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+
+
 
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
