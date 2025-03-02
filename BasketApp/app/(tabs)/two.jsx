@@ -305,18 +305,6 @@ export async function setLocation(userName,newLocation) {
     console.log("Error updating document: ", error);
   }
 }
-export async function setEmail(userName,newEmail) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      email: newEmail
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
 export async function setUserName(oldUserName,newUserName) {
   try {
     const q = query(usersCollection, where("userName", "==", oldUserName));
@@ -327,6 +315,15 @@ export async function setUserName(oldUserName,newUserName) {
     });
   } catch (error) {
     console.log("Error updating document: ", error);
+  }
+}
+export async function resetPassword(email) {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    // Handle successful password reset request (e.g., display success message)
+  } catch (error) {
+    // Handle errors (e.g., display error message)
+    throw error;
   }
 }
 
