@@ -1,23 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { getUsernames, getFriends } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
 
-const addFriend = async (db, userName) => {
-  try {
-    await db.execAsync(
-      `INSERT INTO friends (userName) VALUES (?);`,
-      [userName]
-    );
-  } catch (error) {
-    console.error('Error adding friend:', error);
-  }
-};
-
 const Friends = () => {
-  const db = useSQLiteContext();
   const [users, setUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -114,9 +101,7 @@ const Friends = () => {
 };
 
 const FriendsWithDatabase = () => (
-  <SQLiteProvider databaseName="example.db">
     <Friends />
-  </SQLiteProvider>
 );
 
 const styles = StyleSheet.create({

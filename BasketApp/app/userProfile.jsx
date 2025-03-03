@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Provider, Divider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import profileImage from '../assets/images/default_profile_picture.jpg';
 import { getProfileRank } from './matchmaking';
-import { getUser, initializeDatabase } from './database';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { getUser} from './database';
 
 import Header from './Header';
 import Footer from './footer';
@@ -21,7 +20,6 @@ const { width, height } = Dimensions.get('window');
 
 export default function UserProfile({ navigation }) {
   return (
-    <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
       <Provider>
         <View style={styles.container}>
           {/* Add Header */}
@@ -41,18 +39,15 @@ export default function UserProfile({ navigation }) {
           
         </View>
       </Provider>
-    </SQLiteProvider>
   );
 }
 
 const Content = () => {
-  const db = useSQLiteContext();
-  const user = getUser(db, "Mana2");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
 
   const [selectedMenu, setSelectedMenu] = useState('Availability');
-
-  const rankPoints = user.elo;
-  const rank = getProfileRank(rankPoints);
 
   const rankImages = {
       Bronze: bronze,
@@ -61,7 +56,20 @@ const Content = () => {
       Diamond: diamond,
   };
 
-  const rankImage = rankImages[rank];
+
+  useEffect(() => {
+    async function getData() {
+      const result = await getUser("Mana");
+      setUser(result);
+      setLoading(false);
+    }
+    getData();
+  }, []);
+
+  
+  if (loading){
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <View style={styles.contentContainer}>
@@ -69,7 +77,7 @@ const Content = () => {
       <View style={styles.profilePictureContainer}>
         <Image source={profileImage} style={styles.profilePicture} />
         <View style={styles.rankIconContainer}>
-          <Image source={rankImage} style={styles.rankIcon} />
+          <Image source={rankImages[getProfileRank(user.elo)]} style={styles.rankIcon} />
         </View>
       </View>
 
@@ -78,7 +86,7 @@ const Content = () => {
         <Text style={styles.name}>{user.value !== "fail" ? user.userName : null}</Text>
         <Text style={styles.email}>{user.value !== "fail" ? user.email : null}</Text>
         <Text style={styles.email}>{user.value !== "fail" ? user.phoneNumber : null}</Text>
-        <Text style={styles.email}>Elo: {user.value !== "fail" ? user.elo : null}<Text style={styles.verticalDiv}> | </Text>{rank}</Text>
+        <Text style={styles.email}>Elo: {user.value !== "fail" ? user.elo : null}<Text style={styles.verticalDiv}> | </Text>{getProfileRank(user.elo)}</Text>
       </View>
 
       <Divider style={styles.divider} />

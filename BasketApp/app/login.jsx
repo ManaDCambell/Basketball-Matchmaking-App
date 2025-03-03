@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { checkCredentials, initializeDatabase } from './database';
+import { checkCredentials } from './database';
 
 const Content = () => {
-    const db = useSQLiteContext();
     const [form, setForm] = useState({
-        username: '',
+        email: '',
         password: '',
     });
-
+ 
     const handleLogin = async () => {
-        const { userName, password } = form;
+        const { email, password } = form;
 
-        if (!userName && !password) {
+        if (!email && !password) {
             Alert.alert("Please fill out both fields!")
             return;
         }
 
         try {
-            const isValid = await checkCredentials(db, userName, password);
+            console.log("0");
+            const isValid = await checkCredentials(email, password);
+            console.log("1");
+            console.log(isValid);
 
             if (isValid) {
                 Alert.alert("Login successful!");
             } else {
-                Alert.alert("Incorrect username and password! Please create an account!");
+                Alert.alert("Incorrect email and password! Please create an account!");
             }
         } catch {
             Alert.alert("Error!", "An error occured while logging in!");
@@ -38,7 +39,7 @@ const Content = () => {
             </View>
             <View style={styles.form}>
                 <View style={styles.input}>
-                    <Text style={styles.inputLabel}>Username</Text>
+                    <Text style={styles.inputLabel}>email</Text>
 
                     <TextInput
                     autoCapitalize="none"
@@ -47,8 +48,8 @@ const Content = () => {
                     style={styles.inputControl}
                     placeholder='john.doe'
                     placeholderTextColor='#6b7280'
-                        value={form.username}
-                        onChangeText={username => setForm({ ...form, username })}
+                        value={form.email}
+                        onChangeText={email => setForm({ ...form, email })}
                     />    
                 </View>
 
@@ -152,9 +153,7 @@ const styles = StyleSheet.create({
 
 const Login = () => {
     return (
-        <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
-            <Content />
-        </SQLiteProvider>
+        <Content />
     );
 };
 
