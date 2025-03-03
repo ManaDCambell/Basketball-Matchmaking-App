@@ -17,10 +17,7 @@ const Content = () => {
         }
 
         try {
-            console.log("0");
             const isValid = await checkCredentials(email, password);
-            console.log("1");
-            console.log(isValid);
 
             if (isValid) {
                 Alert.alert("Login successful!");

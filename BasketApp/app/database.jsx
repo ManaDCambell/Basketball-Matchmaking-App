@@ -23,12 +23,8 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
     }
 }
 export async function checkCredentials(email,password){
-  console.log("10")
     try {
-      console.log("11")
       const user = await signInWithEmailAndPassword(auth,email,password);
-      console.log("12")
-      console.log(user);
       if (user) 
         return true;
       else
