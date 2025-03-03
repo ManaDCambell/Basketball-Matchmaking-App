@@ -1,70 +1,97 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { getUser, getUsernames } from './database';
+import { getUsernames, getFriends } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
+
+const addFriend = async (db, userName) => {
+  try {
+    await db.execAsync(
+      `INSERT INTO friends (userName) VALUES (?);`,
+      [userName]
+    );
+  } catch (error) {
+    console.error('Error adding friend:', error);
+  }
+};
 
 const Friends = () => {
   const db = useSQLiteContext();
   const [users, setUsers] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddingFriends, setIsAddingFriends] = useState(false);
 
   useEffect(() => {
     fetchUsers();
+    fetchFriends();
   }, []);
 
   const fetchUsers = async () => {
-    console.log('Fetching users...');
-  
     try {
       const usernameObjects = await getUsernames(db);
-        if (!usernameObjects || usernameObjects.length === 0) {
-          console.log('No usernames found.');
-          return;
-        }
-      const usersData = [];
-      for (let i = 0; i < usernameObjects.length; i++) {
-          const username = usernameObjects[i].userName;
-          const user = await getUser(db, username);
-          if (user && user.value !== "fail") {
-              usersData.push(user);
-          }
+      if (!usernameObjects || usernameObjects.length === 0) {
+        return;
       }
-      console.log('Fetched users:', usersData);
+      const usersData = usernameObjects.map(obj => ({ userName: obj.userName }));
       setUsers(usersData);
-      setFilteredUsers(usersData);
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }
-};
+  };
 
-const handleSearch = (text) => {
-  setSearchTerm(text);
-  const filtered = users.filter(user => user.userName.toLowerCase().includes(text.toLowerCase()));
-  setFilteredUsers(filtered);
-};
+  const fetchFriends = async () => {
+    try {
+      const friendList = await getFriends(db);
+      setFriends(friendList);
+    } catch (error) {
+      console.error('Failed to fetch friends:', error);
+    }
+  };
+
+  useEffect(() => {
+    setFilteredUsers(isAddingFriends ? users : friends);
+  }, [isAddingFriends, users, friends]);
+
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    const filtered = (isAddingFriends ? users : friends).filter(user =>
+      user.userName.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  };
+
+  const handleAddFriend = async (userName) => {
+    try {
+      await addFriend(db, userName);
+      Alert.alert('Friend added', `${userName} has been added to your friends list.`);
+      fetchFriends();
+    } catch (error) {
+      console.error('Error adding friend:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>FRIENDS</Text>
-        <TouchableOpacity onPress={() => {/* Add friend functionality */}}>
-          <Icon name="add-circle-outline" size={30} color="white" />
+        <Text style={styles.title}>{isAddingFriends ? 'ADD FRIENDS' : 'FRIENDS'}</Text>
+        <TouchableOpacity onPress={() => setIsAddingFriends(!isAddingFriends)}>
+          <Icon name={isAddingFriends ? "people-outline" : "person-add-outline"} size={30} color="white" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
         <Icon name="search-outline" size={20} color="white" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchBar}
-            placeholder="Search current friends"
-            value={searchTerm}
-            onChangeText={handleSearch}
-            placeholderTextColor="white"
-          />
-        </View>
+        <TextInput
+          style={styles.searchBar}
+          placeholder={isAddingFriends ? "Search users" : "Search friends"}
+          value={searchTerm}
+          onChangeText={handleSearch}
+          placeholderTextColor="white"
+        />
+      </View>
 
       <View style={styles.userList}>
         {filteredUsers.map((user, index) => (
@@ -72,9 +99,11 @@ const handleSearch = (text) => {
             <View style={styles.profileContainer}>
               <Image source={require('../assets/images/default_profile_picture.jpg')} style={styles.profilePic} />
               <Text style={styles.username}>{user.userName}</Text>
-              <TouchableOpacity style={styles.chatButton}>
-                <Icon name="chatbox-outline" size={30} color="white" />
-              </TouchableOpacity>
+              {isAddingFriends && !friends.some(friend => friend.userName === user.userName) ? (
+                <TouchableOpacity style={styles.chatButton} onPress={() => handleAddFriend(user.userName)}>
+                  <Icon name="add-circle-outline" size={30} color="white" />
+                </TouchableOpacity>
+              ) : null}
             </View>
           </View>
         ))}
@@ -104,9 +133,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
-  },
-  addIcon: {
     color: 'white',
   },
   searchContainer: {
