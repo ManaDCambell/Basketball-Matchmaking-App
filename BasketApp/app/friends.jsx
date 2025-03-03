@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { getUsernames, getFriends } from './database';
+import { getUserNames, getFriends } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
 
@@ -18,7 +18,8 @@ const Friends = () => {
 
   const fetchUsers = async () => {
     try {
-      const usernameObjects = await getUsernames(db);
+      const usernameObjects = await getUserNames();
+      console.log("1");
       if (!usernameObjects || usernameObjects.length === 0) {
         return;
       }
@@ -31,7 +32,7 @@ const Friends = () => {
 
   const fetchFriends = async () => {
     try {
-      const friendList = await getFriends(db);
+      const friendList = await getFriends();
       setFriends(friendList);
     } catch (error) {
       console.error('Failed to fetch friends:', error);
