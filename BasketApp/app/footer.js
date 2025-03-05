@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const { height } = Dimensions.get('window');
 
@@ -10,7 +11,7 @@ const Footer = () => {
 
   return (
     <View style={styles.footer}>
-      <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
+      {/* <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
         <Image source={require('../assets/images/UserProfileButton.png')} style={styles.buttonImage} />
       </TouchableOpacity>
 
@@ -20,6 +21,22 @@ const Footer = () => {
 
       <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
         <Image source={require('../assets/images/friendsButton.png')} style={styles.buttonImage} />
+      </TouchableOpacity> */}
+      
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <Icon name="home" size={40} color="white" />
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Matchmaking')}>
+        <Icon name="basketball" size={40} color="white" />
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
+        <Icon name="people" size={40} color="white" />
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
+        <Icon name="person" size={40} color="white" />
       </TouchableOpacity>
     </View>
   );
@@ -33,7 +50,7 @@ const styles = StyleSheet.create({
       left: 0,
       right: 0,
       backgroundColor: '#283237',
-      height: 85,
+      height: 60,
       justifyContent: 'space-evenly',
       alignItems: 'center',
       zIndex: 1,
@@ -42,6 +59,10 @@ const styles = StyleSheet.create({
       width: 60,
       height: 60,
       resizeMode: 'contain',
+    },
+    labels: {
+      color: 'white',
+      fontSize: 12,
     },
   });
 

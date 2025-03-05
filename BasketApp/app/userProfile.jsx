@@ -59,7 +59,7 @@ const Content = () => {
 
   useEffect(() => {
     async function getData() {
-      const result = await getUser("Mana");
+      const result = await getUser("Pab");
       setUser(result);
       setLoading(false);
     }
@@ -116,7 +116,7 @@ const Content = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 0,  // Adds space for the header
+    paddingTop: 0,
   },
   topHalf: {
     position: 'absolute',
