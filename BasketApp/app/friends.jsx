@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { getUserNames, getFriends } from './database';
+import { getUserNames2, getFriends, addFriend } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
 
@@ -18,9 +18,9 @@ const Friends = () => {
 
   const fetchUsers = async () => {
     try {
-      const usernameObjects = await getUserNames();
-      console.log("1");
+      const usernameObjects = await getUserNames2();
       if (!usernameObjects || usernameObjects.length === 0) {
+        console.log("No users found");
         return;
       }
       const usersData = usernameObjects.map(obj => ({ userName: obj.userName }));
@@ -33,6 +33,12 @@ const Friends = () => {
   const fetchFriends = async () => {
     try {
       const friendList = await getFriends();
+      if (!friendList) {
+        console.log("No friends found");
+        setFriends([]);
+        return;
+      }
+      console.log("Fetched Friends:", friendList);
       setFriends(friendList);
     } catch (error) {
       console.error('Failed to fetch friends:', error);
@@ -53,7 +59,7 @@ const Friends = () => {
 
   const handleAddFriend = async (userName) => {
     try {
-      await addFriend(db, userName);
+      await addFriend(userName);
       Alert.alert('Friend added', `${userName} has been added to your friends list.`);
       fetchFriends();
     } catch (error) {
@@ -101,9 +107,7 @@ const Friends = () => {
   );
 };
 
-const FriendsWithDatabase = () => (
-    <Friends />
-);
+export default Friends;
 
 const styles = StyleSheet.create({
   container: {
@@ -172,5 +176,3 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
-
-export default FriendsWithDatabase;

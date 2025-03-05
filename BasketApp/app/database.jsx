@@ -176,6 +176,38 @@ export async function resetPassword(email) {
   }
 }
 
+export const getUserNames = async () => {
+    try {
+      const usersRef = collection(db, 'users');
+      const snapshot = await getDocs(usersRef);
+      return snapshot.docs.map(doc => ({ userName: doc.data().userName }));
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return [];
+    }
+  };
+
+  export const getFriends = async () => {
+    try {
+      const friendsRef = collection(db, 'friends');
+      const snapshot = await getDocs(friendsRef);
+      return snapshot.docs.map(doc => ({ userName: doc.data().userName }));
+    } catch (error) {
+      console.error('Error fetching friends:', error);
+      return [];
+    }
+  };
+  
+  // Add a new friend to Firestore
+  export const addFriend = async (userName) => {
+    try {
+      const friendsRef = collection(db, 'friends');
+      await addDoc(friendsRef, { userName });
+    } catch (error) {
+      console.error('Error adding friend:', error);
+    }
+  };
+
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
   const [usert, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});
