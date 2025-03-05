@@ -38,7 +38,6 @@ export async function checkCredentials(email,password){
 export async function getUserNames() {
   const [userNames, setUserNames] = useState([]);
   getDocs(usersCollection).then((querySnapshot) => {
-      // Process the results here.  This code executes AFTER the query completes.
       if (!querySnapshot.empty) {
         setUserNames(querySnapshot.docs.map((doc) => ({ ...doc.data().userName, id: doc.id })));
       } else {
@@ -176,7 +175,7 @@ export async function resetPassword(email) {
   }
 }
 
-export const getUserNames = async () => {
+export const getUserNames2 = async () => {
     try {
       const usersRef = collection(db, 'users');
       const snapshot = await getDocs(usersRef);
