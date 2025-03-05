@@ -31,7 +31,7 @@ export default function UserProfile({ navigation }) {
           <View style={styles.header}>
             <Text style={styles.title}>PROFILE</Text>
             <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
-              <Icon name="settings-outline" size={30} color="white" />
+              <Icon name="cog-outline" size={40} color="white" />
             </TouchableOpacity>
           </View>
 
@@ -59,7 +59,7 @@ const Content = () => {
 
   useEffect(() => {
     async function getData() {
-      const result = await getUser("Pab");
+      const result = await getUser("OU25");
       setUser(result);
       setLoading(false);
     }
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    marginTop: 20,
+    marginTop: 10,
   },
   profilePictureContainer: {
     position: 'relative',

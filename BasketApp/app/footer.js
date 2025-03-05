@@ -1,4 +1,3 @@
-// Footer.js
 import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -11,18 +10,7 @@ const Footer = () => {
 
   return (
     <View style={styles.footer}>
-      {/* <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
-        <Image source={require('../assets/images/UserProfileButton.png')} style={styles.buttonImage} />
-      </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Matchmaking')}>
-        <Image source={require('../assets/images/matchmakingButton.png')} style={styles.buttonImage} />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
-        <Image source={require('../assets/images/friendsButton.png')} style={styles.buttonImage} />
-      </TouchableOpacity> */}
-      
       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
         <Icon name="home" size={40} color="white" />
       </TouchableOpacity>
@@ -38,6 +26,7 @@ const Footer = () => {
       <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
         <Icon name="person" size={40} color="white" />
       </TouchableOpacity>
+
     </View>
   );
 };

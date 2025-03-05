@@ -56,15 +56,12 @@ const App = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-{/* Add Header */}
-{/* <Header /> */}
-<View style={styles.header}>
-    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-      <Ionicons name="arrow-back" size={35} color="rgb(0, 0, 0)" />
-    </TouchableOpacity>
-    <Text style={styles.title}>Settings</Text>
-  </View>
-
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={35} color="rgb(0, 0, 0)" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Settings</Text>
+      </View>
 
       {/* Account */}
       <TouchableOpacity style={styles.settingOptionFirst} onPress={() => toggleMenu('account')}>
@@ -130,64 +127,10 @@ const App = ({ navigation }) => {
               style={{ transform: [{ scale: 1.2}] }}
             />
           </View>
-          {/* Add Footer */}
+        </View>
+      )}
+      
       <Footer />
-        </View>
-      )}
-
-      {/* <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('availability')}>
-        <Ionicons name="bar-chart-outline" size={35} color="rgb(218, 113, 15)" />
-        <Text style={styles.settingText}>Availability</Text>
-        <Ionicons 
-          name={isMenuVisible.availability ? "chevron-down" : "chevron-forward"} 
-          size={30} 
-          color="gray" 
-        />
-      </TouchableOpacity>
-      {isMenuVisible.availability && (
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('View availability pressed')}>
-            <Text style={styles.menuText}>View Availability</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('Change availability pressed')}>
-            <Text style={styles.menuText}>Change Availability</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('stats')}>
-        <Ionicons name="calendar-outline" size={35} color="rgb(218, 113, 15)" />
-        <Text style={styles.settingText}>Stats</Text>
-        <Ionicons 
-          name={isMenuVisible.stats ? "chevron-down" : "chevron-forward"} 
-          size={30} 
-          color="gray" 
-        />
-      </TouchableOpacity>
-      {isMenuVisible.stats && (
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('View stats pressed')}>
-            <Text style={styles.menuText}>View Stats</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <TouchableOpacity style={styles.settingOptionLast} onPress={() => toggleMenu('yelp')}>
-        <Ionicons name="star-half-outline" size={35} color="rgb(218, 113, 15)" />
-        <Text style={styles.settingText}>Match Review</Text>
-        <Ionicons 
-          name={isMenuVisible.yelp ? "chevron-down" : "chevron-forward"} 
-          size={30} 
-          color="gray" 
-        />
-      </TouchableOpacity>
-      {isMenuVisible.yelp && (
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItemLast} onPress={() => alert('View match reviews pressed')}>
-            <Text style={styles.menuText}>View Match Reviews</Text>
-          </TouchableOpacity>
-        </View>
-      )} */}
     </SafeAreaView>
   );
 };

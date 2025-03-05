@@ -12,6 +12,9 @@ import Tournament from './tournament';
 import Login from './login';
 import Signup from './signup';
 
+import Header from './Header';
+import Footer from './footer';
+
 const Stack = createStackNavigator();
 const { width, height } = Dimensions.get('window');
 
@@ -33,20 +36,13 @@ function Index() {
 
 function HomeScreen({ navigation }) {
   return (
+    
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.buttonWrapper}
-          onPress={() => navigation.navigate('UserProfileSettings')}
-        >
-          <Image 
-            source={require('../assets/images/settingsButton.png')} 
-            style={styles.SbuttonImage}
-          />
-        </TouchableOpacity>
-      </View>
-
+    
+      <Header />
+      
       <Svg height="100%" width="100%" style={styles.svgContainer}>
+      
 
         <Path d="M -10 305 Q 190 500 370 330 T 840 330" 
         stroke="black" 
@@ -86,21 +82,7 @@ function HomeScreen({ navigation }) {
         style={styles.logoImage}
       />
 
-      <View style={styles.buttonContainer}>
-        <View style={styles.footer}>
-          <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
-            <Image source={require('../assets/images/UserProfileButton.png')} style={styles.buttonImage} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Matchmaking')}>
-            <Image source={require('../assets/images/matchmakingButton.png')} style={styles.buttonImage} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
-            <Image source={require('../assets/images/friendsButton.png')} style={styles.buttonImage} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Footer />
     </View>
   );
 }
@@ -179,12 +161,11 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: -(height / 2.75),
+    bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: '#283237',
-    height: 85,
-    width: '100%',
+    height: 60,
     justifyContent: 'space-evenly',
     alignItems: 'center',
     zIndex: 1,
