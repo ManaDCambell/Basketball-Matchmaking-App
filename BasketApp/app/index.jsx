@@ -1,7 +1,8 @@
-import React from 'react';
-import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Svg, { Path } from "react-native-svg";
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import Database from './database';
 import UserProfile from './userProfile';
@@ -14,6 +15,8 @@ import Signup from './signup';
 
 import Header from './Header';
 import Footer from './footer';
+
+import { getUser, getFriends } from './database';
 
 const Stack = createStackNavigator();
 const { width, height } = Dimensions.get('window');
@@ -35,52 +38,56 @@ function Index() {
 }
 
 function HomeScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const result = await getUser("Pab"); // Change this to the current user
+      setUser(result);
+      setLoading(false);
+    }
+    fetchUser();
+    fetchFriends();
+  }, []);
+
+  const fetchFriends = async () => {
+    try {
+      const friendList = await getFriends();
+      setFriends(friendList || []);
+    } catch (error) {
+      console.error("Failed to fetch friends:", error);
+    }
+  };
+
   return (
-    
     <View style={styles.container}>
-    
       <Header />
-      
-      <Svg height="100%" width="100%" style={styles.svgContainer}>
-      
 
-        <Path d="M -10 305 Q 190 500 370 330 T 840 330" 
-        stroke="black" 
-        strokeWidth="10" 
-        fill="none" />
-
-        <Path d="M 220 50 A 50 300 0 0 0 260 750" 
-        stroke="black" 
-        strokeWidth="10" 
-        fill="none" />
-
-        <Path d="M -10 95 A 400 200 0 0 0 420 95" 
-        stroke="black" 
-        strokeWidth="10" 
-        fill="none" />
-
-        <Path d="M -10 635 A 400 200 0 0 1 420 635" 
-        stroke="black" 
-        strokeWidth="10" 
-        fill="none" />
-
-      </Svg>
-
-      {/* Temporary Buttons in front of lines */}
-      <View style={styles.tempButtonsContainer}>
-        <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.tempButtonText}>Login</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
-          <Text style={styles.tempButtonText}>Database</Text>
-        </TouchableOpacity>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>
+          {loading ? "Loading..." : `Welcome Back, ${user?.userName}!`}
+        </Text>
       </View>
 
-      <Image 
-        source={require('../assets/images/appLogo.png')} 
-        style={styles.logoImage}
-      />
+      {/* Friends List Box */}
+      <View style={styles.friendsBox}>
+        <Text style={styles.friendsTitle}>Friends</Text>
+        <ScrollView style={styles.scrollContainer}>
+          {friends.map((friend, index) => (
+            <View key={index} style={styles.friendItem}>
+              <Text style={styles.friendName}>{friend.userName}</Text>
+              <TouchableOpacity 
+                style={styles.chatIcon} 
+                onPress={() => console.log(`Chat with ${friend.userName}`)}
+              >
+                <Icon name="chatbubble-outline" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
 
       <Footer />
     </View>
@@ -93,14 +100,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F57C00',
-  },
-  header: {
-    position: 'absolute',
-    backgroundColor: '#283237',
-    height: '8%',
-    width: '100%',
-    transform: [{ translateY: '-575%' }],
-    zIndex: 1,
   },
   svgContainer: {
     position: 'absolute',
@@ -158,23 +157,63 @@ const styles = StyleSheet.create({
     zIndex: 1,
     transform: [{ translateX: '550%' }, { translateY: '-10%' }],
   },
-  footer: {
-    flexDirection: 'row',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#283237',
-    height: 60,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    zIndex: 1,
-  },
   buttonImage: {
     width: 60, 
     height: 60, 
     resizeMode: 'contain'
-  }
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '96%',
+    marginTop: 20,
+    marginRight: 50,
+  },
+  friendsBox: {
+    width: "90%",
+    height: 200,
+    backgroundColor: "rgba(56, 56, 56, 0.5)", 
+    borderRadius: 15,
+    padding: 15,
+    marginTop: 20,
+  },
+  friendsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 10,
+  },
+  scrollContainer: {
+    maxHeight: 150,
+  },
+  friendItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.3)",
+  },
+  friendName: {
+    fontSize: 16,
+    color: "white",
+  },
+  chatIcon: {
+    padding: 5,
+  },
+  titleContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginTop: -height * 0.45,
+    flexDirection: "row",
+    marginLeft: 50,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: 'white',
+  },
 });
 
 export default Index;
