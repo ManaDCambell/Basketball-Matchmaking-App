@@ -92,7 +92,7 @@
 
 
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { checkCredentials } from './database';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack';
@@ -213,6 +213,8 @@ const Content = () => {
     );
 }
 
+const { height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     container: {
         padding: 24,
@@ -330,7 +332,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         marginBottom: 0,
         zIndex: 1,
-        transform: [{ translateX: '550%' }, { translateY: '-10%' }],
+        transform: [{ translateX: '550' }, { translateY: '-10%' }],
       },
       buttonImage: {
         width: 60, 
