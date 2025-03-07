@@ -94,7 +94,10 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { checkCredentials } from './database';
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/stack';
 
+const Stack = createNativeStackNavigator(); 
 
 const Content = () => {
     const [form, setForm] = useState({
@@ -115,6 +118,7 @@ const Content = () => {
 
             if (isValid) {
                 Alert.alert("Login successful!");
+                navigation.navigate("Home");
             } else {
                 Alert.alert("Incorrect email and password! Please create an account!");
             }
@@ -124,56 +128,87 @@ const Content = () => {
         }
     };
     return (
-        <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Login</Text>
-            </View>
-            <View style={styles.form}>
-                <View style={styles.input}>
-                    <Text style={styles.inputLabel}>email</Text>
+        <><NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen
+                    name="Login"
+                    component={Content} />
+            </Stack.Navigator>
+        </NavigationContainer><SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+                <View style={styles.container}>
+                    <Svg height="100%" width="100%" style={styles.svgContainer}>
 
-                    <TextInput
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="default"
-                    style={styles.inputControl}
-                    placeholder='john.doe'
-                    placeholderTextColor='#6b7280'
-                        value={form.email}
-                        onChangeText={email => setForm({ ...form, email })}
-                    />    
+
+                        <Path d="M -10 305 Q 190 500 370 330 T 840 330"
+                            stroke="black"
+                            strokeWidth="10"
+                            fill="none" />
+
+                        <Path d="M 220 50 A 50 300 0 0 0 260 750"
+                            stroke="black"
+                            strokeWidth="10"
+                            fill="none" />
+
+                        <Path d="M -10 95 A 400 200 0 0 0 420 95"
+                            stroke="black"
+                            strokeWidth="10"
+                            fill="none" />
+
+                        <Path d="M -10 635 A 400 200 0 0 1 420 635"
+                            stroke="black"
+                            strokeWidth="10"
+                            fill="none" />
+
+                    </Svg>
+                    <Image
+                        source={require('../assets/images/appLogo.png')}
+                        style={styles.logoImage} />
+                    <Text style={styles.title}>Login</Text>
                 </View>
+                <View style={styles.form}>
+                    <View style={styles.input}>
+                        <Text style={styles.inputLabel}>email</Text>
 
-                <View style={styles.input}>
-                    <Text style={styles.inputLabel}>Password</Text>
+                        <TextInput
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            keyboardType="default"
+                            style={styles.inputControl}
+                            placeholder='john.doe'
+                            placeholderTextColor='#6b7280'
+                            value={form.email}
+                            onChangeText={email => setForm({ ...form, email })} />
+                    </View>
 
-                    <TextInput
-                    secureTextEntry
-                    style={styles.inputControl}
-                    placeholder='********'
-                    placeholderTextColor='#6b7280'
-                        value={form.password}
-                        onChangeText={password => setForm({ ...form, password })}
-                    />    
-                </View>
+                    <View style={styles.input}>
+                        <Text style={styles.inputLabel}>Password</Text>
 
-                <View style={styles.formAction}>
+                        <TextInput
+                            secureTextEntry
+                            style={styles.inputControl}
+                            placeholder='********'
+                            placeholderTextColor='#6b7280'
+                            value={form.password}
+                            onChangeText={password => setForm({ ...form, password })} />
+                    </View>
+
+                    <View style={styles.formAction}>
+                        <TouchableOpacity
+                            onPress={handleLogin}>
+                            <View style={styles.btn}>
+                                <Text style={styles.btnText}>Login</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+
                     <TouchableOpacity
-                        onPress={handleLogin}>
-                        <View style={styles.btn}>
-                            <Text style={styles.btnText}>Login</Text>
-                        </View>
+                        style={{ marginTop: 'auto' }}
+                        onPress={() => {
+                        } }>
+                        <Text style={styles.formFooter}>Create an account</Text>
                     </TouchableOpacity>
                 </View>
-                
-                <TouchableOpacity 
-                style ={{ marginTop: 'auto' }}
-                    onPress={() => {
-                }}> 
-                    <Text style={styles.formFooter}>Create an account</Text>
-                    </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView></>
     );
 }
 
@@ -239,10 +274,71 @@ const styles = StyleSheet.create({
     errortext: {
         color: "red",
         marginBottom: 10,
-    }
+    },
+    svgContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+      },
+      tempButtonsContainer: {
+        position: 'absolute',
+        left: 20,
+        top: height * 0.15,
+        zIndex: 2,
+      },
+      tempButton: {
+       backgroundColor: '#FFF',
+        padding: 10,
+        marginBottom: 10,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#000',
+      },
+      tempButtonText: {
+        color: '#000',
+        fontWeight: 'bold',
+      },
+      logoImage: {
+        width: 600, 
+        height: 600, 
+        position: 'absolute',
+        top: 100,
+        left: '60%',
+        transform: [{ translateX: -300 }],
+      },
+      buttonContainer: { 
+        justifyContent: 'space-evenly', 
+        alignItems: 'center',
+        width: '100%', 
+        position: 'absolute',
+        top: '60%', 
+      },
+      buttonWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
+      },
+      SbuttonImage: {
+        width: '75%', 
+        height: '75%', 
+        backgroundColor: 'transparent',
+        marginBottom: 0,
+        zIndex: 1,
+        transform: [{ translateX: '550%' }, { translateY: '-10%' }],
+      },
+      buttonImage: {
+        width: 60, 
+        height: 60, 
+        resizeMode: 'contain'
+      },
 });
 
-const Login = () => {
+const Login = ( navigation ) => {
     return (
         <Content />
     );
