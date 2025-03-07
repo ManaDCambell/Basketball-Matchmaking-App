@@ -36,19 +36,11 @@ export async function checkCredentials(email,password){
     }
 }
 export async function getUserNames() {
-  const [userNames, setUserNames] = useState([]);
-  getDocs(usersCollection).then((querySnapshot) => {
-      if (!querySnapshot.empty) {
-        setUserNames(querySnapshot.docs.map((doc) => ({ ...doc.data().userName, id: doc.id })));
-      } else {
-        console.log("No documents found.");
-        setData("fail");
-      }
-    })
-    .catch((error) => {
-      console.error("Error getting documents: ", error);
-      setData("fail");
-    });
+  const userNames = [];
+  const users = await getDocs(usersCollection);
+  for (let i = 0; i < users.size; i++) {
+    userNames.push(users.docs[i].data().userName);
+  }
   return userNames;
 }
 export async function getUser(userName) {
@@ -91,6 +83,12 @@ export async function getEmail(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
   const data = tempData.docs[0].data().email;
+  return data;
+}
+export async function getFriends(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().friends;
   return data;
 }
 export async function setFullName(userName,newFullName) {
@@ -174,39 +172,21 @@ export async function resetPassword(email) {
     throw error;
   }
 }
-
-export const getUserNames2 = async () => {
-    try {
-      const usersRef = collection(db, 'users');
-      const snapshot = await getDocs(usersRef);
-      return snapshot.docs.map(doc => ({ userName: doc.data().userName }));
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      return [];
-    }
-  };
-
-  export const getFriends = async () => {
-    try {
-      const friendsRef = collection(db, 'friends');
-      const snapshot = await getDocs(friendsRef);
-      return snapshot.docs.map(doc => ({ userName: doc.data().userName }));
-    } catch (error) {
-      console.error('Error fetching friends:', error);
-      return [];
-    }
-  };
+export async function addFriend(userName,FriendUserName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const tempData = await getDocs(q);
+    const data = tempData.docs[0].data().friends;
+    const docRef = doc(usersCollection, tempData.docs[0].id);
+    data.push(FriendUserName);
+    await updateDoc(docRef, {
+      friends: data
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
   
-  // Add a new friend to Firestore
-  export const addFriend = async (userName) => {
-    try {
-      const friendsRef = collection(db, 'friends');
-      await addDoc(friendsRef, { userName });
-    } catch (error) {
-      console.error('Error adding friend:', error);
-    }
-  };
-
+}
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
   const [usert, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});
