@@ -64,7 +64,7 @@ function HomeScreen({ navigation }) {
 
   const fetchFriends = async () => {
     try {
-      const friendList = await getFriends();
+      const friendList = await getFriends("Pab");
       setFriends(friendList || []);
     } catch (error) {
       console.error("Failed to fetch friends:", error);
