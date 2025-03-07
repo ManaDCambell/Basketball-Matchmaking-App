@@ -95,9 +95,9 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { checkCredentials } from './database';
 import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
-const Stack = createNativeStackNavigator(); 
+const Stack = createStackNavigator(); 
 
 const Content = () => {
     const [form, setForm] = useState({
@@ -134,7 +134,8 @@ const Content = () => {
                     name="Login"
                     component={Content} />
             </Stack.Navigator>
-        </NavigationContainer><SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+        </NavigationContainer>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
                 <View style={styles.container}>
                     <Svg height="100%" width="100%" style={styles.svgContainer}>
 
