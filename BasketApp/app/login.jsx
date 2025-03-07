@@ -92,7 +92,7 @@
 
 
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { checkCredentials } from './database';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack';
