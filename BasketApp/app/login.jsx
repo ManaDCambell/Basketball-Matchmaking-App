@@ -96,6 +96,7 @@ import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Aler
 import { checkCredentials } from './database';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack';
+import Svg, { Path } from 'react-native-svg';
 
 const Stack = createStackNavigator(); 
 
