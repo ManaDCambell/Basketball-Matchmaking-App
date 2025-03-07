@@ -28,6 +28,68 @@
         style={styles.logoImage}
       /> */}
 
+    //   svgContainer: {
+    //     position: 'absolute',
+    //     top: 0,
+    //     left: 0,
+    //     width: '100%',
+    //     height: '100%',
+    //     zIndex: 0,
+    //   },
+    //   tempButtonsContainer: {
+    //     position: 'absolute',
+    //     left: 20,
+    //     top: height * 0.15,
+    //     zIndex: 2,
+    //   },
+    //   tempButton: {
+    //     backgroundColor: '#FFF',
+    //     padding: 10,
+    //     marginBottom: 10,
+    //     borderRadius: 5,
+    //     borderWidth: 1,
+    //     borderColor: '#000',
+    //   },
+    //   tempButtonText: {
+    //     color: '#000',
+    //     fontWeight: 'bold',
+    //   },
+    //   logoImage: {
+    //     width: 600, 
+    //     height: 600, 
+    //     position: 'absolute',
+    //     top: 100,
+    //     left: '60%',
+    //     transform: [{ translateX: -300 }],
+    //   },
+    //   buttonContainer: { 
+    //     justifyContent: 'space-evenly', 
+    //     alignItems: 'center',
+    //     width: '100%', 
+    //     position: 'absolute',
+    //     top: '60%', 
+    //   },
+    //   buttonWrapper: {
+    //     width: 80,
+    //     height: 80,
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //     backgroundColor: 'transparent',
+    //   },
+    //   SbuttonImage: {
+    //     width: '75%', 
+    //     height: '75%', 
+    //     backgroundColor: 'transparent',
+    //     marginBottom: 0,
+    //     zIndex: 1,
+    //     transform: [{ translateX: '550%' }, { translateY: '-10%' }],
+    //   },
+    //   buttonImage: {
+    //     width: 60, 
+    //     height: 60, 
+    //     resizeMode: 'contain'
+    //   },
+
 
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
