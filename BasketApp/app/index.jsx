@@ -63,12 +63,19 @@ function HomeScreen({ navigation }) {
   }, []);
 
   const fetchFriends = async () => {
-    try {
-      const friendList = await getFriends("Pab");
-      setFriends(friendList || []);
-    } catch (error) {
-      console.error("Failed to fetch friends:", error);
-    }
+      try {
+        const friendList = await getFriends("Pab");
+        if (!friendList || friendList.length === 0) {
+          console.log("No friends found");
+          setFriends([]);
+          return;
+        }
+  
+        const formattedFriends = friendList.map(friend => ({ userName: friend }));
+        setFriends(formattedFriends);
+      } catch (error) {
+        console.error('Failed to fetch friends:', error);
+      }
   };
 
   return (

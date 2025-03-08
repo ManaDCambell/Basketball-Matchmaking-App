@@ -33,17 +33,20 @@ const Friends = () => {
   const fetchFriends = async () => {
     try {
       const friendList = await getFriends("Pab");
-      if (!friendList) {
+      if (!friendList || friendList.length === 0) {
         console.log("No friends found");
         setFriends([]);
         return;
       }
-      console.log("Fetched Friends:", friendList);
-      setFriends(friendList);
+
+      const formattedFriends = friendList.map(friend => ({ userName: friend }));
+      setFriends(formattedFriends);
     } catch (error) {
       console.error('Failed to fetch friends:', error);
     }
-  };
+};
+
+
 
   useEffect(() => {
     setFilteredUsers(isAddingFriends ? users : friends);
@@ -62,7 +65,7 @@ const Friends = () => {
       const currentUserName = "Pab";  // Replace this with actual logged-in user’s username if dynamic
       await addFriend(currentUserName, friendUserName);
       Alert.alert('Friend added', `${friendUserName} has been added to your friends list.`);
-      fetchFriends();  // Refresh friends list
+      fetchFriends();
     } catch (error) {
       console.error('Error adding friend:', error);
     }

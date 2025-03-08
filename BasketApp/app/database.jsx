@@ -89,9 +89,22 @@ export async function getEmail(userName) {
 export async function getFriends(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().friends;
+  
+  if (tempData.empty) {
+    console.log("No user found.");
+    return [];
+  }
+
+  const data = tempData.docs[0].data().friends || [];
+  
+  if (!Array.isArray(data)) {
+    console.log("Friends data is not an array.");
+    return [];
+  }
+
   return data;
 }
+
 export async function setFullName(userName,newFullName) {
   try {
     const q = query(usersCollection, where("userName", "==", userName));
@@ -183,55 +196,51 @@ export async function resetPassword(email) {
     throw error;
   }
 }
+
 export async function addFriend(userName, FriendUserName) {
   try {
     if (!FriendUserName || FriendUserName.trim() === "") {
       console.log("Invalid FriendUserName:", FriendUserName);
-      return; // Avoid proceeding if the friend username is invalid
+      return;
     }
-
     const q = query(usersCollection, where("userName", "==", userName));
     const tempData = await getDocs(q);
-    
     if (tempData.empty) {
       console.log('User not found.');
       return;
     }
-
     const userDoc = tempData.docs[0];
-    let data = userDoc.data().friends;  // Get the friends array
-
+    let data = userDoc.data().friends;
     console.log("Fetched Friends:", data);
-
     if (!Array.isArray(data)) {
       console.log('Friends array was undefined or not an array. Initializing it.');
       data = [];
     }
-
     if (data.includes(FriendUserName)) {
       console.log("This user is already your friend.");
       return;
     }
-
     data.push(FriendUserName);
-
     const docRef = doc(usersCollection, userDoc.id);
-
     console.log("Updating friends list with:", data);
-
     await updateDoc(docRef, {
       friends: data
     });
-
     console.log('Friend added successfully');
   } catch (error) {
     console.error("Error updating document: ", error);
   }
 }
 
-
-
-
+export async function fetchFriendsData(setFriends, userName = "Pab") {
+  try {
+    const friendList = await getFriends(userName);
+    setFriends(friendList || []);
+  } catch (error) {
+    console.error("Failed to fetch friends:", error);
+    setFriends([]);
+  }
+}
 
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
