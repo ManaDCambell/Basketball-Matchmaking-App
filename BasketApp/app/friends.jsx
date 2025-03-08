@@ -32,7 +32,7 @@ const Friends = () => {
 
   const fetchFriends = async () => {
     try {
-      const friendList = await getFriends();
+      const friendList = await getFriends("Pab");
       if (!friendList) {
         console.log("No friends found");
         setFriends([]);
@@ -57,15 +57,17 @@ const Friends = () => {
     setFilteredUsers(filtered);
   };
 
-  const handleAddFriend = async (userName) => {
+  const handleAddFriend = async (friendUserName) => {
     try {
-      await addFriend(userName);
-      Alert.alert('Friend added', `${userName} has been added to your friends list.`);
-      fetchFriends();
+      const currentUserName = "Pab";  // Replace this with actual logged-in user’s username if dynamic
+      await addFriend(currentUserName, friendUserName);
+      Alert.alert('Friend added', `${friendUserName} has been added to your friends list.`);
+      fetchFriends();  // Refresh friends list
     } catch (error) {
       console.error('Error adding friend:', error);
     }
   };
+  
 
   return (
     <View style={styles.container}>
