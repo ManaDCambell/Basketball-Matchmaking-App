@@ -100,6 +100,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import Svg, { Path } from 'react-native-svg';
 
 const Stack = createStackNavigator(); 
+const { height } = Dimensions.get('window').width * 0.8;
 
 const Content = () => {
     const [form, setForm] = useState({
@@ -126,7 +127,7 @@ const Content = () => {
             } else {
                 Alert.alert("Incorrect email and password! Please create an account!");
             }
-        } catch {
+        } catch (error) {
             Alert.alert("Error!", "An error occured while logging in!");
             console.error(error);
         }
@@ -170,9 +171,9 @@ const Content = () => {
                         <TextInput
                             autoCapitalize="none"
                             autoCorrect={false}
-                            keyboardType="default"
+                            keyboardType="email-address"
                             style={styles.inputControl}
-                            placeholder='john.doe'
+                            placeholder='john.doe@example.com'
                             placeholderTextColor='#6b7280'
                             value={form.email}
                             onChangeText={email => setForm({ ...form, email })} />
@@ -209,8 +210,6 @@ const Content = () => {
             </SafeAreaView>
     );
 }
-
-const { height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
