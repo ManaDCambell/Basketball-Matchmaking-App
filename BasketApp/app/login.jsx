@@ -95,10 +95,8 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { checkCredentials } from './database';
 import { NavigationContainer } from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
-
-const Stack = createStackNavigator(); 
 
 const Content = () => {
     const [form, setForm] = useState({
@@ -106,6 +104,8 @@ const Content = () => {
         password: '',
     });
  
+    const navigation = useNavigation();
+
     const handleLogin = async () => {
         const { email, password } = form;
 
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
       },
 });
 
-const Login = ( navigation ) => {
+const Login = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator>
