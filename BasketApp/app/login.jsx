@@ -98,7 +98,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Svg, { Path } from 'react-native-svg';
  
 const Stack = createStackNavigator();
-const { height } = Dimensions.get('window').width * 0.8;
+const { height } = Dimensions.get('window');
 
 const Content = ({ navigation }) => {
     const [form, setForm] = useState({
@@ -297,9 +297,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
       logoImage: {
-        width: 600, 
-        height: 600, 
-        position: 'absolute',
+        width: 150, 
+        height: 150, 
+        position: 'center',
         top: 100,
         left: '60%',
         transform: [{ translateX: -300 }],
