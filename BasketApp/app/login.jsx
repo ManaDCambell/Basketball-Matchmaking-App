@@ -129,13 +129,6 @@ const Content = () => {
         }
     };
     return (
-        <><NavigationContainer>
-            <Stack.Navigator>
-                <Stack.Screen
-                    name="Login"
-                    component={Content} />
-            </Stack.Navigator>
-        </NavigationContainer>
         <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
                 <View style={styles.container}>
                     <Svg height="100%" width="100%" style={styles.svgContainer}>
@@ -210,7 +203,7 @@ const Content = () => {
                         <Text style={styles.formFooter}>Create an account</Text>
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView></>
+            </SafeAreaView>
     );
 }
 
@@ -344,7 +337,13 @@ const styles = StyleSheet.create({
 
 const Login = ( navigation ) => {
     return (
-        <Content />
+        <NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen
+                    name="Login"
+                    component={Content} />
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 };
 
