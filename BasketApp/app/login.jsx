@@ -297,9 +297,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
       logoImage: {
-        width: 150, 
-        height: 150, 
-        position: 'center',
+        width: 600, 
+        height: 600, 
+        position: 'absolute',
         top: 100,
         left: '60%',
         transform: [{ translateX: -300 }],
