@@ -95,7 +95,6 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { checkCredentials } from './database';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
  
 const Stack = createStackNavigator();
@@ -336,13 +335,11 @@ const styles = StyleSheet.create({
 
 const Login = () => {
     return (
-            <NavigationContainer>
-                <Stack.Navigator>
-                    <Stack.Screen
-                        name="Login"
-                        component={Content} />
-                </Stack.Navigator>
-            </NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen
+                    name="Login"
+                    component={Content} />
+            </Stack.Navigator>
     );
 };
 
