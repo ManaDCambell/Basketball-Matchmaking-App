@@ -129,7 +129,7 @@ const Content = ({ navigation }) => {
         }
     };
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'orange' }}>
                 <View style={styles.container}>
                     <Svg height="100%" width="100%" style={styles.svgContainer}>
 
@@ -162,7 +162,7 @@ const Content = ({ navigation }) => {
                 </View>
                 <View style={styles.form}>
                     <View style={styles.input}>
-                        <Text style={styles.inputLabel}>email</Text>
+                        <Text style={styles.inputLabel}>Email</Text>
 
                         <TextInput
                             autoCapitalize="none"
@@ -211,6 +211,9 @@ const styles = StyleSheet.create({
     container: {
         padding: 24,
         flex: 1,
+        backgroundColor: 'orange',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     title: {
         fontSize: 27,
@@ -221,6 +224,8 @@ const styles = StyleSheet.create({
     },
     input: {
         marginBottom: 16,
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
     },
     inputLabel: {
         fontSize: 17,
@@ -271,11 +276,14 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     svgContainer: {
-        position: 'absolute',
+        position: 'relative',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         zIndex: 0,
       },
       tempButtonsContainer: {
@@ -297,12 +305,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
       logoImage: {
-        width: 600, 
-        height: 600, 
+        width: 200, 
+        height: 200, 
         position: 'absolute',
-        top: 100,
-        left: '60%',
-        transform: [{ translateX: -300 }],
+        top: -100,
+        left: '100%',
+        transform: [{ translateX: -200 }, { translateY: 130 }],
+        marginBottom: 0,
+        zIndex: 1,
       },
       buttonContainer: { 
         justifyContent: 'space-evenly', 
