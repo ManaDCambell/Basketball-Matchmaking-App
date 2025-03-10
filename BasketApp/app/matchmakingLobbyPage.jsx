@@ -1,14 +1,15 @@
-import React from 'react';
-import { useState } from 'react';
-import { View, Text, Image, Button, StyleSheet } from 'react-native';
-import bronze from '../assets/images/bronze.png';
-import gold from '../assets/images/gold.png';
-import platinum from '../assets/images/platinum.png';
-import diamond from '../assets/images/diamond.png';
-import { getUser, initializeDatabase } from './database';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { getProfileRank } from './matchmaking';
+import React, { useState, useEffect } from 'react';
+import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Icon from 'react-native-vector-icons/Ionicons';
 
+import Header from './Header';
+import Footer from './footer';
+
+import { getUser, getFriends } from './database';
+
+import logo from '../assets/images/appLogo.png';
+const { width, height } = Dimensions.get('window');
 /*const matchmakingLobbyPage  = () =>{
     const db = useSQLiteContext();
     const user = getUser(db,"Mana");
@@ -36,40 +37,60 @@ import { getProfileRank } from './matchmaking';
 };
 */
 
-const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-    buttonContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 30,
-    },
-    buttonWrapper: {
-        flex: 1,
-        minwidth: 100, 
-        
-    },
-    text: {
-        fontSize: 18,
-        marginBottom: 10,
-    },
-    image: {
-        width: 300,
-        height: 300,
-        marginBottom: 20,
-    },
-});
-
-
 export const matchmakingLobbyPage = ({ navigation }) => {
+    const textItems = [
+        "Username: BallinCat43 \nELO: 2000 \nLocation: New York",
+        "Username: Joe \nELO: 1400 \nLocation: Los Angeles",
+        "Username: LebronJ \nELO: 200 \nLocation: Akron",
+    ];
+
+    const challengePlayer = (text) => {
+        console.log("Player Challenged", `You clicked: "${text}"`);
+    };
     return (
-        <View>
-            <Text>HIIIII</Text>
-        </View>
+        <View style={styles.container}>
+        <Text style={styles.title}>Matches</Text>
+        <ScrollView style={styles.scrollContainer}>
+            {textItems.map((text, index) => (
+                <TouchableOpacity 
+                key={index} 
+                style={styles.textBox} 
+                onPress={() => challengePlayer(text)}
+            >
+                <Text style={styles.text}>{text}</Text>
+            </TouchableOpacity>
+            ))}
+        </ScrollView>
+    </View>
     );
 }
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: 50,
+        backgroundColor: '#f8f8f8',
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    scrollContainer: {
+        width: '90%',
+        maxHeight: 600,
+    },
+    textBox: {
+        backgroundColor: '#fff',
+        padding: 15,
+        marginBottom: 10,
+        borderRadius: 8,
+    },
+    text: {
+        fontSize: 16,
+        color: '#333',
+    },
+});
+export default matchmakingLobbyPage;
