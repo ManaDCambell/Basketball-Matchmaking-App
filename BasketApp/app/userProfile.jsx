@@ -59,7 +59,7 @@ const Content = () => {
 
   useEffect(() => {
     async function getData() {
-      const result = await getUser("Pab");
+      const result = await getUser("Pancake");
       setUser(result);
       setLoading(false);
     }
