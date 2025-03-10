@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView, Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Database from './database';
 import UserProfile from './userProfile';
-import Matchmaking from './matchmaking'; 
-import Friends from './friends'; 
+import Matchmaking from './matchmaking';
+import Friends from './friends';
 import UserProfileSettings from './userProfileSettings';
 import Tournament from './tournament';
 import Login from './login';
@@ -38,13 +38,13 @@ function Index() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
       <Stack.Screen name="Database" component={Database} />
-      <Stack.Screen name="Matchmaking" component={Matchmaking} /> 
-      <Stack.Screen name="Friends" component={Friends} /> 
+      <Stack.Screen name="Matchmaking" component={Matchmaking} />
+      <Stack.Screen name="Friends" component={Friends} />
       <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
       <Stack.Screen name="Tournament" component={Tournament} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
+      <Stack.Screen name="matchmakingLobbyPage" component={matchmakingLobbyPage} />
     </Stack.Navigator>
   );
 }
@@ -53,6 +53,13 @@ function HomeScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [gameType, setGameType] = useState("1v1");
+  const [selectedTeammates, setSelectedTeammates] = useState({
+    teammate1: "",
+    teammate2: "",
+  });
+  const [isMatchmakingVisible, setMatchmakingVisible] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
     async function fetchUser() {
@@ -65,20 +72,56 @@ function HomeScreen({ navigation }) {
   }, []);
 
   const fetchFriends = async () => {
-      try {
-        const friendList = await getFriends("Pab");
-        if (!friendList || friendList.length === 0) {
-          console.log("No friends found");
-          setFriends([]);
-          return;
-        }
-  
-        const formattedFriends = friendList.map(friend => ({ userName: friend }));
-        setFriends(formattedFriends);
-      } catch (error) {
-        console.error('Failed to fetch friends:', error);
+    try {
+      const friendList = await getFriends("Pab"); // Change this to the current user
+      if (!friendList || friendList.length === 0) {
+        console.log("No friends found");
+        setFriends([]);
+        return;
       }
+
+      const formattedFriends = friendList.map((friend) => ({
+        userName: friend,
+      }));
+      setFriends(formattedFriends);
+    } catch (error) {
+      console.error("Failed to fetch friends:", error);
+    }
   };
+
+  const handleTeammateSelection = (index, teammate) => {
+    const updatedSelection = { ...selectedTeammates };
+    updatedSelection[`teammate${index}`] = teammate;
+    setSelectedTeammates(updatedSelection);
+
+    if (
+      gameType !== "1v1" &&
+      updatedSelection.teammate1 &&
+      updatedSelection.teammate2
+    ) {
+      setIsButtonDisabled(false);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  };
+
+  const toggleMatchmakingMenu = () => {
+    setMatchmakingVisible(!isMatchmakingVisible);
+  };
+
+  useEffect(() => {
+    if (
+      gameType === "1v1" ||
+      (gameType === "2v2" && selectedTeammates.teammate1) ||
+      (gameType === "3v3" &&
+        selectedTeammates.teammate1 &&
+        selectedTeammates.teammate2)
+    ) {
+      setIsButtonDisabled(false);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  }, [gameType, selectedTeammates]);
 
   return (
     <View style={styles.container}>
@@ -96,10 +139,13 @@ function HomeScreen({ navigation }) {
         <ScrollView style={styles.scrollContainer}>
           {friends.map((friend, index) => (
             <View key={index} style={styles.friendItem}>
-              <Image source={require('../assets/images/default_profile_picture.jpg')} style={styles.profilePic} />
+              <Image
+                source={require("../assets/images/default_profile_picture.jpg")}
+                style={styles.profilePic}
+              />
               <Text style={styles.friendName}>{friend.userName}</Text>
-              <TouchableOpacity 
-                style={styles.chatIcon} 
+              <TouchableOpacity
+                style={styles.chatIcon}
                 onPress={() => console.log(`Chat with ${friend.userName}`)}
               >
                 <Icon name="chatbubble-outline" size={24} color="white" />
@@ -121,7 +167,12 @@ function HomeScreen({ navigation }) {
               <View style={styles.matchCenterContainer}>
                 <Text style={styles.matchText}>{match.type}</Text>
                 <Text style={styles.matchText}>Score: {match.score}</Text>
-                <Text style={[styles.matchText, match.result === 'Win' ? styles.winText : styles.lossText]}>
+                <Text
+                  style={[
+                    styles.matchText,
+                    match.result === "Win" ? styles.winText : styles.lossText,
+                  ]}
+                >
                   {match.result} ({match.eloChange})
                 </Text>
               </View>
@@ -133,15 +184,127 @@ function HomeScreen({ navigation }) {
         </ScrollView>
       </View>
 
-      {/* Match Button */}
+      {/* Matchmaking Button */}
       <View style={styles.matchButtonContainer}>
-        <TouchableOpacity style={styles.matchButton} onPress={() => console.log("Find a match!")}>
+        <TouchableOpacity
+          style={styles.matchButton}
+          onPress={toggleMatchmakingMenu}
+        >
           <View style={styles.ring}>
             <Image source={logo} style={styles.logo} />
-  
           </View>
         </TouchableOpacity>
       </View>
+
+      {/* Overlay and Matchmaking Menu*/}
+      {isMatchmakingVisible && (
+        <View style={styles.overlay}>
+          <View style={styles.menu}>
+            {/* Close Button */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={toggleMatchmakingMenu}
+            >
+              <Icon name="close" size={30} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.menuTitle}>Select Game Type</Text>
+            <View style={styles.buttonContainer}>
+              {["1v1", "2v2", "3v3"].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.gameButton,
+                    gameType === type && styles.activeButton,
+                  ]}
+                  onPress={() => {
+                    setGameType(type);
+                    setSelectedTeammates({ teammate1: "", teammate2: "" });
+                  }}
+                >
+                  <Text style={styles.buttonText}>{type}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {(gameType === "2v2" || gameType === "3v3") && (
+              <>
+                <Text style={styles.menuTitle}>Select Teammates</Text>
+                <View style={{ height: 200, overflow: "hidden" }}>
+                  <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: 10 }}
+                    showsVerticalScrollIndicator={true}
+                    nestedScrollEnabled={true}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    {[
+                      ...friends,
+                      ...(gameType === "3v3"
+                        ? [{ userName: "Random 1" }, { userName: "Random 2" }]
+                        : [{ userName: "Random" }]),
+                    ].map((friend, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.teammateItem,
+                          (selectedTeammates.teammate1 === friend.userName ||
+                            selectedTeammates.teammate2 === friend.userName) &&
+                            styles.selectedTeammate,
+                        ]}
+                        onPress={() => {
+                          if (selectedTeammates.teammate1 === friend.userName) {
+                            setSelectedTeammates((prev) => ({
+                              ...prev,
+                              teammate1: "",
+                            }));
+                          } else if (
+                            selectedTeammates.teammate2 === friend.userName
+                          ) {
+                            setSelectedTeammates((prev) => ({
+                              ...prev,
+                              teammate2: "",
+                            }));
+                          } else if (gameType === "2v2") {
+                            if (!selectedTeammates.teammate1) {
+                              setSelectedTeammates((prev) => ({
+                                ...prev,
+                                teammate1: friend.userName,
+                              }));
+                            }
+                          } else if (gameType === "3v3") {
+                            if (!selectedTeammates.teammate1) {
+                              setSelectedTeammates((prev) => ({
+                                ...prev,
+                                teammate1: friend.userName,
+                              }));
+                            } else if (!selectedTeammates.teammate2) {
+                              setSelectedTeammates((prev) => ({
+                                ...prev,
+                                teammate2: friend.userName,
+                              }));
+                            }
+                          }
+                        }}
+                      >
+                        <Text style={styles.teammateText}>
+                          {friend.userName}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </>
+            )}
+
+            <Button
+              title="Find Match"
+              onPress={() => alert("Match Found!")} // Placeholder for match finding logic
+              disabled={isButtonDisabled}
+              color={isButtonDisabled ? "gray" : "rgb(218, 113, 5)"}
+            />
+          </View>
+        </View>
+      )}
 
       <Footer />
     </View>
@@ -151,17 +314,17 @@ function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgb(218, 113, 5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgb(218, 113, 5)",
   },
   header: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '96%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "96%",
     marginRight: 50,
   },
   friendsBox: {
@@ -169,14 +332,14 @@ const styles = StyleSheet.create({
     top: height * 0.14,
     width: "90%",
     height: 200,
-    backgroundColor: "rgba(36, 36, 36, 0.55)", 
+    backgroundColor: "rgba(36, 36, 36, 0.55)",
     borderRadius: 15,
     padding: 15,
   },
   friendsTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "rgb(255, 255, 255)",
     marginBottom: 10,
   },
   scrollContainer: {
@@ -192,25 +355,31 @@ const styles = StyleSheet.create({
   },
   friendName: {
     fontSize: 16,
-    color: "white",
+    color: "rgb(255, 255, 255)",
     position: "absolute",
     left: width * 0.08,
   },
   chatIcon: {
     padding: 5,
   },
+  profilePic: {
+    width: 25,
+    height: 25,
+    borderRadius: 20,
+    marginRight: 10,
+  },
   titleContainer: {
     width: "90%",
     alignItems: "center",
-    position: 'absolute',
+    position: "absolute",
     top: height * 0.075,
     flexDirection: "row",
     marginLeft: 50,
   },
   title: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "rgb(255, 255, 255)",
   },
   matchBox: {
     position: "absolute",
@@ -225,34 +394,34 @@ const styles = StyleSheet.create({
   matchTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "rgb(255, 255, 255)",
     marginBottom: 10,
   },
   matchItem: {
     flexDirection: "row",
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.3)",
   },
   matchDetailsContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   matchCenterContainer: {
     flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   matchUsername: {
     fontSize: 18,
-    color: "white",
+    color: "rgb(255, 255, 255)",
     fontWeight: "bold",
   },
   matchText: {
     fontSize: 14,
-    color: "white",
+    color: "rgb(255, 255, 255)",
   },
   winText: {
     color: "rgb(76, 175, 80)",
@@ -260,49 +429,113 @@ const styles = StyleSheet.create({
   lossText: {
     color: "rgb(255, 61, 0)",
   },
-  profilePic: {
-    width: 25,
-    height: 25,
-    borderRadius: 20,
-    marginRight: 10,
-  },
   matchButtonContainer: {
-    position: 'absolute',
-    bottom: height * 0.1, 
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "absolute",
+    bottom: height * 0.1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-
   matchButton: {
     width: 110,
     height: 110,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 60, 
-    backgroundColor: 'transparent',
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 60,
+    backgroundColor: "transparent",
     borderWidth: 3,
-    borderColor: 'white',
-    position: 'absolute',
-    bottom: -height*0.02, 
+    borderColor: "rgb(255, 255, 255)",
+    position: "absolute",
+    bottom: -height * 0.02,
   },
-
   ring: {
     width: 90,
     height: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 50,
-    backgroundColor: 'rgba(36, 36, 36, 0.55)', 
-    position: 'relative',
+    backgroundColor: "rgba(36, 36, 36, 0.55)",
+    position: "absolute",
+    top: 5,
   },
-
   logo: {
-    width: 70, 
-    height: 70, 
-    resizeMode: 'contain',
+    width: 80,
+    height: 80,
+    borderRadius: 50,
   },
-
- 
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  menu: {
+    backgroundColor: "rgb(40, 50, 55)",
+    borderRadius: 20,
+    padding: 20,
+    width: width * 0.85,
+    maxHeight: height * 0.65,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginBottom: 5,
+  },
+  menuTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "rgb(255, 255, 255)",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  gameButton: {
+    backgroundColor: "rgb(56, 64, 71)",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  activeButton: {
+    backgroundColor: "rgb(218, 113, 5)",
+  },
+  buttonText: {
+    color: "rgb(255, 255, 255)",
+  },
+  teammatesContainer: {
+    maxHeight: 200,
+  },
+  teammateItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgb(58, 65, 71)",
+  },
+  selectedTeammate: {
+    backgroundColor: "rgb(218, 113, 5)",
+  },
+  teammateText: {
+    fontSize: 16,
+    color: "rgb(255, 255, 255)",
+  },
+  findMatchButton: {
+    backgroundColor: "rgb(56, 64, 71)",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  findMatchButtonDisabled: {
+    backgroundColor: "rgb(85, 85, 85)",
+  },
+  findMatchButtonText: {
+    color: "rgb(255, 255, 255)",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
 
 export default Index;
