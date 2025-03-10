@@ -12,12 +12,12 @@ const Header = () => {
     <View style={styles.header}>
 
       <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.tempButtonText}>Login</Text>
+        <Text style={styles.tempButtonText}>Sign Out</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
+      {/* <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
         <Text style={styles.tempButtonText}>Database</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
         <Icon name="cog-outline" size={40} color="white" />
@@ -52,9 +52,12 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
-    marginRight: 50,
     borderWidth: 1,
     borderColor: '#000',
+    position: 'absolute',
+    top: 10,
+    right: 320,
+
   },
   tempButtonText: {
     color: 'black',
