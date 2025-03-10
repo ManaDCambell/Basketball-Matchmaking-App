@@ -11,6 +11,7 @@ import UserProfileSettings from './userProfileSettings';
 import Tournament from './tournament';
 import Login from './login';
 import Signup from './signup';
+import matchmakingLobbyPage from './matchmakingLobbyPage';
 
 import Header from './Header';
 import Footer from './footer';
@@ -43,6 +44,7 @@ function Index() {
       <Stack.Screen name="Tournament" component={Tournament} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
+      <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
     </Stack.Navigator>
   );
 }
