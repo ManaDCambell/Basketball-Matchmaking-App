@@ -80,6 +80,7 @@ function Matchmaking () {
                 <Button title="1v1" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
                 <Button title="2v2" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
                 <Button title="3v3" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
+                <Button title="Report Score" onPress={() => navigation.navigate('MatchmakingReport')} />
             </View>
         </View>
         <Footer />
