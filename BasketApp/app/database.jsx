@@ -2,7 +2,8 @@ import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, 
 import React, { useState, useEffect } from 'react';
 import { db } from '../FirebaseConfig';
 import {auth} from '../FirebaseConfig';
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
+import {setLoggedInUser,getLoggedInUser} from '../FirebaseConfig';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from 'firebase/auth';
 import { collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -26,8 +27,12 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
 export async function checkCredentials(email,password){
     try {
       const user = await signInWithEmailAndPassword(auth,email,password);
-      if (user) 
+      if (user) {
+        const q = query(usersCollection, where("email", "==", email));
+        const tempData = await getDocs(q);
+        setLoggedInUser(tempData.docs[0].data().userName);
         return true;
+      }
       else
         return false;
     } catch(error){
@@ -35,6 +40,10 @@ export async function checkCredentials(email,password){
       alert('signin failed');
       return false;
     }
+}
+export async function logOut(){
+  auth.signOut();
+  setLoggedInUser(undefined);
 }
 export async function getUserNames() {
   const userNames = [];

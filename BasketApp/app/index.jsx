@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView, Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import {getLoggedInUser} from '../FirebaseConfig';
 import Database from './database';
 import UserProfile from './userProfile';
 import Matchmaking from './matchmaking';
@@ -34,7 +34,7 @@ const matchHistory = [
 
 function Index() {
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="Login">
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
       <Stack.Screen name="Database" component={Database} />
@@ -50,266 +50,269 @@ function Index() {
 }
 
 function HomeScreen({ navigation }) {
-  const [user, setUser] = useState(null);
-  const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [gameType, setGameType] = useState("1v1");
-  const [selectedTeammates, setSelectedTeammates] = useState({
-    teammate1: "",
-    teammate2: "",
-  });
-  const [isMatchmakingVisible, setMatchmakingVisible] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  if (getLoggedInUser() == undefined){
+      return <Text>Loading...</Text>;
+  }
+    const [user, setUser] = useState(null);
+    const [friends, setFriends] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [gameType, setGameType] = useState("1v1");
+    const [selectedTeammates, setSelectedTeammates] = useState({
+      teammate1: "",
+      teammate2: "",
+    });
+    const [isMatchmakingVisible, setMatchmakingVisible] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
-  useEffect(() => {
-    async function fetchUser() {
-      const result = await getUser("Pab"); // Change this to the current user
-      setUser(result);
-      setLoading(false);
-    }
-    fetchUser();
-    fetchFriends();
-  }, []);
-
-  const fetchFriends = async () => {
-    try {
-      const friendList = await getFriends("Pab"); // Change this to the current user
-      if (!friendList || friendList.length === 0) {
-        console.log("No friends found");
-        setFriends([]);
-        return;
+    useEffect(() => {
+      async function fetchUser() {
+        const result = await getUser(getLoggedInUser()); // Change this to the current user
+        setUser(result);
+        setLoading(false);
       }
+      fetchUser();
+      fetchFriends();
+    }, []);
 
-      const formattedFriends = friendList.map((friend) => ({
-        userName: friend,
-      }));
-      setFriends(formattedFriends);
-    } catch (error) {
-      console.error("Failed to fetch friends:", error);
-    }
-  };
+    const fetchFriends = async () => {
+      try {
+        const friendList = await getFriends(getLoggedInUser()); // Change this to the current user
+        if (!friendList || friendList.length === 0) {
+          console.log("No friends found");
+          setFriends([]);
+          return;
+        }
 
-  const handleTeammateSelection = (index, teammate) => {
-    const updatedSelection = { ...selectedTeammates };
-    updatedSelection[`teammate${index}`] = teammate;
-    setSelectedTeammates(updatedSelection);
+        const formattedFriends = friendList.map((friend) => ({
+          userName: friend,
+        }));
+        setFriends(formattedFriends);
+      } catch (error) {
+        console.error("Failed to fetch friends:", error);
+      }
+    };
 
-    if (
-      gameType !== "1v1" &&
-      updatedSelection.teammate1 &&
-      updatedSelection.teammate2
-    ) {
-      setIsButtonDisabled(false);
-    } else {
-      setIsButtonDisabled(true);
-    }
-  };
+    const handleTeammateSelection = (index, teammate) => {
+      const updatedSelection = { ...selectedTeammates };
+      updatedSelection[`teammate${index}`] = teammate;
+      setSelectedTeammates(updatedSelection);
 
-  const toggleMatchmakingMenu = () => {
-    setMatchmakingVisible(!isMatchmakingVisible);
-  };
+      if (
+        gameType !== "1v1" &&
+        updatedSelection.teammate1 &&
+        updatedSelection.teammate2
+      ) {
+        setIsButtonDisabled(false);
+      } else {
+        setIsButtonDisabled(true);
+      }
+    };
 
-  useEffect(() => {
-    if (
-      gameType === "1v1" ||
-      (gameType === "2v2" && selectedTeammates.teammate1) ||
-      (gameType === "3v3" &&
-        selectedTeammates.teammate1 &&
-        selectedTeammates.teammate2)
-    ) {
-      setIsButtonDisabled(false);
-    } else {
-      setIsButtonDisabled(true);
-    }
-  }, [gameType, selectedTeammates]);
+    const toggleMatchmakingMenu = () => {
+      setMatchmakingVisible(!isMatchmakingVisible);
+    };
 
-  return (
-    <View style={styles.container}>
-      <Header />
+    useEffect(() => {
+      if (
+        gameType === "1v1" ||
+        (gameType === "2v2" && selectedTeammates.teammate1) ||
+        (gameType === "3v3" &&
+          selectedTeammates.teammate1 &&
+          selectedTeammates.teammate2)
+      ) {
+        setIsButtonDisabled(false);
+      } else {
+        setIsButtonDisabled(true);
+      }
+    }, [gameType, selectedTeammates]);
 
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>
-          {loading ? "Loading..." : `Welcome Back, ${user?.userName}!`}
-        </Text>
-      </View>
+    return (
+      <View style={styles.container}>
+        <Header />
 
-      {/* Friends List Box */}
-      <View style={styles.friendsBox}>
-        <Text style={styles.friendsTitle}>Friends</Text>
-        <ScrollView style={styles.scrollContainer}>
-          {friends.map((friend, index) => (
-            <View key={index} style={styles.friendItem}>
-              <Image
-                source={require("../assets/images/default_profile_picture.jpg")}
-                style={styles.profilePic}
-              />
-              <Text style={styles.friendName}>{friend.userName}</Text>
-              <TouchableOpacity
-                style={styles.chatIcon}
-                onPress={() => console.log(`Chat with ${friend.userName}`)}
-              >
-                <Icon name="chatbubble-outline" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Match Review Panel */}
-      <View style={styles.matchBox}>
-        <Text style={styles.matchTitle}>Recent Matches</Text>
-        <ScrollView style={styles.scrollContainer}>
-          {matchHistory.slice(0, 5).map((match, index) => (
-            <View key={index} style={styles.matchItem}>
-              <View style={styles.matchDetailsContainer}>
-                <Text style={styles.matchUsername}>{user?.userName}</Text>
-              </View>
-              <View style={styles.matchCenterContainer}>
-                <Text style={styles.matchText}>{match.type}</Text>
-                <Text style={styles.matchText}>Score: {match.score}</Text>
-                <Text
-                  style={[
-                    styles.matchText,
-                    match.result === "Win" ? styles.winText : styles.lossText,
-                  ]}
-                >
-                  {match.result} ({match.eloChange})
-                </Text>
-              </View>
-              <View style={styles.matchDetailsContainer}>
-                <Text style={styles.matchUsername}>{match.opponent}</Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Matchmaking Button */}
-      <View style={styles.matchButtonContainer}>
-        <TouchableOpacity
-          style={styles.matchButton}
-          onPress={toggleMatchmakingMenu}
-        >
-          <View style={styles.ring}>
-            <Image source={logo} style={styles.logo} />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Overlay and Matchmaking Menu*/}
-      {isMatchmakingVisible && (
-        <View style={styles.overlay}>
-          <View style={styles.menu}>
-            {/* Close Button */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={toggleMatchmakingMenu}
-            >
-              <Icon name="close" size={30} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.menuTitle}>Select Game Type</Text>
-            <View style={styles.buttonContainer}>
-              {["1v1", "2v2", "3v3"].map((type) => (
-                <TouchableOpacity
-                  key={type}
-                  style={[
-                    styles.gameButton,
-                    gameType === type && styles.activeButton,
-                  ]}
-                  onPress={() => {
-                    setGameType(type);
-                    setSelectedTeammates({ teammate1: "", teammate2: "" });
-                  }}
-                >
-                  <Text style={styles.buttonText}>{type}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {(gameType === "2v2" || gameType === "3v3") && (
-              <>
-                <Text style={styles.menuTitle}>Select Teammates</Text>
-                <View style={{ height: 200, overflow: "hidden" }}>
-                  <ScrollView
-                    style={{ flex: 1 }}
-                    contentContainerStyle={{ paddingBottom: 10 }}
-                    showsVerticalScrollIndicator={true}
-                    nestedScrollEnabled={true}
-                    keyboardShouldPersistTaps="handled"
-                  >
-                    {[
-                      ...friends,
-                      ...(gameType === "3v3"
-                        ? [{ userName: "Random 1" }, { userName: "Random 2" }]
-                        : [{ userName: "Random" }]),
-                    ].map((friend, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.teammateItem,
-                          (selectedTeammates.teammate1 === friend.userName ||
-                            selectedTeammates.teammate2 === friend.userName) &&
-                            styles.selectedTeammate,
-                        ]}
-                        onPress={() => {
-                          if (selectedTeammates.teammate1 === friend.userName) {
-                            setSelectedTeammates((prev) => ({
-                              ...prev,
-                              teammate1: "",
-                            }));
-                          } else if (
-                            selectedTeammates.teammate2 === friend.userName
-                          ) {
-                            setSelectedTeammates((prev) => ({
-                              ...prev,
-                              teammate2: "",
-                            }));
-                          } else if (gameType === "2v2") {
-                            if (!selectedTeammates.teammate1) {
-                              setSelectedTeammates((prev) => ({
-                                ...prev,
-                                teammate1: friend.userName,
-                              }));
-                            }
-                          } else if (gameType === "3v3") {
-                            if (!selectedTeammates.teammate1) {
-                              setSelectedTeammates((prev) => ({
-                                ...prev,
-                                teammate1: friend.userName,
-                              }));
-                            } else if (!selectedTeammates.teammate2) {
-                              setSelectedTeammates((prev) => ({
-                                ...prev,
-                                teammate2: friend.userName,
-                              }));
-                            }
-                          }
-                        }}
-                      >
-                        <Text style={styles.teammateText}>
-                          {friend.userName}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-              </>
-            )}
-
-            <Button
-              title="Find Match"
-              onPress={() => alert("Match Found!")} // Placeholder for match finding logic
-              disabled={isButtonDisabled}
-              color={isButtonDisabled ? "gray" : "rgb(218, 113, 5)"}
-            />
-          </View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>
+            {loading ? "Loading..." : `Welcome Back, ${user?.userName}!`}
+          </Text>
         </View>
-      )}
 
-      <Footer />
-    </View>
-  );
-}
+        {/* Friends List Box */}
+        <View style={styles.friendsBox}>
+          <Text style={styles.friendsTitle}>Friends</Text>
+          <ScrollView style={styles.scrollContainer}>
+            {friends.map((friend, index) => (
+              <View key={index} style={styles.friendItem}>
+                <Image
+                  source={require("../assets/images/default_profile_picture.jpg")}
+                  style={styles.profilePic}
+                />
+                <Text style={styles.friendName}>{friend.userName}</Text>
+                <TouchableOpacity
+                  style={styles.chatIcon}
+                  onPress={() => console.log(`Chat with ${friend.userName}`)}
+                >
+                  <Icon name="chatbubble-outline" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Match Review Panel */}
+        <View style={styles.matchBox}>
+          <Text style={styles.matchTitle}>Recent Matches</Text>
+          <ScrollView style={styles.scrollContainer}>
+            {matchHistory.slice(0, 5).map((match, index) => (
+              <View key={index} style={styles.matchItem}>
+                <View style={styles.matchDetailsContainer}>
+                  <Text style={styles.matchUsername}>{user?.userName}</Text>
+                </View>
+                <View style={styles.matchCenterContainer}>
+                  <Text style={styles.matchText}>{match.type}</Text>
+                  <Text style={styles.matchText}>Score: {match.score}</Text>
+                  <Text
+                    style={[
+                      styles.matchText,
+                      match.result === "Win" ? styles.winText : styles.lossText,
+                    ]}
+                  >
+                    {match.result} ({match.eloChange})
+                  </Text>
+                </View>
+                <View style={styles.matchDetailsContainer}>
+                  <Text style={styles.matchUsername}>{match.opponent}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Matchmaking Button */}
+        <View style={styles.matchButtonContainer}>
+          <TouchableOpacity
+            style={styles.matchButton}
+            onPress={toggleMatchmakingMenu}
+          >
+            <View style={styles.ring}>
+              <Image source={logo} style={styles.logo} />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Overlay and Matchmaking Menu*/}
+        {isMatchmakingVisible && (
+          <View style={styles.overlay}>
+            <View style={styles.menu}>
+              {/* Close Button */}
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={toggleMatchmakingMenu}
+              >
+                <Icon name="close" size={30} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.menuTitle}>Select Game Type</Text>
+              <View style={styles.buttonContainer}>
+                {["1v1", "2v2", "3v3"].map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.gameButton,
+                      gameType === type && styles.activeButton,
+                    ]}
+                    onPress={() => {
+                      setGameType(type);
+                      setSelectedTeammates({ teammate1: "", teammate2: "" });
+                    }}
+                  >
+                    <Text style={styles.buttonText}>{type}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {(gameType === "2v2" || gameType === "3v3") && (
+                <>
+                  <Text style={styles.menuTitle}>Select Teammates</Text>
+                  <View style={{ height: 200, overflow: "hidden" }}>
+                    <ScrollView
+                      style={{ flex: 1 }}
+                      contentContainerStyle={{ paddingBottom: 10 }}
+                      showsVerticalScrollIndicator={true}
+                      nestedScrollEnabled={true}
+                      keyboardShouldPersistTaps="handled"
+                    >
+                      {[
+                        ...friends,
+                        ...(gameType === "3v3"
+                          ? [{ userName: "Random 1" }, { userName: "Random 2" }]
+                          : [{ userName: "Random" }]),
+                      ].map((friend, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.teammateItem,
+                            (selectedTeammates.teammate1 === friend.userName ||
+                              selectedTeammates.teammate2 === friend.userName) &&
+                              styles.selectedTeammate,
+                          ]}
+                          onPress={() => {
+                            if (selectedTeammates.teammate1 === friend.userName) {
+                              setSelectedTeammates((prev) => ({
+                                ...prev,
+                                teammate1: "",
+                              }));
+                            } else if (
+                              selectedTeammates.teammate2 === friend.userName
+                            ) {
+                              setSelectedTeammates((prev) => ({
+                                ...prev,
+                                teammate2: "",
+                              }));
+                            } else if (gameType === "2v2") {
+                              if (!selectedTeammates.teammate1) {
+                                setSelectedTeammates((prev) => ({
+                                  ...prev,
+                                  teammate1: friend.userName,
+                                }));
+                              }
+                            } else if (gameType === "3v3") {
+                              if (!selectedTeammates.teammate1) {
+                                setSelectedTeammates((prev) => ({
+                                  ...prev,
+                                  teammate1: friend.userName,
+                                }));
+                              } else if (!selectedTeammates.teammate2) {
+                                setSelectedTeammates((prev) => ({
+                                  ...prev,
+                                  teammate2: friend.userName,
+                                }));
+                              }
+                            }
+                          }}
+                        >
+                          <Text style={styles.teammateText}>
+                            {friend.userName}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                </>
+              )}
+
+              <Button
+                title="Find Match"
+                onPress={() => alert("Match Found!")} // Placeholder for match finding logic
+                disabled={isButtonDisabled}
+                color={isButtonDisabled ? "gray" : "rgb(218, 113, 5)"}
+              />
+            </View>
+          </View>
+        )}
+
+        <Footer />
+      </View>
+    );
+  }
 
 const styles = StyleSheet.create({
   container: {

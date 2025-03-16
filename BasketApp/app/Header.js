@@ -1,17 +1,22 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Dimensions, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { logOut } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { height } = Dimensions.get('window');
 
 const Header = () => {
   const navigation = useNavigation();
+  const handleSignOut = async () =>{
+    logOut();
+    navigation.navigate('Login');
+  }
   
   return (
     <View style={styles.header}>
 
-      <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Login')}>
+      <TouchableOpacity style={styles.tempButton} onPress={handleSignOut}>
         <Text style={styles.tempButtonText}>Sign Out</Text>
       </TouchableOpacity>
       

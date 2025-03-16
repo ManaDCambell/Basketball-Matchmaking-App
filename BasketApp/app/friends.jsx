@@ -3,8 +3,12 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } fro
 import { getUserNames2, getFriends, addFriend } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
+import {getLoggedInUser} from '../FirebaseConfig';
 
 const Friends = () => {
+  if (getLoggedInUser() == undefined){
+    return <Text>Loading...</Text>;
+  }
   const [users, setUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -32,7 +36,7 @@ const Friends = () => {
 
   const fetchFriends = async () => {
     try {
-      const friendList = await getFriends("Pab");
+      const friendList = await getFriends(getLoggedInUser());
       if (!friendList || friendList.length === 0) {
         console.log("No friends found");
         setFriends([]);
@@ -62,7 +66,7 @@ const Friends = () => {
 
   const handleAddFriend = async (friendUserName) => {
     try {
-      const currentUserName = "Pab";  // Replace this with actual logged-in user’s username if dynamic
+      const currentUserName = getLoggedInUser();  // Replace this with actual logged-in user’s username if dynamic
       await addFriend(currentUserName, friendUserName);
       Alert.alert('Friend added', `${friendUserName} has been added to your friends list.`);
       fetchFriends();

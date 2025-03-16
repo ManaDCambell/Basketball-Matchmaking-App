@@ -21,7 +21,6 @@ const Content = ({ navigation }) => {
 
         try {
             const isValid = await checkCredentials(email, password);
-
             if (isValid) {
                 Alert.alert("Login successful!");
                 navigation.navigate("Home");
