@@ -46,6 +46,7 @@ function Index() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
+      <Stack.Screen name="MatchmakingReport" component={MatchmakingReport} />
     </Stack.Navigator>
   );
 }
