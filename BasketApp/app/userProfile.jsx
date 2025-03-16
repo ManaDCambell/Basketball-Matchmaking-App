@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import profileImage from '../assets/images/default_profile_picture.jpg';
 import { getProfileRank } from './matchmaking';
 import { getUser} from './database';
-
+import {getLoggedInUser} from '../FirebaseConfig';
 import Header from './Header';
 import Footer from './footer';
 
@@ -43,6 +43,9 @@ export default function UserProfile({ navigation }) {
 }
 
 const Content = () => {
+  if (getLoggedInUser() == undefined){
+    return <Text>Loading...</Text>;
+  }
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -59,7 +62,7 @@ const Content = () => {
 
   useEffect(() => {
     async function getData() {
-      const result = await getUser("Pab");
+      const result = await getUser(getLoggedInUser());
       setUser(result);
       setLoading(false);
     }

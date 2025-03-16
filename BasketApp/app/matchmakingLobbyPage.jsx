@@ -93,4 +93,8 @@ const styles = StyleSheet.create({
         color: '#333',
     },
 });
+<<<<<<< HEAD
 export default matchmakingLobbyPage;
+=======
+export default matchmakingLobbyPage;
+>>>>>>> f8147ea51a19b51898f800064dd6bd6c914b8b8e

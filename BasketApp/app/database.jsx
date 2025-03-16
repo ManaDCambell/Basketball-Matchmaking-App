@@ -2,11 +2,13 @@ import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, 
 import React, { useState, useEffect } from 'react';
 import { db } from '../FirebaseConfig';
 import {auth} from '../FirebaseConfig';
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
+import {setLoggedInUser,getLoggedInUser} from '../FirebaseConfig';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from 'firebase/auth';
 import { collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const usersCollection = collection(db, 'users');
+
 export async function createAccount(fullName, userName, password, age, phoneNumber, location,email){
     try {
       const user = await createUserWithEmailAndPassword(auth,email,password);
@@ -25,8 +27,12 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
 export async function checkCredentials(email,password){
     try {
       const user = await signInWithEmailAndPassword(auth,email,password);
-      if (user) 
+      if (user) {
+        const q = query(usersCollection, where("email", "==", email));
+        const tempData = await getDocs(q);
+        setLoggedInUser(tempData.docs[0].data().userName);
         return true;
+      }
       else
         return false;
     } catch(error){
@@ -34,6 +40,10 @@ export async function checkCredentials(email,password){
       alert('signin failed');
       return false;
     }
+}
+export async function logOut(){
+  auth.signOut();
+  setLoggedInUser(undefined);
 }
 export async function getUserNames() {
   const userNames = [];
@@ -88,9 +98,22 @@ export async function getEmail(userName) {
 export async function getFriends(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().friends;
+  
+  if (tempData.empty) {
+    console.log("No user found.");
+    return [];
+  }
+
+  const data = tempData.docs[0].data().friends || [];
+  
+  if (!Array.isArray(data)) {
+    console.log("Friends data is not an array.");
+    return [];
+  }
+
   return data;
 }
+
 export async function setFullName(userName,newFullName) {
   try {
     const q = query(usersCollection, where("userName", "==", userName));
@@ -151,6 +174,16 @@ export async function setLocation(userName,newLocation) {
     console.log("Error updating document: ", error);
   }
 }
+export const getUserNames2 = async () => {
+  try {
+    const usersRef = collection(db, 'users');
+    const snapshot = await getDocs(usersRef);
+    return snapshot.docs.map(doc => ({ userName: doc.data().userName }));
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+};
 export async function setUserName(oldUserName,newUserName) {
   try {
     const q = query(usersCollection, where("userName", "==", oldUserName));
@@ -172,21 +205,52 @@ export async function resetPassword(email) {
     throw error;
   }
 }
-export async function addFriend(userName,FriendUserName) {
+
+export async function addFriend(userName, FriendUserName) {
   try {
+    if (!FriendUserName || FriendUserName.trim() === "") {
+      console.log("Invalid FriendUserName:", FriendUserName);
+      return;
+    }
     const q = query(usersCollection, where("userName", "==", userName));
     const tempData = await getDocs(q);
-    const data = tempData.docs[0].data().friends;
-    const docRef = doc(usersCollection, tempData.docs[0].id);
+    if (tempData.empty) {
+      console.log('User not found.');
+      return;
+    }
+    const userDoc = tempData.docs[0];
+    let data = userDoc.data().friends;
+    console.log("Fetched Friends:", data);
+    if (!Array.isArray(data)) {
+      console.log('Friends array was undefined or not an array. Initializing it.');
+      data = [];
+    }
+    if (data.includes(FriendUserName)) {
+      console.log("This user is already your friend.");
+      return;
+    }
     data.push(FriendUserName);
+    const docRef = doc(usersCollection, userDoc.id);
+    console.log("Updating friends list with:", data);
     await updateDoc(docRef, {
       friends: data
     });
+    console.log('Friend added successfully');
   } catch (error) {
-    console.log("Error updating document: ", error);
+    console.error("Error updating document: ", error);
   }
-  
 }
+
+export async function fetchFriendsData(setFriends, userName = "Pab") {
+  try {
+    const friendList = await getFriends(userName);
+    setFriends(friendList || []);
+  } catch (error) {
+    console.error("Failed to fetch friends:", error);
+    setFriends([]);
+  }
+}
+
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
   const [usert, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});

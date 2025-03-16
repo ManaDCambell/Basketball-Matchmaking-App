@@ -23,4 +23,11 @@ export const app = initializeApp(firebaseConfig);
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
+var loggedInUser: string;
+export function setLoggedInUser(userName: string){
+  loggedInUser = userName;
+}
+export function getLoggedInUser(){
+  return loggedInUser;
+}
 export const db = getFirestore(app);

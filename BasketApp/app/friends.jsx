@@ -3,8 +3,12 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } fro
 import { getUserNames2, getFriends, addFriend } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
+import {getLoggedInUser} from '../FirebaseConfig';
 
 const Friends = () => {
+  if (getLoggedInUser() == undefined){
+    return <Text>Loading...</Text>;
+  }
   const [users, setUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -32,18 +36,21 @@ const Friends = () => {
 
   const fetchFriends = async () => {
     try {
-      const friendList = await getFriends();
-      if (!friendList) {
+      const friendList = await getFriends(getLoggedInUser());
+      if (!friendList || friendList.length === 0) {
         console.log("No friends found");
         setFriends([]);
         return;
       }
-      console.log("Fetched Friends:", friendList);
-      setFriends(friendList);
+
+      const formattedFriends = friendList.map(friend => ({ userName: friend }));
+      setFriends(formattedFriends);
     } catch (error) {
       console.error('Failed to fetch friends:', error);
     }
-  };
+};
+
+
 
   useEffect(() => {
     setFilteredUsers(isAddingFriends ? users : friends);
@@ -57,15 +64,17 @@ const Friends = () => {
     setFilteredUsers(filtered);
   };
 
-  const handleAddFriend = async (userName) => {
+  const handleAddFriend = async (friendUserName) => {
     try {
-      await addFriend(userName);
-      Alert.alert('Friend added', `${userName} has been added to your friends list.`);
+      const currentUserName = getLoggedInUser();  // Replace this with actual logged-in user’s username if dynamic
+      await addFriend(currentUserName, friendUserName);
+      Alert.alert('Friend added', `${friendUserName} has been added to your friends list.`);
       fetchFriends();
     } catch (error) {
       console.error('Error adding friend:', error);
     }
   };
+  
 
   return (
     <View style={styles.container}>

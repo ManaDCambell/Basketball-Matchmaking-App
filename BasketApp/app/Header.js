@@ -1,23 +1,28 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Dimensions, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { logOut } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { height } = Dimensions.get('window');
 
 const Header = () => {
   const navigation = useNavigation();
+  const handleSignOut = async () =>{
+    logOut();
+    navigation.navigate('Login');
+  }
   
   return (
     <View style={styles.header}>
 
-      <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.tempButtonText}>Login</Text>
+      <TouchableOpacity style={styles.tempButton} onPress={handleSignOut}>
+        <Text style={styles.tempButtonText}>Sign Out</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
+      {/* <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
         <Text style={styles.tempButtonText}>Database</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
         <Icon name="cog-outline" size={40} color="white" />
@@ -52,9 +57,12 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
-    marginRight: 50,
     borderWidth: 1,
     borderColor: '#000',
+    position: 'absolute',
+    top: 10,
+    right: 320,
+
   },
   tempButtonText: {
     color: 'black',
