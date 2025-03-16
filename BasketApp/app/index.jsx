@@ -12,6 +12,7 @@ import Tournament from './tournament';
 import Login from './login';
 import Signup from './signup';
 import matchmakingLobbyPage from './matchmakingLobbyPage';
+import MatchmakingReport from './matchmakingReport';
 
 import Header from './Header';
 import Footer from './footer';
