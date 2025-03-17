@@ -1,135 +1,134 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Switch, Dimensions } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Modal, SafeAreaView, Dimensions, TextInput, ScrollView} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-import Header from './Header';
 import Footer from './footer';
 
 const { width, height } = Dimensions.get('window');
 
-const App = ({ navigation }) => {
+const SettingsPage = ({ navigation }) => {
+  const [activeSetting, setActiveSetting] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const [titleWidth, setTitleWidth] = useState(0);
-  
-  const handleTitleLayout = (event) => {
-    const { width } = event.nativeEvent.layout;
-    setTitleWidth(width);
-  };
+  const closeModal = () => setActiveSetting(null);
 
-  const [isMenuVisible, setIsMenuVisible] = useState({
-    account: false,
-    contact: false,
-    skill: false,
-    availability: false,
-    stats: false,
-    yelp: false
-  });
-  
-  const [isSkillEnabled, setIsSkillEnabled] = useState(false);
+  const settings = [
+    { key: 'phone', label: 'Phone Number', icon: 'call-outline' },
+    { key: 'email', label: 'Email', icon: 'mail-outline' },
+    { key: 'username', label: 'Username', icon: 'person-outline' },
+    { key: 'privacy', label: 'Privacy', icon: 'lock-closed-outline' },
+    { key: 'location', label: 'Location', icon: 'location-outline' },
+    { key: 'skill', label: 'Skill Preference', icon: 'trophy-outline' },
+    { key: 'elo', label: 'Elo', icon: 'bar-chart-outline' },
+  ];
 
-  const closeAll = () => {
-    setIsMenuVisible({
-      account: false,
-      contact: false,
-      skill: false,
-      availability: false,
-      stats: false,
-      yelp: false
-    });
-  };
+  // Separate into two groups
+  const firstGroup = settings.filter(setting =>
+    ['phone', 'email', 'username', 'privacy'].includes(setting.key)
+  );
 
-  const toggleMenu = (menu) => {
-    if (isMenuVisible[menu]) {
-      setIsMenuVisible({
-        ...isMenuVisible,
-        [menu]: false,
-      });
-    } else {
-      closeAll();
-      setIsMenuVisible((prevState) => ({
-        ...prevState,
-        [menu]: true,
-      }));
-    }
-  };
-  
+  const secondGroup = settings.filter(setting =>
+    !['phone', 'email', 'username', 'privacy'].includes(setting.key)
+  );
+
+  // Filter settings based on search query
+  const filteredSettings = settings.filter(setting =>
+    setting.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const isSearching = searchQuery.trim().length > 0;
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={35} color="rgb(0, 0, 0)" />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={30} color="rgb(255, 255, 255)" />
         </TouchableOpacity>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.title}>SETTINGS</Text>
       </View>
 
-      {/* Account */}
-      <TouchableOpacity style={styles.settingOptionFirst} onPress={() => toggleMenu('account')}>
-        <Ionicons name="person-outline" size={35} color="rgb(218, 113, 15)" />
-        <Text style={styles.settingText}>Account</Text>
-        <Ionicons 
-          name={isMenuVisible.account ? "chevron-down" : "chevron-forward"} 
-          size={30} 
-          color="gray" 
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search-outline" size={20} color="rgb(255, 255, 255)" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search"
+          placeholderTextColor="rgb(255, 255, 255)"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
-      </TouchableOpacity>
-      {isMenuVisible.account && (
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('View account information pressed')}>
-            <Text style={styles.menuText}>View Account Information</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('Change account information pressed')}>
-            <Text style={styles.menuText}>Change Account Information</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      </View>
 
-      {/* Contact */}
-      <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('contact')}>
-        <Ionicons name="call-outline" size={35} color="rgb(218, 113, 15)" />
-        <Text style={styles.settingText}>Contact</Text>
-        <Ionicons 
-          name={isMenuVisible.contact ? "chevron-down" : "chevron-forward"} 
-          size={30} 
-          color="gray" 
-        />
-      </TouchableOpacity>
-      {isMenuVisible.contact && (
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('Edit phone number pressed')}>
-            <Text style={styles.menuText}>Edit Phone Number</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => alert('Edit email pressed')}>
-            <Text style={styles.menuText}>Edit Email</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Skill Preference with Switch */}
-      <TouchableOpacity style={styles.settingOption} onPress={() => toggleMenu('skill')}>
-        <Ionicons name="trophy-outline" size={35} color="rgb(218, 113, 15)" />
-        <Text style={styles.settingText}>Skill Preference</Text>
-        <Ionicons 
-          name={isMenuVisible.skill ? "chevron-down" : "chevron-forward"} 
-          size={30} 
-          color="gray" 
-        />
-      </TouchableOpacity>
-      {isMenuVisible.skill && (
-        <View style={styles.menu}>
-          <View style={styles.switchContainer}>
-            <Text style={styles.menuText}>Enable Friendly Matching</Text>
-            <Switch
-              value={isSkillEnabled}
-              onValueChange={setIsSkillEnabled}
-              trackColor={{ false: "rgb(128, 128, 128)", true: "rgb(30, 177, 38)" }}
-              thumbColor={isSkillEnabled ? "rgb(256, 256, 256)" : "rgb(256, 256, 256)"}
-              style={{ transform: [{ scale: 1.2}] }}
-            />
+      <ScrollView>
+        {isSearching ? (
+          // Combine all settings into one box when searching
+          <View style={styles.settingsBox}>
+            {filteredSettings.map(setting => (
+              <TouchableOpacity
+                key={setting.key}
+                style={styles.settingOption}
+                onPress={() => setActiveSetting(setting.key)}
+              >
+                <Ionicons name={setting.icon} size={24} color="rgb(255, 255, 255)" />
+                <Text style={styles.settingText}>{setting.label}</Text>
+                <Ionicons name="chevron-forward" size={24} color="rgb(255, 255, 255)" />
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
-      )}
-      
+        ) : (
+          <>
+            {/* First Box */}
+            <View style={styles.settingsBox}>
+              {firstGroup.map(setting => (
+                <TouchableOpacity
+                  key={setting.key}
+                  style={styles.settingOption}
+                  onPress={() => setActiveSetting(setting.key)}
+                >
+                  <Ionicons name={setting.icon} size={24} color="rgb(255, 255, 255)" />
+                  <Text style={styles.settingText}>{setting.label}</Text>
+                  <Ionicons name="chevron-forward" size={24} color="rgb(255, 255, 255)" />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Second Box */}
+            <View style={styles.settingsBox}>
+              {secondGroup.map(setting => (
+                <TouchableOpacity
+                  key={setting.key}
+                  style={styles.settingOption}
+                  onPress={() => setActiveSetting(setting.key)}
+                >
+                  <Ionicons name={setting.icon} size={24} color="rgb(255, 255, 255)" />
+                  <Text style={styles.settingText}>{setting.label}</Text>
+                  <Ionicons name="chevron-forward" size={24} color="rgb(255, 255, 255)" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+
+      {/* Modals */}
+      {settings.map(setting => (
+        <Modal
+          key={setting.key}
+          visible={activeSetting === setting.key}
+          animationType="slide"
+          transparent={true}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              {/* Close Button */}
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                <Ionicons name="close" size={28} color="rgb(255, 255, 255)" />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>{setting.label}</Text>
+            </View>
+          </View>
+        </Modal>
+      ))}
       <Footer />
     </SafeAreaView>
   );
@@ -138,101 +137,85 @@ const App = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    textAlign: 'center',
-    backgroundColor: 'rgb(180, 173, 168)',
-  },
-  settingOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: width,
-    paddingVertical: 30,
+    backgroundColor: "rgb(218, 113, 5)", // Orange background
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgb(78, 78, 78)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgb(78, 78, 78)',
-    backgroundColor: 'rgb(180, 173, 168)',
-  },
-  settingText: {
-    fontSize: 18,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  menu: {
-    backgroundColor: 'rgb(218, 113, 5)',
-    width: width,
-    borderWidth: 1,
-    borderColor: 'rgb(78, 78, 78)',
-  },
-  menuItem: {
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-  },
-  menuItemLast: {
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgb(78, 78, 78)',
-  },
-  menuText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingTop: 27,
   },
   header: {
     flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center', 
-    position: 'relative',
-    paddingVertical: 32,
+    alignItems: 'center',
+    marginBottom: 10,
   },
   backButton: {
-    position: 'absolute',
-    left: 20,
+    marginRight: 20,
   },
   title: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 'bold',
-    left: width / 2 - 55,
-  
+    color: 'rgb(255, 255, 255)',
   },
-
-  settingOptionFirst: {
+  searchContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    width: width,
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    borderTopWidth: 2,
-    borderTopColor: 'rgb(78, 78, 78)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgb(78, 78, 78)',
-    backgroundColor: 'rgb(180, 173, 168)',
+    borderColor: 'rgb(78, 78, 78)',
+    backgroundColor: 'rgba(78, 78, 78, 0.6)',
+    borderWidth: 1,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginBottom: 15,
   },
-  settingOptionLast: {
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: 'rgb(255, 255, 255)',
+  },
+  settingsBox: {
+    backgroundColor: 'rgba(78, 78, 78, 0.6)',
+    borderRadius: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+  },
+  settingOption: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    width: width,
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgb(78, 78, 78)',
+    paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgb(78, 78, 78)',
-    backgroundColor: 'rgb(180, 173, 168)',
+    borderColor: 'rgb(105, 105, 105)',
   },
-
+  settingText: {
+    flex: 1,
+    fontSize: 18,
+    color: 'rgb(255, 255, 255)',
+    marginLeft: 15,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: width * 0.9,
+    backgroundColor: 'rgb(43, 43, 43)',
+    padding: 20,
+    borderRadius: 15,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'rgb(255, 255, 255)',
+    marginTop: 10,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
 });
 
-export default App;
+export default SettingsPage;

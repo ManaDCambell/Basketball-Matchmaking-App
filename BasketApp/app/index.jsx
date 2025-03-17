@@ -35,7 +35,12 @@ const matchHistory = [
 
 function Index() {
   return (
-    <Stack.Navigator initialRouteName="Login">
+    <Stack.Navigator
+      initialRouteName="Login"
+      screenOptions={{
+        headerShown: false, // Change this to true if you want to show the header
+      }}
+    >
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
       <Stack.Screen name="Database" component={Database} />
@@ -245,8 +250,8 @@ function HomeScreen({ navigation }) {
                       {[
                         ...friends,
                         ...(gameType === "3v3"
-                          ? [{ userName: "Random 1" }, { userName: "Random 2" }]
-                          : [{ userName: "Random" }]),
+                          ? [{ userName: "Random (non-friend) 1" }, { userName: "Random (non-friend) 2" }]
+                          : [{ userName: "Random (non-friend)" }]),
                       ].map((friend, index) => (
                         <TouchableOpacity
                           key={index}
@@ -336,7 +341,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: height * 0.14,
     width: "90%",
-    height: 200,
+    height: 250,
     backgroundColor: "rgba(36, 36, 36, 0.55)",
     borderRadius: 15,
     padding: 15,
@@ -377,7 +382,7 @@ const styles = StyleSheet.create({
     width: "90%",
     alignItems: "center",
     position: "absolute",
-    top: height * 0.075,
+    top: height * 0.085,
     flexDirection: "row",
     marginLeft: 50,
   },
@@ -388,9 +393,9 @@ const styles = StyleSheet.create({
   },
   matchBox: {
     position: "absolute",
-    top: height * 0.34,
+    top: height * 0.4,
     width: "90%",
-    maxHeight: 250,
+    maxHeight: 275,
     backgroundColor: "rgba(36, 36, 36, 0.55)",
     borderRadius: 15,
     padding: 15,

@@ -22,7 +22,7 @@ const Content = ({ navigation }) => {
         try {
             const isValid = await checkCredentials(email, password);
             if (isValid) {
-                Alert.alert("Login successful!");
+                // Alert.alert("Login successful!");
                 navigation.navigate("Home");
             } else {
                 Alert.alert("Incorrect email and password! Please create an account!");
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: 'white',
         position: 'absolute',
-        top: height * 0.4,
+        top: height * 0.44,
         textAlign: 'center',
     },
     input: {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
         width: '90%',
     },
     form: {
-        marginBottom: 24,
+        marginBottom: 90,
         flex: 1,
         alignItems: 'center',
     },

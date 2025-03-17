@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     right: 0,
     width: '100%',
     backgroundColor: '#283237',
-    height: 60,
+    height: 65,
     justifyContent: 'flex-end',
     alignItems: 'center',
     zIndex: 1,
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     position: 'absolute',
-    top: 10,
+    top: 12,
     right: 320,
 
   },
