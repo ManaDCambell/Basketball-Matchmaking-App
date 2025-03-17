@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, Image, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Button, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
 import platinum from '../assets/images/platinum.png';
@@ -9,18 +9,24 @@ import Header from './Header';
 import Footer from './footer';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { Dimensions } from 'react-native';
+
 import { matchmakingLobbyPage } from './matchmakingLobbyPage';
 import profileImage from '../assets/images/default_profile_picture.jpg';
 import { getUser} from './database';
+import {getLoggedInUser} from '../FirebaseConfig';
+
 
 const { width, height } = Dimensions.get('window');
 
 
 function Matchmaking () {
+  if (getLoggedInUser() == undefined){
+    return <Text>Loading...</Text>;
+  }
     const navigation = useNavigation();
     const [user, setUser] = useState(null);
-      const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+    
     
       const rankImages = {
           Bronze: bronze,
@@ -32,32 +38,36 @@ function Matchmaking () {
     
       useEffect(() => {
         async function getData() {
-          const result = await getUser("Pab");
+          const result = await getUser(getLoggedInUser());
           setUser(result);
           setLoading(false);
         }
         getData();
       }, []);
-    const [rankPoints] = useState(150); //Temporary example ELO of 250
+
+      if (loading){
+          return <Text>Loading...</Text>;
+        }
+     //Temporary example ELO of 250
     // Change image of rank based on ELO passed thru useState()
     let rank, rankImage, distanceFromRankUp;
 
-    if (rankPoints >= 300) {
+    if (user.elo >= 300) {
         rank = 'Diamond';
         rankImage = diamond;
         distanceFromRankUp = 0;
-    } else if (rankPoints >= 200) {
+    } else if (user.elo >= 200) {
         rank = 'Platinum';
         rankImage = platinum;
-        distanceFromRankUp = 300 - rankPoints;
-    } else if (rankPoints >= 100) {
+        distanceFromRankUp = 300 - user.elo;
+    } else if (user.elo >= 100) {
         rank = 'Gold';
         rankImage = gold;
-        distanceFromRankUp = 200 - rankPoints;
+        distanceFromRankUp = 200 - user.elo;
     } else {
         rank = 'Bronze';
         rankImage = bronze;
-        distanceFromRankUp = 100 - rankPoints;
+        distanceFromRankUp = 100 - user.elo;
     }
     return(
       <View style={styles.container}> 
@@ -72,7 +82,7 @@ function Matchmaking () {
 
             <View style={styles.profileInfoContainer}>
                 <Text style={styles.text}>Current Rank: {rank}</Text>
-                <Text style={styles.text}>Current Elo: {rankPoints}</Text>
+                <Text style={styles.text}>Current Elo: {user.elo}</Text>
                 <Text style={styles.text}>You're {distanceFromRankUp} points away from ranking up!</Text>
             </View>
 
@@ -80,6 +90,7 @@ function Matchmaking () {
                 <Button title="1v1" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
                 <Button title="2v2" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
                 <Button title="3v3" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
+                <Button title="3v3" onPress={() => navigation.navigate('MatchmakingReport')} /> 
             </View>
         </View>
         <Footer />

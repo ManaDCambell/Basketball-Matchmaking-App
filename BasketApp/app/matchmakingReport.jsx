@@ -12,6 +12,7 @@ import Header from './Header';
 import Footer from './footer';
 
 import { getUser, getFriends } from './database';
+import {updateElo} from './matchmakingCalc';
 
 import logo from '../assets/images/appLogo.png';
 const { width, height } = Dimensions.get('window');
@@ -43,29 +44,38 @@ const { width, height } = Dimensions.get('window');
 */
 
 export const MatchmakingReport = ({ navigation }) => {
-    const textItems = [
-        "Username: BallinCat43 \nELO: 2000 \nLocation: THIS AINT MMLOBYY",
-        "Username: Joe \nELO: 1400 \nLocation: Los Angeles",
-        "Username: LebronJ \nELO: 200 \nLocation: Akron",
-    ];
-
-    const challengePlayer = (text) => {
-        console.log("Player Challenged", `You clicked: "${text}"`);
-    };
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    if (getLoggedInUser() == undefined){
+        return <Text>Loading...</Text>;
+    }
+    if (getLookingForMatch() == 2){
+        let opponentElo = getElo(getOpponent());
+    }
     return (
-        <View style={styles.container}>
-        <Text style={styles.title}>Matches</Text>
-        <ScrollView style={styles.scrollContainer}>
-            {textItems.map((text, index) => (
-                <TouchableOpacity 
-                key={index} 
-                style={styles.textBox} 
-                onPress={() => challengePlayer(text)}
-            >
-                <Text style={styles.text}>{text}</Text>
-            </TouchableOpacity>
-            ))}
-        </ScrollView>
+        <View style={styles.container}> 
+        <View style={styles.contentContainer}>
+            {/* Profile Picture with Rank Icon */}
+            <View style={styles.profilePictureContainer}>
+              <Image source={profileImage} style={styles.profilePicture} />
+              <View style={styles.rankIconContainer}>
+                <Image source={rankImage} style={styles.rankIcon} />
+              </View>
+            </View>
+
+            <View style={styles.profileInfoContainer}>
+                <Text style={styles.text}>Current Rank: {rank}</Text>
+                <Text style={styles.text}>Current Elo: {user.elo}</Text>
+                <Text style={styles.text}>You're {distanceFromRankUp} points away from ranking up!</Text>
+            </View>
+
+            <View style={styles.menuContainer}>
+                <Button title="I won" onPress={() => updateElo(user.elo, opponentElo, 1 )} />
+                <Button title="We tied" onPress={() => updateElo(user.elo, opponentElo, 0.5 )} />
+                <Button title="I lost" onPress={() => updateElo(user.elo, opponentElo, 0 )} />
+            </View>
+        </View>
+        <Footer />
     </View>
     );
 }
