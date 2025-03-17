@@ -113,7 +113,18 @@ export async function getFriends(userName) {
 
   return data;
 }
-
+export async function getLookingForMatch(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().lookingForMatch;
+  return data;
+}
+export async function getPlayingAgainst(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().playingAgainst;
+  return data;
+}
 export async function setFullName(userName,newFullName) {
   try {
     const q = query(usersCollection, where("userName", "==", userName));
@@ -174,6 +185,31 @@ export async function setLocation(userName,newLocation) {
     console.log("Error updating document: ", error);
   }
 }
+export async function setLookingForMatch(userName,newLookingForMatch) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      lookingForMatch: newLookingForMatch
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+export async function setPlayingAgainst(userName,newPlayingAgainst) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      playingAgainst: newPlayingAgainst
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+
 export const getUserNames2 = async () => {
   try {
     const usersRef = collection(db, 'users');
