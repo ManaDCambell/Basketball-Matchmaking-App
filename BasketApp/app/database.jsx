@@ -287,6 +287,19 @@ export async function fetchFriendsData(setFriends, userName = "Pab") {
   }
 }
 
+export async function setEmail(userName, newEmail) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      email: newEmail
+    });
+  } catch (error) {
+    console.log("Error updating email: ", error);
+  }
+}
+
 export default function TabTwoScreen() {
   const [users, setUsers] = useState([]);
   const [usert, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});
