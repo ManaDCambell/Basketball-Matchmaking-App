@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../FirebaseConfig';
 import {auth} from '../FirebaseConfig';
 import {setLoggedInUser,getLoggedInUser} from '../FirebaseConfig';
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from 'firebase/auth';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,deleteUser} from 'firebase/auth';
 import { collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -287,16 +287,40 @@ export async function fetchFriendsData(setFriends, userName = "Pab") {
   }
 }
 
-export async function setEmail(userName, newEmail) {
+export async function setEmail(userName, newEmail, password) {
   try {
     const q = query(usersCollection, where("userName", "==", userName));
     const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      email: newEmail
-    });
+    const user = await signInWithEmailAndPassword(auth,docId.docs[0].data().email,password);
+    if (user){
+      const q = query(usersCollection, where("email", "==", newEmail));
+      const tempData = await getDocs(q);
+      if (tempData != undefined)
+      {
+        const user1 = auth.currentUser;
+        deleteUser(user1);
+        const newUser = await createUserWithEmailAndPassword(auth,newEmail,password);
+        if (newUser){
+          const docRef = doc(usersCollection, docId.docs[0].id);
+          await updateDoc(docRef, {
+            email: newEmail
+          });
+          return true
+        }
+        else{
+          return false
+        }
+      }
+      else{
+        return false
+      }
+    }
+    else {
+      return false
+    }
   } catch (error) {
     console.log("Error updating email: ", error);
+    return false
   }
 }
 
