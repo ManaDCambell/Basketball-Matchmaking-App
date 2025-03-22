@@ -125,6 +125,12 @@ export async function getPlayingAgainst(userName) {
   const data = tempData.docs[0].data().playingAgainst;
   return data;
 }
+export async function getSkillPref(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().skillPref;
+  return data;
+}
 export async function setFullName(userName,newFullName) {
   try {
     const q = query(usersCollection, where("userName", "==", userName));
@@ -209,7 +215,18 @@ export async function setPlayingAgainst(userName,newPlayingAgainst) {
     console.log("Error updating document: ", error);
   }
 }
-
+export async function setSkillPref(userName,newSkillPref) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      skillPref: newSkillPref
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
 export const getUserNames2 = async () => {
   try {
     const usersRef = collection(db, 'users');
