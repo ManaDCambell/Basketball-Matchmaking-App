@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, SafeAreaView, TextInput, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLoggedInUser } from '../FirebaseConfig';
-import { getPhoneNumber, setPhoneNumber, getEmail, setEmail, getLocation, setLocation } from './database';
+import { getPhoneNumber, setPhoneNumber, getEmail, setEmail, getLocation, setLocation, setSkillPref, getSkillPref } from './database';
 import Footer from './footer';
 
 const { width, height } = Dimensions.get('window');
@@ -17,7 +17,7 @@ const SettingsPage = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [location, setLocationState] = useState('');
   const [newLocation, setNewLocation] = useState('');
-  const [skillPreference, setSkillPreference] = useState(null); // 0 = Casual, 1 = Ranked
+  const [skillPreference, setSkillPreference] = useState(null);
 
   useEffect(() => {
     if (activeSetting === 'phone') {
@@ -70,12 +70,18 @@ const SettingsPage = ({ navigation }) => {
     }
   };
 
- 
   const fetchSkillPreference = async () => {
-    // Placeholder for fetching skill preference from the database
-    setSkillPreference(0); // Default to casual for now
+    try {
+      const userName = getLoggedInUser();
+      if (userName) {
+        const preference = await getSkillPref(userName);
+        console.log('Fetched skill preference:', preference);
+        setSkillPreference(preference);
+      }
+    } catch (error) {
+      console.error('Error fetching skill preference:', error);
+    }
   };
-  
 
   const updatePhoneNumber = async () => {
     if (newPhoneNumber.trim() === '') return;
@@ -129,7 +135,19 @@ const SettingsPage = ({ navigation }) => {
     }
   };
 
-  
+  const updateSkillPreference = async (preference) => {
+    try {
+      const userName = getLoggedInUser();
+      if (userName) {
+        await setSkillPref(userName, preference);
+        setSkillPreference(preference);
+      }
+    } catch (error) {
+      console.error('Error updating skill preference:', error);
+      alert('Failed to update skill preference.');
+    }
+  };
+
   const closeModal = () => setActiveSetting(null);
 
   const settings = [
@@ -329,7 +347,7 @@ const SettingsPage = ({ navigation }) => {
             <Text style={styles.modalTitle}>Skill Preference</Text>
 
             <TouchableOpacity
-              onPress={() => setSkillPreference(0)}
+              onPress={() => updateSkillPreference(0)}
               style={[
                 styles.optionButton,
                 skillPreference === 0 ? styles.selectedOption : null,
@@ -339,7 +357,7 @@ const SettingsPage = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => setSkillPreference(1)}
+              onPress={() => updateSkillPreference(1)}
               style={[
                 styles.optionButton,
                 skillPreference === 1 ? styles.selectedOption : null,
