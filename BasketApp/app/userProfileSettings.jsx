@@ -18,6 +18,9 @@ const SettingsPage = ({ navigation }) => {
   const [location, setLocationState] = useState('');
   const [newLocation, setNewLocation] = useState('');
   const [skillPreference, setSkillPreference] = useState(null);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   useEffect(() => {
     if (activeSetting === 'phone') {
@@ -148,22 +151,40 @@ const SettingsPage = ({ navigation }) => {
     }
   };
 
-  const closeModal = () => setActiveSetting(null);
+  const updatePassword = () => {
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      alert('New passwords do not match.');
+      return;
+    }
+    // implement Firebase password update logic later
+    alert('Password updated successfully!');
+  };
+
+  const closeModal = () => {
+    setActiveSetting(null);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  };
 
   const settings = [
     { key: 'phone', label: 'Phone Number', icon: 'call-outline' },
     { key: 'email', label: 'Email', icon: 'mail-outline' },
-    { key: 'privacy', label: 'Privacy', icon: 'lock-closed-outline' },
+    { key: 'password', label: 'Password', icon: 'lock-closed-outline' },
     { key: 'location', label: 'Location', icon: 'location-outline' },
     { key: 'skill', label: 'Skill Preference', icon: 'trophy-outline' },
   ];
 
   const firstGroup = settings.filter(setting =>
-    ['phone', 'email', 'username', 'privacy'].includes(setting.key)
+    ['phone', 'email', 'username', 'password'].includes(setting.key)
   );
 
   const secondGroup = settings.filter(setting =>
-    !['phone', 'email', 'username', 'privacy'].includes(setting.key)
+    !['phone', 'email', 'username', 'password'].includes(setting.key)
   );
 
   const filteredSettings = settings.filter(setting =>
@@ -300,6 +321,51 @@ const SettingsPage = ({ navigation }) => {
               placeholderTextColor="white"
             />
             <TouchableOpacity onPress={updateEmail} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+       {/* Password Modal */}
+       <Modal
+        visible={activeSetting === 'password'}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Ionicons name="close" size={28} color="rgb(255, 255, 255)" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Update Password</Text>
+
+            <TextInput
+              style={styles.input}
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry
+              placeholder="Current Password"
+              placeholderTextColor="white"
+            />
+            <TextInput
+              style={styles.input}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              placeholder="New Password"
+              placeholderTextColor="white"
+            />
+            <TextInput
+              style={styles.input}
+              value={confirmNewPassword}
+              onChangeText={setConfirmNewPassword}
+              secureTextEntry
+              placeholder="Confirm New Password"
+              placeholderTextColor="white"
+            />
+
+            <TouchableOpacity onPress={updatePassword} style={styles.saveButton}>
               <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
           </View>
