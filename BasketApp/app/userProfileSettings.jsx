@@ -17,6 +17,7 @@ const SettingsPage = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [location, setLocationState] = useState('');
   const [newLocation, setNewLocation] = useState('');
+  const [skillPreference, setSkillPreference] = useState(null); // 0 = Casual, 1 = Ranked
 
   useEffect(() => {
     if (activeSetting === 'phone') {
@@ -25,6 +26,8 @@ const SettingsPage = ({ navigation }) => {
       fetchEmail();
     } else if (activeSetting === 'location') {
       fetchLocation();
+    } else if (activeSetting === 'skill') {
+      fetchSkillPreference(); 
     }
   }, [activeSetting]);
 
@@ -66,6 +69,13 @@ const SettingsPage = ({ navigation }) => {
       console.error('Error fetching location:', error);
     }
   };
+
+ 
+  const fetchSkillPreference = async () => {
+    // Placeholder for fetching skill preference from the database
+    setSkillPreference(0); // Default to casual for now
+  };
+  
 
   const updatePhoneNumber = async () => {
     if (newPhoneNumber.trim() === '') return;
@@ -119,6 +129,7 @@ const SettingsPage = ({ navigation }) => {
     }
   };
 
+  
   const closeModal = () => setActiveSetting(null);
 
   const settings = [
@@ -304,6 +315,42 @@ const SettingsPage = ({ navigation }) => {
         </View>
       </Modal>
 
+      {/* Skill Preference Modal */}
+      <Modal
+        visible={activeSetting === 'skill'}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Ionicons name="close" size={28} color="rgb(255, 255, 255)" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Skill Preference</Text>
+
+            <TouchableOpacity
+              onPress={() => setSkillPreference(0)}
+              style={[
+                styles.optionButton,
+                skillPreference === 0 ? styles.selectedOption : null,
+              ]}
+            >
+              <Text style={styles.optionText}>Casual</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setSkillPreference(1)}
+              style={[
+                styles.optionButton,
+                skillPreference === 1 ? styles.selectedOption : null,
+              ]}
+            >
+              <Text style={styles.optionText}>Ranked</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <Footer />
     </SafeAreaView>
   );
@@ -429,6 +476,21 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     padding: 5,
+  },
+  optionButton: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: '#555',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  selectedOption: {
+    backgroundColor: 'rgb(218 ,113, 5)',
+  },
+  optionText: {
+    color: 'white',
+    fontSize: 18,
   },
 });
 
