@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, SafeAreaView, TextInput, ScrollView, StyleSheet, Dimensions} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, SafeAreaView, TextInput, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLoggedInUser } from '../FirebaseConfig';
 import { getPhoneNumber, setPhoneNumber, getEmail, setEmail, getLocation, setLocation } from './database';
@@ -14,6 +14,7 @@ const SettingsPage = ({ navigation }) => {
   const [newPhoneNumber, setNewPhoneNumber] = useState('');
   const [email, setEmailState] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [location, setLocationState] = useState('');
   const [newLocation, setNewLocation] = useState('');
 
@@ -81,16 +82,26 @@ const SettingsPage = ({ navigation }) => {
   };
 
   const updateEmail = async () => {
-    if (newEmail.trim() === '') return;
+    if (newEmail.trim() === '' || password.trim() === '') {
+      alert('Please fill in all fields.');
+      return;
+    }
     try {
       const userName = getLoggedInUser();
       if (userName) {
-        await setEmail(userName, newEmail);
-        setEmailState(newEmail);
-        setActiveSetting(null);
+        const success = await setEmail(userName, newEmail, password);
+        if (success) {
+          setEmailState(newEmail);
+          setPassword('');
+          setActiveSetting(null);
+          alert('Email updated successfully!');
+        } else {
+          alert('Failed to update email. Check your credentials or try again.');
+        }
       }
     } catch (error) {
       console.error('Error updating email:', error);
+      alert('Failed to update email.');
     }
   };
 
@@ -249,6 +260,14 @@ const SettingsPage = ({ navigation }) => {
               onChangeText={setNewEmail}
               keyboardType="email-address"
               placeholder="Enter new email"
+              placeholderTextColor="white"
+            />
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              placeholder="Enter password to confirm"
               placeholderTextColor="white"
             />
             <TouchableOpacity onPress={updateEmail} style={styles.saveButton}>
