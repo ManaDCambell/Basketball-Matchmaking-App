@@ -19,6 +19,7 @@ const usersCollection = collection(db, 'users');
  */
 export async function createAccount(fullName, userName, password, age, phoneNumber, location,email){
     try {
+      email = email.toLowerCase();
       const user = await createUserWithEmailAndPassword(auth,email,password);
       if (user) {
         await addDoc(usersCollection,  {fullName : fullName , userName: userName, password : password, age : age, phoneNumber :
@@ -41,6 +42,7 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
  */
 export async function checkCredentials(email,password){
     try {
+      email = email.toLowerCase();
       const user = await signInWithEmailAndPassword(auth,email,password);
       if (user) {
         const q = query(usersCollection, where("email", "==", email));
@@ -326,6 +328,7 @@ export async function setElo(userName,newElo) {
  */
 export async function setEmail(userName, newEmail, password) {
   try {
+    newEmail = newEmail.toLowerCase();
     const q = query(usersCollection, where("userName", "==", userName));
     const docId = await getDocs(q);
     const user = await signInWithEmailAndPassword(auth,docId.docs[0].data().email,password);
