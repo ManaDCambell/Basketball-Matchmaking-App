@@ -5,6 +5,25 @@ import { collection, addDoc, getDocs,updateDoc, deleteDoc, doc, query, where } f
 const matchesCollection = collection(db, 'matches');
 
 /**
+ * Creates a match
+ * @param {boolean} isComp 
+ * @param {number} matchType 0 for 1v1, 1 for 2v2, and 2 for 3v3 
+ * @param {Array} team1 
+ * @param {Array} team2 
+ * @returns {boolean} returns true if match is created else return false
+ */
+export async function getCreateGame(isComp, matchType, team1, team2) {
+    try {
+        await addDoc(matchesCollection,  {inProgress : true , isComp : isComp , matchType : matchType , team1 : team1 , team1Score : 0, team2 : team2 , team2Score : 0});
+        return true;
+    } catch(error){
+        console.log(error);
+        alert('game failed to start');
+        return false;
+    }
+}
+
+/**
  * gets the inProgress variable for the given match id
  * @param {number} id 
  * @returns {boolean} Returns true if the match is in progress
@@ -115,7 +134,7 @@ export async function setIsComp(id,newIsComp) {
 /**
  * Sets the matchType variable for the given match id to the newMatchType
  * @param {string} id 
- * @param {number} newMatchType 
+ * @param {number} newMatchType 0 for 1v1, 1 for 2v2, and 2 for 3v3
  */
 export async function setMatchType(id,newMatchType) {
     try {
