@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableOpacity , StyleSheet, Alert, View, TextInput, Text } from 'react-native';
-import Parse from 'parse/react-native.js';
+//import Parse from 'parse/react-native.js';
 
 const Signup = ({ navigation }) => {
     const [firstname, setfirstname] = useState("");
