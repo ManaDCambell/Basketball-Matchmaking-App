@@ -1,5 +1,3 @@
-import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
-import React, { useState, useEffect } from 'react';
 import { db } from '../FirebaseConfig';
 import {auth} from '../FirebaseConfig';
 import {setLoggedInUser,getLoggedInUser} from '../FirebaseConfig';
@@ -8,12 +6,24 @@ import { collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, w
 import { getAuth } from 'firebase/auth';
 
 const usersCollection = collection(db, 'users');
-
+/**
+ * This Function Allows a user to create an account when logging in
+ * @param {string} fullName 
+ * @param {string} userName 
+ * @param {string} password 
+ * @param {number} age 
+ * @param {number} phoneNumber 
+ * @param {string} location 
+ * @param {string} email 
+ * @returns {boolean} Returns true if account is created and signed in. Returns false otherwise
+ */
 export async function createAccount(fullName, userName, password, age, phoneNumber, location,email){
     try {
+      email = email.toLowerCase();
       const user = await createUserWithEmailAndPassword(auth,email,password);
       if (user) {
-        await addDoc(usersCollection,  {fullName : fullName , userName: userName, password : password, age : age, phoneNumber : phoneNumber, elo : 100, location : location, email : email, friends : []});
+        await addDoc(usersCollection,  {fullName : fullName , userName: userName, password : password, age : age, phoneNumber :
+           phoneNumber, elo : 100, location : location, email : email, friends : [],lookingForMatch : 0, playingAgainst : "", skillPref : false});
         return true;
       }
       else
@@ -24,8 +34,15 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
       return false;
     }
 }
+/**
+ * Takes a email and password used to log the user in
+ * @param {string} email 
+ * @param {string} password 
+ * @returns {boolean} return true if the user is able to log in otherwise retun false
+ */
 export async function checkCredentials(email,password){
     try {
+      email = email.toLowerCase();
       const user = await signInWithEmailAndPassword(auth,email,password);
       if (user) {
         const q = query(usersCollection, where("email", "==", email));
@@ -41,60 +58,52 @@ export async function checkCredentials(email,password){
       return false;
     }
 }
+/**
+ * Logs out the current user
+ */
 export async function logOut(){
   auth.signOut();
   setLoggedInUser(undefined);
 }
-export async function getUserNames() {
-  const userNames = [];
-  const users = await getDocs(usersCollection);
-  for (let i = 0; i < users.size; i++) {
-    userNames.push(users.docs[i].data().userName);
-  }
-  return userNames;
-}
-export async function getUser(userName) {
-  const q = query(usersCollection, where("userName", "==", userName));
-  const tempData = await getDocs(q);
-  const data = tempData.docs[0].data();
-  return data;
-}
-export async function getFullName(userName) {
-  const q = query(usersCollection, where("userName", "==", userName));
-  const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().fullName;
-  return data;
-}
-export async function getElo(userName) {
-  const q = query(usersCollection, where("userName", "==", userName));
-  const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().elo;
-  return data;
-}
+
+/**
+ * gets the age of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
 export async function getAge(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
   const data = tempData.docs[0].data().age;
   return data;
 }
-export async function getPhoneNumber(userName) {
+/**
+ * gets the elo of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
+export async function getElo(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().phoneNumber;
+  const data = tempData.docs[0].data().elo;
   return data;
 }
-export async function getLocation(userName) {
-  const q = query(usersCollection, where("userName", "==", userName));
-  const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().location;
-  return data;
-}
+/**
+ * gets the email of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
 export async function getEmail(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
   const data = tempData.docs[0].data().email;
   return data;
 }
+/**
+ * gets the friends array of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {Array} Returns an Array
+ */
 export async function getFriends(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
@@ -113,118 +122,103 @@ export async function getFriends(userName) {
 
   return data;
 }
+/**
+ * gets the fullname of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
+export async function getFullName(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().fullName;
+  return data;
+}
+/**
+ * gets the location of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
+export async function getLocation(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().location;
+  return data;
+}
+/**
+ * gets the lookingForMatch Variable of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
 export async function getLookingForMatch(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
   const data = tempData.docs[0].data().lookingForMatch;
   return data;
 }
+/**
+ * gets the username of who the given username is playing against from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
 export async function getPlayingAgainst(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
   const data = tempData.docs[0].data().playingAgainst;
   return data;
 }
+/**
+ * gets the phoneNumber of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
+export async function getPhoneNumber(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().phoneNumber;
+  return data;
+}
+/**
+ * gets the user object of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {object}Returns a userObject
+ */
+export async function getUser(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data();
+  return data;
+}
+/**
+ * gets all user names in the user database
+ * @returns {Array}Returns an array will all the users
+ */
+export async function getUserNames() {
+  const userNames = [];
+  const users = await getDocs(usersCollection);
+  for (let i = 0; i < users.size; i++) {
+    userNames.push(users.docs[i].data().userName);
+  }
+  return userNames;
+}
+/**
+ * gets the skillPrefance of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {boolean} Returns a boolean
+ */
 export async function getSkillPref(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
   const data = tempData.docs[0].data().skillPref;
   return data;
 }
-export async function setFullName(userName,newFullName) {
+
+export async function fetchFriendsData(setFriends, userName) {
   try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      fullName: newFullName
-    });
+    const friendList = await getFriends(userName);
+    setFriends(friendList || []);
   } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setElo(userName,newElo) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      elo: newElo
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setAge(userName,newAge) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      age: newAge
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setPhoneNumber(userName,newPhoneNumber) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      phoneNumber: newPhoneNumber
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setLocation(userName,newLocation) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      location: newLocation
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setLookingForMatch(userName,newLookingForMatch) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      lookingForMatch: newLookingForMatch
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setPlayingAgainst(userName,newPlayingAgainst) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      playingAgainst: newPlayingAgainst
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function setSkillPref(userName,newSkillPref) {
-  try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      skillPref: newSkillPref
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
+    console.error("Failed to fetch friends:", error);
+    setFriends([]);
   }
 }
 export const getUserNames2 = async () => {
@@ -237,39 +231,24 @@ export const getUserNames2 = async () => {
     return [];
   }
 };
-export async function setUserName(oldUserName,newUserName) {
-  try {
-    const q = query(usersCollection, where("userName", "==", oldUserName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      userName: newUserName
-    });
-  } catch (error) {
-    console.log("Error updating document: ", error);
-  }
-}
-export async function resetPassword(email) {
-  try {
-    await sendPasswordResetEmail(auth, email);
-    // Handle successful password reset request (e.g., display success message)
-  } catch (error) {
-    // Handle errors (e.g., display error message)
-    throw error;
-  }
-}
 
+/**
+ * Adds a username to friends list of a given userName in the userName database
+ * @param {string} userName 
+ * @param {string} FriendUserName 
+ * @returns {boolean} returns true if succeeds else returns false
+ */
 export async function addFriend(userName, FriendUserName) {
   try {
     if (!FriendUserName || FriendUserName.trim() === "") {
       console.log("Invalid FriendUserName:", FriendUserName);
-      return;
+      return false;
     }
     const q = query(usersCollection, where("userName", "==", userName));
     const tempData = await getDocs(q);
     if (tempData.empty) {
       console.log('User not found.');
-      return;
+      return false;
     }
     const userDoc = tempData.docs[0];
     let data = userDoc.data().friends;
@@ -280,32 +259,76 @@ export async function addFriend(userName, FriendUserName) {
     }
     if (data.includes(FriendUserName)) {
       console.log("This user is already your friend.");
-      return;
+      return false;
     }
     data.push(FriendUserName);
     const docRef = doc(usersCollection, userDoc.id);
-    console.log("Updating friends list with:", data);
     await updateDoc(docRef, {
       friends: data
     });
-    console.log('Friend added successfully');
+    return true
   } catch (error) {
     console.error("Error updating document: ", error);
+    return false
   }
 }
-
-export async function fetchFriendsData(setFriends, userName = "Pab") {
+/**
+ * Sends an email to the given email with instructions to reset password
+ * @param {string} email 
+ */
+export async function resetPassword(email) {
   try {
-    const friendList = await getFriends(userName);
-    setFriends(friendList || []);
+    await sendPasswordResetEmail(auth, email);
+    // Handle successful password reset request (e.g., display success message)
   } catch (error) {
-    console.error("Failed to fetch friends:", error);
-    setFriends([]);
+    // Handle errors (e.g., display error message)
+    throw error;
   }
 }
-
+/**
+ * set the age of the given username to the newAge
+ * @param {string} userName 
+ * @param {number} newAge
+ */
+export async function setAge(userName,newAge) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      age: newAge
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the elo of the given username to the newElo
+ * @param {string} userName 
+ * @param {number} newElo 
+ */
+export async function setElo(userName,newElo) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      elo: newElo
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the db usur and auth user email to the new email. Requires password
+ * @param {string} userName 
+ * @param {string} newEmail 
+ * @param {string} password 
+ * @returns {boolean} Returns false if an error is thrown 
+ */
 export async function setEmail(userName, newEmail, password) {
   try {
+    newEmail = newEmail.toLowerCase();
     const q = query(usersCollection, where("userName", "==", userName));
     const docId = await getDocs(q);
     const user = await signInWithEmailAndPassword(auth,docId.docs[0].data().email,password);
@@ -340,177 +363,126 @@ export async function setEmail(userName, newEmail, password) {
     return false
   }
 }
-
-export default function TabTwoScreen() {
-  const [users, setUsers] = useState([]);
-  const [usert, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});
-  const auth = getAuth();
-  const user = auth.currentUser;
-  useEffect(() => {
-    fetchUsers();
-  }, [user]);
-
-  const fetchUsers = async () => {
-    if (user) {
-      const data = await getDocs(collection(db, "users"));
-      setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    } else {
-      console.log("No user logged in");
-    }
-  };
-
-  const addUser = async () => {
-    console.log("add Button clicked")
-    if (user) {
-      await addDoc(usersCollection,  {fullName : usert.fullName , userName: usert.userName, password : usert.password, age : usert.age, phoneNumber : usert.phoneNumber, elo : usert.elo, location : usert.location, email : usert.email, friends : usert.friends});
-      setUser({fullName:'', userName:'', password:'', age:0, phoneNumber:0, elo:0, location:'', email:'', friends:[]});
-      fetchUsers();
-    } else {
-      console.log("No user logged in");
-    }
-  };
-  const deleteUser = async (id) => {
-    const todoDoc = doc(db, 'users', id);
-    await deleteDoc(todoDoc);
-    fetchUsers();
-  };
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.mainTitle}>Todo List</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="fullname"
-            value={usert.fullName}
-            onChangeText={(text) => setUser({...usert, fullName: text})}
-          />
-          <TextInput
-            placeholder="userName"
-            value={usert.userName}
-            onChangeText={(text) => setUser({...usert, userName: text})}
-          />
-          <TextInput 
-                placeholder='Password'
-                value={usert.password}
-                onChangeText={(text) => setUser({...usert, password: text})}
-            />
-            <TextInput 
-                placeholder='Age'
-                value={usert.age}
-                onChangeText={(text) => setUser({...usert, age: text})}
-                keyboardType='numeric'
-            />
-            <TextInput 
-                placeholder='Phone Number'
-                value={usert.phoneNumber}
-                onChangeText={(Number) => setUser({...usert, phoneNumber: Number})}
-                keyboardType='numeric'
-            />
-            <TextInput 
-                placeholder='Elo'
-                value={usert.elo}
-                onChangeText={(text) => setUser({...usert, elo: text})}
-                keyboardType='numeric'
-            />
-            <TextInput 
-                placeholder='county'
-                value={usert.location}
-                onChangeText={(text) => setUser({...usert, location: text})}
-            />
-            <TextInput 
-                placeholder='email'
-                value={usert.email}
-                onChangeText={(text) => setUser({...usert, email: text})}
-                keyboardType='email-address'
-            />
-          <TouchableOpacity style={styles.addButton} onPress={addUser}>
-            <Text style={styles.buttonText}>Add</Text>
-          </TouchableOpacity>
-        </View>
-        <FlatList
-          data={users}
-          renderItem={({ item }) => (
-            <View style={styles.todoContainer}>
-              <Text style={{ textDecorationLine: item.completed ? 'line-through' : 'none', flex: 1 }}>{item.userName}</Text>
-              <Text style={{ textDecorationLine: item.completed ? 'line-through' : 'none', flex: 1 }}>{item.fullName}</Text>
-              <TouchableOpacity style={styles.button} onPress={() => deleteUser(item.id)}>
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
-    </SafeAreaView>
-  );
+/**
+ * set the fullname of the given username to the newFullName
+ * @param {string} userName 
+ * @param {string} newFullName 
+ */
+export async function setFullName(userName,newFullName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      fullName: newFullName
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the Location of the given username to the newLocation
+ * @param {string} userName 
+ * @param {string} newLocation 
+ */
+export async function setLocation(userName,newLocation) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      location: newLocation
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the looking for match for the given username to the newLookingForMatch
+ * @param {string} userName 
+ * @param {number} newLookingForMatch 
+ */
+export async function setLookingForMatch(userName,newLookingForMatch) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      lookingForMatch: newLookingForMatch
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the playingAgainst username of the given username to the newPlayingAgainst
+ * @param {string} userName 
+ * @param {string} newPlayingAgainst 
+ */
+export async function setPlayingAgainst(userName,newPlayingAgainst) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      playingAgainst: newPlayingAgainst
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the PhoneNumber of the given username to the newPhoneNumber
+ * @param {string} userName 
+ * @param {number} newPhoneNumber
+ */
+export async function setPhoneNumber(userName,newPhoneNumber) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      phoneNumber: newPhoneNumber
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the userName of the given userName to the newUserName
+ * @param {string} userName 
+ * @param {string} newUserName 
+ */
+export async function setUserName(oldUserName,newUserName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", oldUserName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      userName: newUserName
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * sets the Skill Prefrance for the given username to the newSkillPref
+ * @param {string} userName 
+ * @param {boolean} newSkillPref 
+ */
+export async function setSkillPref(userName,newSkillPref) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      skillPref: newSkillPref
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  mainTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10, // Adjust spacing as needed
-    color: '#333', // Choose a color that fits your app theme
-  },
-  inputContainer: {
-    //flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    padding: 10,
-    flex: 1, // Adjusted to take available space
-    marginRight: 10, // Add margin to separate input and button
-  },
-  addButton: {
-    padding: 10,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFA726', // Use a distinct color for the add button
-    shadowColor: '#FFA726',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  todoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 10,
-    width: '100%',
-  },
-  button: {
-    padding: 10,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#5C6BC0',
-    shadowColor: '#5C6BC0',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 5,
-    marginLeft: 10,
-  },
-});
+export default function DataBase() {
+  return <Text>Nothing Here</Text>;
+}

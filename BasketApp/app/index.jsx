@@ -3,7 +3,6 @@ import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {getLoggedInUser} from '../FirebaseConfig';
-import Database from './database';
 import UserProfile from './userProfile';
 import Matchmaking from './matchmaking';
 import Friends from './friends';
@@ -43,7 +42,6 @@ function Index() {
     >
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
-      <Stack.Screen name="Database" component={Database} />
       <Stack.Screen name="Matchmaking" component={Matchmaking} />
       <Stack.Screen name="Friends" component={Friends} />
       <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
