@@ -99,7 +99,8 @@ const Content = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={{ marginTop: 'auto' }}>
+                <TouchableOpacity style={{ marginTop: 'auto' }}
+                onPress={() => navigation.navigate("Signup")}>
                     <Text style={styles.formFooter}>Create an account</Text>
                 </TouchableOpacity>
             </View>
