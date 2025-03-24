@@ -482,3 +482,7 @@ export async function setSkillPref(userName,newSkillPref) {
     console.log("Error updating document: ", error);
   }
 }
+
+export default function DataBase() {
+  return <Text>Nothing Here</Text>;
+}

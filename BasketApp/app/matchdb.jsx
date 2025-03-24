@@ -206,3 +206,7 @@ export async function setTeam2Score(id,newTeam2Score) {
       console.log("Error updating document: ", error);
     }
 }
+
+export default function MatchDB() {
+  return <Text>Nothing Here</Text>;
+}
