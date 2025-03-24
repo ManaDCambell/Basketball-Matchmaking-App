@@ -12,7 +12,7 @@ const matchesCollection = collection(db, 'matches');
  * @param {Array} team2 
  * @returns {boolean} returns true if match is created else return false
  */
-export async function getCreateGame(isComp, matchType, team1, team2) {
+export async function CreateGame(isComp, matchType, team1, team2) {
     try {
         await addDoc(matchesCollection,  {inProgress : true , isComp : isComp , matchType : matchType , team1 : team1 , team1Score : 0, team2 : team2 , team2Score : 0});
         return true;
