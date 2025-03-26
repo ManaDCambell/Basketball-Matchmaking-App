@@ -16,9 +16,9 @@ const Header = () => {
   return (
     <View style={styles.header}>
 
-      <TouchableOpacity style={styles.tempButton} onPress={handleSignOut}>
+      {/* <TouchableOpacity style={styles.tempButton} onPress={handleSignOut}>
         <Text style={styles.tempButtonText}>Sign Out</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       
       {/* <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
         <Text style={styles.tempButtonText}>Database</Text>
