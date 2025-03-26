@@ -14,7 +14,8 @@ const matchesCollection = collection(db, 'matches');
  */
 export async function CreateGame(isComp, matchType, team1, team2) {
     try {
-        await addDoc(matchesCollection,  {inProgress : true , isComp : isComp , matchType : matchType , team1 : team1 , team1Score : 0, team2 : team2 , team2Score : 0});
+        await addDoc(matchesCollection,  {inProgress : true , isComp : isComp , matchType : matchType , team1 : team1 , team1Score : 0,
+           team2 : team2 , team2Score : 0, team1EloChange : 0, team2EloChange : 0,});
         return true;
     } catch(error){
         console.log(error);
@@ -68,6 +69,17 @@ export async function getTeam1(id) {
     return data;
 }
 /**
+ * gets the team1EloChange variable for the given match id
+ * @param {number} id 
+ * @returns {number} Returns the eloChange of team1
+ */
+export async function getTeam1EloChange(id) {
+  const q = query(matchesCollection, id);
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().team1EloChange;
+  return data;
+}
+/**
  * gets the team1Score variable for the given match id
  * @param {number} id 
  * @returns {number} Returns the score of team1
@@ -88,6 +100,17 @@ export async function getTeam2(id) {
     const tempData = await getDocs(q);
     const data = tempData.docs[0].data().team2;
     return data;
+}
+/**
+ * gets the team2EloChange variable for the given match id
+ * @param {number} id 
+ * @returns {number} Returns the eloChange of team2
+ */
+export async function getTeam2EloChange(id) {
+  const q = query(matchesCollection, id);
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().team2EloChange;
+  return data;
 }
 /**
  * gets the team2Score variable for the given match id
@@ -162,6 +185,21 @@ export async function setTeam1(id,newTeam1) {
     }
 }
 /**
+ * Sets the team1EloChange variable for the given match id to the new team1EloChange
+ * @param {string} id 
+ * @param {Number} newTeam1EloChange
+ */
+export async function setTeam1EloChange(id,newTeam1EloChange) {
+  try {
+    const docRef = doc(matchesCollection, id);
+    await updateDoc(docRef, {
+      team1EloChange : newTeam1EloChange
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
  * Sets the team1Score variable for the given match id to the team1Score
  * @param {string} id 
  * @param {number} newTeam1Score
@@ -190,6 +228,21 @@ export async function setTeam2(id,newTeam2) {
     } catch (error) {
       console.log("Error updating document: ", error);
     }
+}
+/**
+ * Sets the team2EloChange variable for the given match id to the new team2EloChange
+ * @param {string} id 
+ * @param {Number} newTeam2EloChange
+ */
+export async function setTeam2EloChange(id,newTeam2EloChange) {
+  try {
+    const docRef = doc(matchesCollection, id);
+    await updateDoc(docRef, {
+      team2EloChange : newTeam2EloChange
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
 }
 /**
  * Sets the team2Score variable for the given match id to the team2Score
