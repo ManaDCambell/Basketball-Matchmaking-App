@@ -47,6 +47,21 @@ export async function getIsComp(id) {
     return data;
 }
 /**
+ * Gets all Match id's with the userName in the match.
+ * @param {string} userName 
+ * @returns {Array} returns an array. Array will contain all match id's with the user included else return empty array
+ */
+export async function getMatchByUserName(userName){
+  const matches = [];
+  const allMatches = await getDocs(usersCollection);
+  for (let i = 0; i < users.size; i++) {
+    if (allMatches.docs[i].data().team1.includes(userName) || allMatches.docs[i].data().team2.includes(userName)){
+      matches.push(allMatches.docs[i].id);
+    }
+  }
+  return matches;
+}
+/**
  * gets the matchType variable for the given match id
  * @param {number} id 
  * @returns {number} Returns 0 for 1v1, 1 for 2v2, and 2 for 3v3
