@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableOpacity , StyleSheet, Alert, View, TextInput, Text } from 'react-native';
-//import Parse from 'parse/react-native.js';
+import { createAccount } from './database';
 
 const Signup = ({ navigation }) => {
     const [firstname, setfirstname] = useState("");
@@ -21,21 +21,19 @@ const Signup = ({ navigation }) => {
             Alert.alert("Passwords do not match!");
             return;
         }
-        const user = new Parse.User();
-        user.set("firstname", firstname);
-        user.set("location", location);
-        user.set("username", username);
-        user.set("password", password);
-        user.set("email", email);
-        user.set("phonenumber", phonenumber);
-        user.set("age", age);
+
 
         try {
-            await user.signUp();
+            const isAccountValid = await createAccount(fullName, userName, password, age, phoneNumber, location, email);
+            if (isAccountValid) {
             //Alert.alert("Signup Successful", "You have successfully signed up!");
-            navigation.navigate("Home");
+                navigation.navigate("Home");
+            } else {
+                Alert.alert("Signup failed!");
+            }
         } catch (error) {
-            Alert.alert("Signup Failed", error.message);
+            console.log(error);
+            Alert.alert("An error occurred while signing up! Please try again later!")
         }
     }
 
