@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { TouchableOpacity , StyleSheet, Alert, View, TextInput, Text } from 'react-native';
+import { TouchableOpacity , StyleSheet, Alert, View, TextInput, Text, } from 'react-native';
 import { createAccount } from './database';
+import { Ionicons } from '@expo/vector-icons';
 
 const Signup = ({ navigation }) => {
-    const [firstname, setfirstname] = useState("");
+    const [fullname, setfullname] = useState("");
     const [age, setage] = useState("");
     const [email, setemail] = useState("");
     const [phonenumber, setphonenumber] = useState("");
@@ -13,7 +14,7 @@ const Signup = ({ navigation }) => {
     const [confirmpassword, setconfirmpassword] = useState("");
 
     const handleSignup = async () => {
-        if (!firstname || !age || !email || !phonenumber || !location || !username || !password || !confirmpassword) {
+        if (!fullname || !age || !email || !phonenumber || !location || !username || !password || !confirmpassword) {
             Alert.alert("All fields required!");
             return;
         }
@@ -24,10 +25,10 @@ const Signup = ({ navigation }) => {
 
 
         try {
-            const isAccountValid = await createAccount(fullName, userName, password, age, phoneNumber, location, email);
+            const isAccountValid = await createAccount(fullname, username, password, age, phonenumber, location, email);
             if (isAccountValid) {
-            //Alert.alert("Signup Successful", "You have successfully signed up!");
-                navigation.navigate("Home");
+                Alert.alert("Account created successfully!");
+                navigation.navigate("Login");
             } else {
                 Alert.alert("Signup failed!");
             }
@@ -41,8 +42,8 @@ const Signup = ({ navigation }) => {
         <View style={styles.container}>
             <TextInput 
             placeholder="First Name"
-            value={firstname}
-            onChangeText={(text)=>setfirstname(text)}
+            value={fullname}
+            onChangeText={(text)=>setfullname(text)}
             style={styles.input}
             />
 
@@ -114,7 +115,7 @@ export default Signup;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FF8C00',
+        backgroundColor: 'rgb(218, 113, 5)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
