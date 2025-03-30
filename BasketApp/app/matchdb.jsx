@@ -1,6 +1,7 @@
 import { db } from '../FirebaseConfig';
 import {getLoggedInUser} from '../FirebaseConfig';
 import { collection, addDoc, getDocs,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import * as Location from 'expo-location';
 
 const matchesCollection = collection(db, 'matches');
 
@@ -273,6 +274,25 @@ export async function setTeam2Score(id,newTeam2Score) {
     } catch (error) {
       console.log("Error updating document: ", error);
     }
+}
+
+/**
+ * Trys to get the current location of the user
+ * @returns Location If access is given otherwise returns null
+ */
+export async function getLocation(){
+  try{
+    let status = await Location.requestForegroundPermissionsAsync();
+    console.log(status);
+    if (status.status !== 'granted') {
+      console.log('Permission to access location is denied');
+      return null;
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    return location;
+  }catch(error){
+    console.log(error);
+  }
 }
 
 export default function MatchDB() {

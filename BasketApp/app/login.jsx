@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { checkCredentials } from './database';
 import Svg, { Path } from 'react-native-svg';
@@ -10,7 +10,6 @@ const Content = ({ navigation }) => {
         email: '',
         password: '',
     });
-
     const handleLogin = async () => {
         const { email, password } = form;
 
