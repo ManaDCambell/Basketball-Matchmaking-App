@@ -17,3 +17,4 @@ function updateElo(Elo1, Elo2, outcome) {
 
     return { newElo1, newElo2 };  // Return updated Elo ratings
 }
+export default updateElo;

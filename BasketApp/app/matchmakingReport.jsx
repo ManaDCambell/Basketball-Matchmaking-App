@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { getLoggedInUser } from '../FirebaseConfig';
+import { getPhoneNumber, setPhoneNumber, getEmail, setEmail, getLocation, setLocation, getPlayingAgainst, getLookingForMatch } from './database';
 
 import bronze from '../assets/images/bronze.png';
 import gold from '../assets/images/gold.png';
@@ -49,8 +51,8 @@ export const MatchmakingReport = ({ navigation }) => {
     if (getLoggedInUser() == undefined){
         return <Text>Loading...</Text>;
     }
-    if (getLookingForMatch() == 2){
-        let opponentElo = getElo(getOpponent());
+    if (getLookingForMatch(user) == 2){
+        let opponentElo = getElo(getPlayingAgainst());
     }
     return (
         <View style={styles.container}> 

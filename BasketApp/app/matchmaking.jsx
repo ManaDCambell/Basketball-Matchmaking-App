@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { matchmakingLobbyPage } from './matchmakingLobbyPage';
 import profileImage from '../assets/images/default_profile_picture.jpg';
-import { getUser} from './database';
+import { getUser, setLookingForMatch} from './database';
 import {getLoggedInUser} from '../FirebaseConfig';
 
 
@@ -87,10 +87,13 @@ function Matchmaking () {
             </View>
 
             <View style={styles.menuContainer}>
-                <Button title="1v1" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
+                <Button title="1v1" onPress={() => {
+                  navigation.navigate('MatchmakingLobbyPage');
+                  setLookingForMatch(user.userName, 1)}
+                } />
                 <Button title="2v2" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
                 <Button title="3v3" onPress={() => navigation.navigate('MatchmakingLobbyPage')} />
-                <Button title="3v3" onPress={() => navigation.navigate('MatchmakingReport')} /> 
+                <Button title="Report Scores" onPress={() => navigation.navigate('MatchmakingReport')} /> 
             </View>
         </View>
         <Footer />
