@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { getUserNames2, getFriends, addFriend } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
@@ -80,13 +80,13 @@ const Friends = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{isAddingFriends ? 'ADD FRIENDS' : 'FRIENDS'}</Text>
-        <TouchableOpacity onPress={() => setIsAddingFriends(!isAddingFriends)}>
-          <Icon name={isAddingFriends ? "people-outline" : "person-add-outline"} size={30} color="white" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsAddingFriends(!isAddingFriends)}>
+            <Icon name={isAddingFriends ? "people-outline" : "person-add-outline"} size={30} color="white" />
+          </TouchableOpacity>
       </View>
 
-      <View style={styles.searchContainer}>
-        <Icon name="search-outline" size={20} color="white" style={styles.searchIcon} />
+    <View style={styles.searchContainer}>
+      <Icon name="search-outline" size={20} color="white" style={styles.searchIcon} />
         <TextInput
           style={styles.searchBar}
           placeholder={isAddingFriends ? "Search users" : "Search friends"}
@@ -94,25 +94,31 @@ const Friends = () => {
           onChangeText={handleSearch}
           placeholderTextColor="white"
         />
-      </View>
-
-      <View style={styles.userList}>
-        {filteredUsers.map((user, index) => (
-          <View key={index} style={styles.userItem}>
-            <View style={styles.profileContainer}>
-              <Image source={require('../assets/images/default_profile_picture.jpg')} style={styles.profilePic} />
-              <Text style={styles.username}>{user.userName}</Text>
-              {isAddingFriends && !friends.some(friend => friend.userName === user.userName) ? (
-                <TouchableOpacity style={styles.chatButton} onPress={() => handleAddFriend(user.userName)}>
-                  <Icon name="add-circle-outline" size={30} color="white" />
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          </View>
-        ))}
-      </View>
-      <Footer />
     </View>
+
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
+
+    <View style={styles.userList}>
+      {filteredUsers.map((user, index) => (
+        <View key={index} style={styles.userItem}>
+          <View style={styles.profileContainer}>
+            <Image source={require('../assets/images/default_profile_picture.jpg')} style={styles.profilePic} />
+            <Text style={styles.username}>{user.userName}</Text>
+            {isAddingFriends && !friends.some(friend => friend.userName === user.userName) ? (
+              <TouchableOpacity style={styles.chatButton} onPress={() => handleAddFriend(user.userName)}>
+                <Icon name="add-circle-outline" size={30} color="white" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+      ))}
+    </View>
+  </ScrollView>
+  <Footer />
+</View>
   );
 };
 
@@ -124,6 +130,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(218, 113, 15)',
     padding: 20,
   },
+  scrollContent: {
+    paddingBottom: 100,
+    flexGrow: 1,
+  },
+  userList: {
+    flexGrow: 1,
+  },
+  
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -157,6 +171,7 @@ const styles = StyleSheet.create({
   },
   userList: {
     marginTop: 20,
+    flexGrow: 1,
   },
   userItem: {
     marginBottom: 10,
