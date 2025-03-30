@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, SafeAreaView, TextInput, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLoggedInUser } from '../FirebaseConfig';
-import { getPhoneNumber, setPhoneNumber, getEmail, setEmail, getLocation, setLocation, setSkillPref, getSkillPref } from './database';
+import { getPhoneNumber, setPhoneNumber, getEmail, setEmail, getLocation, setLocation, setSkillPref, getSkillPref, resetPassword, checkCredentials, logOut} from './database';
 import Footer from './footer';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,7 +26,7 @@ const SettingsPage = ({ navigation }) => {
   useEffect(() => {
     if (activeSetting === 'phone') {
       fetchPhoneNumber();
-    } else if (activeSetting === 'email') {
+    } else if (activeSetting === 'email' || activeSetting === 'password') {
       fetchEmail();
     } else if (activeSetting === 'location') {
       fetchLocation();
@@ -33,6 +34,7 @@ const SettingsPage = ({ navigation }) => {
       fetchSkillPreference(); 
     }
   }, [activeSetting]);
+  
 
   const fetchPhoneNumber = async () => {
     try {
@@ -151,17 +153,26 @@ const SettingsPage = ({ navigation }) => {
     }
   };
 
-  const updatePassword = () => {
-    if (!currentPassword || !newPassword || !confirmNewPassword) {
-      alert('Please fill in all fields.');
-      return;
+  const handlePasswordReset = async () => {
+    try {
+      if (!email || !currentPassword) {
+        alert('Please enter your current password.');
+        return;
+      }
+  
+      const isValid = await checkCredentials(email, currentPassword);
+  
+      if (!isValid) {
+        alert('Incorrect password. Please try again.');
+        return;
+      }
+  
+      await resetPassword(email);
+      alert('Password reset email sent! Please check your inbox.');
+    } catch (error) {
+      console.error('Error during password reset:', error);
+      alert('Something went wrong. Please try again.');
     }
-    if (newPassword !== confirmNewPassword) {
-      alert('New passwords do not match.');
-      return;
-    }
-    // implement Firebase password update logic later
-    alert('Password updated successfully!');
   };
 
   const closeModal = () => {
@@ -348,26 +359,10 @@ const SettingsPage = ({ navigation }) => {
               placeholder="Current Password"
               placeholderTextColor="white"
             />
-            <TextInput
-              style={styles.input}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-              placeholder="New Password"
-              placeholderTextColor="white"
-            />
-            <TextInput
-              style={styles.input}
-              value={confirmNewPassword}
-              onChangeText={setConfirmNewPassword}
-              secureTextEntry
-              placeholder="Confirm New Password"
-              placeholderTextColor="white"
-            />
-
-            <TouchableOpacity onPress={updatePassword} style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
+            <TouchableOpacity onPress={handlePasswordReset} style={[styles.saveButton, { backgroundColor: "rgb(0, 122, 255)" }]}>
+              <Text style={styles.saveButtonText}>Send Password Reset Email</Text>
             </TouchableOpacity>
+
           </View>
         </View>
       </Modal>
@@ -434,6 +429,18 @@ const SettingsPage = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      <View style={{ alignItems: 'center', marginBottom: 80 }}>
+        <TouchableOpacity
+          style={[styles.saveButton, { backgroundColor: 'rgba(78, 78, 78, 0.6)' }]}
+          onPress={async () => {
+            await logOut();
+            navigation.replace('Login');
+          }}
+        >
+        <Text style={styles.saveButtonText}>Sign Out</Text>
+      </TouchableOpacity>
+    </View>
 
       <Footer />
     </SafeAreaView>
@@ -542,7 +549,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   saveButton: {
-    backgroundColor: "rgb(84, 216, 91)",
+    backgroundColor: "rgb(0, 122, 255)",
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 10,

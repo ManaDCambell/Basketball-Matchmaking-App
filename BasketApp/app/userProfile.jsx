@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
 import { Provider, Divider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import profileImage from '../assets/images/default_profile_picture.jpg';
@@ -17,6 +17,14 @@ import platinum from '../assets/images/platinum.png';
 import diamond from '../assets/images/diamond.png';
 
 const { width, height } = Dimensions.get('window');
+
+const matchHistory = [
+  { opponent: 'Player1', type: '1v1', score: '21-18', result: 'Win', eloChange: '+15' },
+  { opponent: 'TeamX', type: '3v3', score: '35-40', result: 'Loss', eloChange: '-10' },
+  { opponent: 'DuoTeam', type: '2v2', score: '25-22', result: 'Win', eloChange: '+12' },
+  { opponent: 'Player2', type: '1v1', score: '18-15', result: 'Win', eloChange: '+20' },
+  { opponent: 'TeamY', type: '3v3', score: '30-35', result: 'Loss', eloChange: '-5' }
+];
 
 export default function UserProfile({ navigation }) {
   return (
@@ -96,7 +104,7 @@ const Content = () => {
 
       {/* Menu Buttons with Underline */}
       <View style={styles.menuContainer}>
-        {['Availability', 'Stats', 'Match Review'].map((label) => (
+        {['Availability', 'Match History'].map((label) => (
           <TouchableOpacity
             key={label}
             onPress={() => setSelectedMenu(label)}
@@ -111,6 +119,35 @@ const Content = () => {
       {/* Display different sections based on selected menu */}
       {selectedMenu === 'Availability' && <WeekAvailability />}
       {/* Add Footer */}
+      {selectedMenu === 'Match History' && (
+  <View style={styles.matchBox}>
+    <ScrollView style={styles.scrollContainer}>
+      {matchHistory.slice(0, 5).map((match, index) => (
+        <View key={index} style={styles.matchItem}>
+          <View style={styles.matchDetailsContainer}>
+            <Text style={styles.matchUsername}>{user?.userName}</Text>
+          </View>
+          <View style={styles.matchCenterContainer}>
+            <Text style={styles.matchText}>{match.type}</Text>
+            <Text style={styles.matchText}>Score: {match.score}</Text>
+            <Text
+              style={[
+                styles.matchText,
+                match.result === "Win" ? styles.winText : styles.lossText,
+              ]}
+            >
+              {match.result} ({match.eloChange})
+            </Text>
+          </View>
+          <View style={styles.matchDetailsContainer}>
+            <Text style={styles.matchUsername}>{match.opponent}</Text>
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  </View>
+)}
+
       <Footer />
     </View>
   );
@@ -234,7 +271,58 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white'
-  }
+  },
+  matchBox: {
+    width: "92%",
+    backgroundColor: "rgb(168, 168, 168)",
+    borderRadius: 15,
+    padding: 15,
+    marginTop: 20,
+  },
+  matchTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 10,
+  },
+  matchItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.3)",
+  },
+  matchDetailsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  matchCenterContainer: {
+    flex: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  matchUsername: {
+    fontSize: 18,
+    color: "black",
+    fontWeight: "bold",
+  },
+  matchText: {
+    fontSize: 14,
+    color: "black",
+  },
+  winText: {
+    color: "rgb(76, 175, 80)",
+    fontWeight: "bold",
+  },
+  lossText: {
+    color: "rgb(255, 61, 0)",
+    fontWeight: "bold",
+  },
+  scrollContainer: {
+    maxHeight: 300,
+  },
+  
 });
 
 //test
