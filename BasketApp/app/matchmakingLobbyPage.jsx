@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Text, View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { getUserNames, getLookingForMatch, getElo, getLocation, getPhoneNumber } from './database';
+import { getUserNames, getLookingForMatch, getElo, getLocation, getPhoneNumber, setPlayingAgainst, getUser, setLookingForMatch } from './database';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { getLoggedInUser } from '../FirebaseConfig';
 
-const MatchmakingLobbyPage = ({ navigation }) => {
+
+const MatchmakingLobbyPage = () => {
+  const [user, setUser] = useState(null);
   const [players, setPlayers] = useState({
     lookingForMatch: [],
-    maybeLookingForMatch: [],
-    notLookingForMatch: [],
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,6 +16,9 @@ const MatchmakingLobbyPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const result = await getUser(getLoggedInUser());
+        console.log("Fetched user object:", result);
+        setUser(result);
         const usernames = await getUserNames();
         console.log ('Fetched Usernames: ', usernames) //Debug statement
         // Fetch all usernames
@@ -61,7 +65,7 @@ const MatchmakingLobbyPage = ({ navigation }) => {
       </View>
     );
   }
-
+//player.username refers to opponent, user.username refers to the user
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Matchmaking Lobby</Text>
@@ -72,7 +76,11 @@ const MatchmakingLobbyPage = ({ navigation }) => {
           <TouchableOpacity
             key={index}
             style={styles.textBox}
-            onPress={() => alert(`You challenged: "${player.username}" Their phone number is ${player.phoneNumber}`)}
+            onPress={async() => {
+              await setPlayingAgainst(user.userName, player.username);
+              await setLookingForMatch(user.userName, 2);
+              alert(`You challenged: "${player.username}" Their phone number is ${player.phoneNumber}. you are ${user.userName}`)}
+            }
           >
             <Text style={styles.text}>{player.username}</Text>
             <Text style={styles.subText}>Elo: {player.ranking} | Location: {player.opponentLocation}</Text>
