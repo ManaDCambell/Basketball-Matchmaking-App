@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const Match = ({ navigation }) => {
   const [basketSide, setBasketSide] = useState(null);
-  const [matchDuration, setMatchDuration] = useState(120); // Default timer
+  const [matchDuration, setMatchDuration] = useState(1200); // Default timer
   const [settingsConfirmed, setSettingsConfirmed] = useState(false);
   const [matchStarted, setMatchStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(1200);
