@@ -12,6 +12,9 @@ import Login from './login';
 import Signup from './signup';
 import matchmakingLobbyPage from './matchmakingLobbyPage';
 import MatchmakingReport from './matchmakingReport';
+import Match from './match';
+
+
 
 import Header from './Header';
 import Footer from './footer';
@@ -50,6 +53,9 @@ function Index() {
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
       <Stack.Screen name="MatchmakingReport" component={MatchmakingReport} />
+      <Stack.Screen name="Match" component={Match} />
+
+
     </Stack.Navigator>
   );
 }
@@ -68,6 +74,10 @@ function HomeScreen({ navigation }) {
     });
     const [isMatchmakingVisible, setMatchmakingVisible] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+    const [showMatchList, setShowMatchList] = useState(false);
+    const [selectedMatch, setSelectedMatch] = useState(null);
+    const [requestedMatchIndex, setRequestedMatchIndex] = useState(null);
+
 
     useEffect(() => {
       async function fetchUser() {
@@ -209,13 +219,12 @@ function HomeScreen({ navigation }) {
           <View style={styles.overlay}>
             <View style={styles.menu}>
               {/* Close Button */}
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={toggleMatchmakingMenu}
-              >
-                <Icon name="close" size={30} color="white" />
-              </TouchableOpacity>
+              <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Select Game Type</Text>
+              <TouchableOpacity onPress={toggleMatchmakingMenu}>
+                <Icon name="close" size={28} color="white" />
+              </TouchableOpacity>
+            </View>
               <View style={styles.buttonContainer}>
                 {["1v1", "2v2", "3v3"].map((type) => (
                   <TouchableOpacity
@@ -306,13 +315,85 @@ function HomeScreen({ navigation }) {
 
               <Button
                 title="Find Match"
-                onPress={() => alert("Match Found!")} // Placeholder for match finding logic
+                onPress={() => setShowMatchList(true)}
                 disabled={isButtonDisabled}
                 color={isButtonDisabled ? "gray" : "rgb(218, 113, 5)"}
               />
+
             </View>
           </View>
         )}
+
+{showMatchList && (
+  <View style={styles.overlay}>
+    <View style={styles.fullMenu}>
+      {/* Header Row with Back Button */}
+      <View style={styles.menuHeader}>
+        <TouchableOpacity onPress={() => setShowMatchList(false)}>
+          <Icon name="arrow-back" size={28} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.menuTitle}>{gameType} Matches Near You</Text>
+        <View style={{ width: 28 }} /> {/* Spacer to balance layout */}
+      </View>
+
+      {/* Match List */}
+      <ScrollView
+        style={styles.matchScroll}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {[
+  {
+    players: gameType === "1v1" ? ["PlayerA"] :
+             gameType === "2v2" ? ["PlayerA", "PlayerB"] :
+             ["PlayerA", "PlayerB", "PlayerC"],
+    location: "Downtown Court"
+  },
+  {
+    players: gameType === "1v1" ? ["PlayerX"] :
+             gameType === "2v2" ? ["PlayerX", "PlayerY"] :
+             ["PlayerX", "PlayerY", "PlayerZ"],
+    location: "City Park"
+  },
+  {
+    players: ["More Players"],
+    location: "Another Court"
+  }
+].map((match, index) => (
+  <View key={index} style={styles.matchRequestBox}>
+    <Text style={styles.matchInfo}>
+      {match.players.join(", ")} – {match.location}
+    </Text>
+    <TouchableOpacity
+      style={[
+        styles.requestButton,
+        requestedMatchIndex === index && styles.requestedButton
+      ]}
+      onPress={() => setRequestedMatchIndex(index)}
+    >
+      <Text style={styles.buttonText}>
+        {requestedMatchIndex === index ? "Requested" : "Request"}
+      </Text>
+    </TouchableOpacity>
+  </View>
+))}
+
+      </ScrollView>
+
+      {/* Start Button */}
+      {requestedMatchIndex !== null && (
+  <TouchableOpacity
+    style={[styles.findMatchButton, { marginTop: 10 }]}
+    onPress={() => navigation.navigate("Match")}
+  >
+    <Text style={styles.findMatchButtonText}>Start</Text>
+  </TouchableOpacity>
+)}
+    </View>
+  </View>
+)}
+
+
 
         <Footer />
       </View>
@@ -326,6 +407,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgb(218, 113, 5)",
   },
+  matchRequestBox: {
+    backgroundColor: "rgba(78, 78, 78, 0.4)",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  matchInfo: {
+    color: "white",
+    fontSize: 14,
+    flex: 1,
+    marginRight: 10,
+  },
+  requestButton: {
+    backgroundColor: "rgb(218, 113, 5)",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },  
   header: {
     position: "absolute",
     top: 0,
@@ -361,6 +463,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.3)",
   },
+  requestedButton: {
+    backgroundColor: "rgb(121, 62, 20)", // lighter orange tint
+  },
+  
+  fullMenu: {
+    backgroundColor: "rgb(40, 50, 55)",
+    borderRadius: 20,
+    padding: 20,
+    width: width * 0.9,
+    height: height * 0.5,
+  },
+  menuHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  matchScroll: {
+    flex: 1,
+    marginBottom: 10,
+  },
+  
   friendName: {
     fontSize: 16,
     color: "rgb(255, 255, 255)",
@@ -493,9 +617,14 @@ const styles = StyleSheet.create({
   },
   menuTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    color: 'rgb(255, 255, 255)',
+  },
+  menuHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 15,
-    color: "rgb(255, 255, 255)",
   },
   buttonContainer: {
     flexDirection: "row",
