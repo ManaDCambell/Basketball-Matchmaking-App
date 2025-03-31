@@ -39,7 +39,7 @@ export const MatchmakingReport = () => {
             const opponentElo = await getElo(opponentUsername);
             setOpponentElo(fetchedOpponentElo);
               setLoading(false);
-            }
+            }   
             getData();
             
           }, []);
