@@ -1,8 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView, Button } from 'react-native';
+
 import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {getLoggedInUser} from '../FirebaseConfig';
+import { useNavigationState } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
+
+import { getLoggedInUser, db } from '../FirebaseConfig';
+import { getUser, getFriends, sendMatchRequest } from './database';
+import { onSnapshot, query, where, collection } from 'firebase/firestore';
+
 import UserProfile from './userProfile';
 import Matchmaking from './matchmaking';
 import Friends from './friends';
@@ -15,20 +21,11 @@ import MatchmakingReport from './matchmakingReport';
 import Match from './match';
 import Notifications from './notifications';
 
-import { onSnapshot, query, where } from 'firebase/firestore';
-import { collection } from 'firebase/firestore';
-import { db } from '../FirebaseConfig';
-
-import { useNavigationState } from '@react-navigation/native';
-
 import Header from './Header';
 import Footer from './footer';
 
-import { getUser, getFriends, sendMatchRequest } from './database';
-
 import logo from '../assets/images/appLogo.png';
-
-import { useIsFocused } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Stack = createStackNavigator();
 const { width, height } = Dimensions.get('window');
@@ -47,24 +44,18 @@ function Index() {
     <Stack.Navigator
       initialRouteName="Login"
       screenOptions={{
-        headerShown: false, // Change this to true if you want to show the header
+        headerShown: false,
       }}
     >
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
       <Stack.Screen name="Matchmaking" component={Matchmaking} />
       <Stack.Screen name="Friends" component={Friends} />
-      <Stack.Screen
-        name="UserProfileSettings"
-        component={UserProfileSettings}
-      />
+      <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
       <Stack.Screen name="Tournament" component={Tournament} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen
-        name="MatchmakingLobbyPage"
-        component={matchmakingLobbyPage}
-      />
+      <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
       <Stack.Screen name="MatchmakingReport" component={MatchmakingReport} />
       <Stack.Screen name="Match" component={Match} />
       <Stack.Screen name="Notifications" component={Notifications} />
