@@ -86,4 +86,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default matchmakingTeamBuilding;
+export default RegisterTeamScreen;
