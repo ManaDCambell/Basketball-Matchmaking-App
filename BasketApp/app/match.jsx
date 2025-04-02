@@ -3,25 +3,94 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
+import { doc, updateDoc, getDocs, query, where, collection, onSnapshot } from 'firebase/firestore';
+import { db, getLoggedInUser } from '../FirebaseConfig';
+import { getUser, forceQuitMatch } from './database';
 
-
-const Match = ({ navigation }) => {
+const Match = () => {
+  const navigation = useNavigation();
+  const [userName, setUserName] = useState('');
+  const [opponent, setOpponent] = useState('');
+  const [setupBy, setSetupBy] = useState('');
   const [basketSide, setBasketSide] = useState(null);
-  const [matchDuration, setMatchDuration] = useState(1200); // Default timer
-  const [settingsConfirmed, setSettingsConfirmed] = useState(false);
+  const [matchDuration, setMatchDuration] = useState(1200);
+  const [startTime, setStartTime] = useState(null);
   const [matchStarted, setMatchStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(1200);
   const [video, setVideo] = useState(null);
+  const [settingsConfirmed, setSettingsConfirmed] = useState(false);
 
   useEffect(() => {
-    let interval;
-    if (matchStarted && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    }
+    const init = async () => {
+      const name = getLoggedInUser();
+      setUserName(name);
+  
+      const user = await getUser(name);
+      const match = user?.activeMatch;
+  
+      if (!match || !match.opponent) return;
+  
+      const opponent = match.opponent;
+      const sortedNames = [name, opponent].sort(); 
+      const determinedSetupBy = sortedNames[0];
+  
+      setOpponent(opponent);
+      setSetupBy(determinedSetupBy);
+      setBasketSide(match.basket || null);
+      setMatchDuration(match.durationInSeconds || 1200);
+      setMatchStarted(match.started || false);
+      setStartTime(match.startTime || null);
+      setSettingsConfirmed(match.started || false);
+  
+      if (!match.setupBy) {
+        const docs = await getDocs(
+          query(collection(db, 'users'), where('userName', 'in', [name, opponent]))
+        );
+  
+        for (const docSnap of docs.docs) {
+          await updateDoc(doc(db, 'users', docSnap.id), {
+            activeMatch: {
+              ...docSnap.data().activeMatch,
+              setupBy: determinedSetupBy,
+            },
+          });
+        }
+      }
+    };
+  
+    init();
+  }, []);
+  
+  useEffect(() => {
+    if (!userName) return;
+    const q = query(collection(db, 'users'), where('userName', '==', userName));
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs[0]?.data()?.activeMatch;
+      if (data) {
+        setOpponent(data.opponent);
+        setSetupBy(data.setupBy);
+        setBasketSide(data.basket);
+        setMatchDuration(data.durationInSeconds || 1200);
+        setStartTime(data.startTime || null);
+        setMatchStarted(data.started || false);
+        setSettingsConfirmed(data.started || false);
+      }
+    });
+    return () => unsub();
+  }, [userName]);
+
+  useEffect(() => {
+    if (!matchStarted || !startTime || !matchDuration) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const endTime = startTime + matchDuration * 1000;
+      const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+      setTimeLeft(remaining);
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [matchStarted, timeLeft]);
+  }, [matchStarted, startTime, matchDuration]);
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -29,22 +98,46 @@ const Match = ({ navigation }) => {
     return `${m}:${s}`;
   };
 
-  const handleConfirmSettings = () => {
-    if (!basketSide) {
-      Alert.alert("Please select a basket side.");
+  const confirmSettings = async () => {
+    if (!basketSide || !matchDuration) {
+      Alert.alert("Select basket and match time first.");
       return;
     }
-    if (!matchDuration) {
-      Alert.alert("Please select a match duration.");
-      return;
-    }
-    setSettingsConfirmed(true);
-    setTimeLeft(matchDuration);
-    Alert.alert("Settings confirmed.");
-  };
 
-  const handleStartMatch = () => {
+    const docs = await getDocs(
+      query(collection(db, 'users'), where('userName', 'in', [userName, opponent]))
+    );
+    const userDoc = docs.docs.find(d => d.data().userName === userName);
+    const oppDoc = docs.docs.find(d => d.data().userName === opponent);
+
+    const now = Date.now();
+
+    const hostData = {
+      opponent,
+      setupBy: userName,
+      basket: basketSide,
+      durationInSeconds: matchDuration,
+      confirmed: true,
+      started: true,
+      startTime: now
+    };
+
+    const guestData = {
+      opponent: userName,
+      setupBy: userName,
+      basket: basketSide === 'Left' ? 'Right' : 'Left',
+      durationInSeconds: matchDuration,
+      confirmed: true,
+      started: true,
+      startTime: now
+    };
+
+    await updateDoc(doc(db, 'users', userDoc.id), { activeMatch: hostData });
+    await updateDoc(doc(db, 'users', oppDoc.id), { activeMatch: guestData });
+
     setMatchStarted(true);
+    setStartTime(now);
+    setSettingsConfirmed(true);
   };
 
   const pickVideo = async () => {
@@ -67,155 +160,114 @@ const Match = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        {matchStarted ? "Match in Progress" : "Match Setup"}
-    </Text>
-
-
-      <Text style={styles.timerText}>
-        {formatTime(matchStarted ? timeLeft : matchDuration)}
-      </Text>
-
+  const renderSetupControls = () => (
+    <>
       <Text style={styles.instructions}>Select your team's basket:</Text>
       <View style={styles.basketToggle}>
-        <TouchableOpacity
-          style={[
-            styles.basketButton,
-            basketSide === "Left" && styles.selectedBasket,
-            settingsConfirmed && styles.locked,
-          ]}
-          onPress={() => !settingsConfirmed && setBasketSide("Left")}
-        >
-          <Text style={styles.basketText}>Left Basket</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.basketButton,
-            basketSide === "Right" && styles.selectedBasket,
-            settingsConfirmed && styles.locked,
-          ]}
-          onPress={() => !settingsConfirmed && setBasketSide("Right")}
-        >
-          <Text style={styles.basketText}>Right Basket</Text>
-        </TouchableOpacity>
+        {["Left", "Right"].map(side => (
+          <TouchableOpacity
+            key={side}
+            style={[
+              styles.basketButton,
+              basketSide === side && styles.selectedBasket,
+              settingsConfirmed && styles.locked,
+            ]}
+            onPress={() => !settingsConfirmed && setBasketSide(side)}
+          >
+            <Text style={styles.basketText}>{side} Basket</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <Text style={styles.instructions}>Select match time:</Text>
       <View style={styles.durationButtons}>
-        <TouchableOpacity
-          style={[
-            styles.timeButton,
-            matchDuration === 600 && styles.selectedTimeButton,
-            settingsConfirmed && styles.locked,
-          ]}
-          onPress={() => !settingsConfirmed && setMatchDuration(600)}
-        >
-          <Text style={styles.timeText}>10 min</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.timeButton,
-            matchDuration === 1200 && styles.selectedTimeButton,
-            settingsConfirmed && styles.locked,
-          ]}
-          onPress={() => !settingsConfirmed && setMatchDuration(1200)}
-        >
-          <Text style={styles.timeText}>20 min</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.timeButton,
-            matchDuration === 10 && styles.selectedTimeButton, // Dev only
-            settingsConfirmed && styles.locked,
-          ]}
-          onPress={() => !settingsConfirmed && setMatchDuration(10)}
-        >
-          <Text style={styles.timeText}>30 min</Text>
-        </TouchableOpacity>
+        {[1*60, 20*60, 30*60].map(duration => (                                              //MATCH TIME OPTIONS
+          <TouchableOpacity
+            key={duration}
+            style={[
+              styles.timeButton,
+              matchDuration === duration && styles.selectedTimeButton,
+              settingsConfirmed && styles.locked,
+            ]}
+            onPress={() => !settingsConfirmed && setMatchDuration(duration)}
+          >
+            <Text style={styles.timeText}>{duration / 60} min</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {!settingsConfirmed && (
-        <TouchableOpacity
-          style={styles.confirmButton}
-          onPress={handleConfirmSettings}
-        >
+        <TouchableOpacity style={styles.confirmButton} onPress={confirmSettings}>
           <Text style={styles.confirmText}>Confirm Settings</Text>
         </TouchableOpacity>
       )}
+    </>
+  );
 
-      {settingsConfirmed && !matchStarted && (
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{matchStarted ? "Match in Progress" : "Match Setup"}</Text>
+      <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+
+      {userName === setupBy ? renderSetupControls() : (
+        <Text style={styles.instructions}>Please wait while {setupBy} sets up the match...</Text>
+      )}
+
+      {matchStarted && userName === setupBy && (
         <TouchableOpacity
-          style={styles.startButton}
-          onPress={handleStartMatch}
+          style={[styles.uploadButton, timeLeft > 0 && styles.disabledButton]}
+          onPress={pickVideo}
+          disabled={timeLeft > 0}
         >
-          <Text style={styles.confirmText}>Start Match</Text>
+          <Text style={styles.uploadText}>
+            {video ? "Change Match Video" : "Upload Match Video"}
+          </Text>
         </TouchableOpacity>
       )}
 
-{matchStarted && (
-  <TouchableOpacity
-    style={[
-      styles.uploadButton,
-      timeLeft > 0 && styles.disabledButton,
-    ]}
-    onPress={pickVideo}
-    disabled={timeLeft > 0}
-  >
-    <Text style={styles.uploadText}>
-      {video ? "Change Match Video" : "Upload Match Video"}
-    </Text>
-  </TouchableOpacity>
-)}
+      {video && matchStarted && timeLeft === 0 && (
+        <>
+          <Video
+            source={{ uri: video }}
+            rate={1.0}
+            volume={1.0}
+            isMuted={false}
+            resizeMode="contain"
+            shouldPlay
+            useNativeControls
+            style={styles.video}
+          />
+          <TouchableOpacity
+            style={styles.uploadFinalButton}
+            onPress={() => {
+              Alert.alert('Success', 'Video uploaded!', [
+                { text: 'OK', onPress: () => navigation.navigate('Home') },
+              ]);
+            }}
+          >
+            <Text style={styles.uploadFinalText}>Upload</Text>
+          </TouchableOpacity>
+        </>
+      )}
 
-
-{video && matchStarted && timeLeft === 0 && (
-  <>
-    <Video
-      source={{ uri: video }}
-      rate={1.0}
-      volume={1.0}
-      isMuted={false}
-      resizeMode="contain"
-      shouldPlay
-      useNativeControls
-      style={styles.video}
-    />
-
-<TouchableOpacity
-  style={styles.uploadFinalButton}
-  onPress={() => {
-    Alert.alert('Success', 'Video uploaded!', [
-      {
-        text: 'OK',
-        onPress: () => navigation.navigate('Home'),
-      },
-    ]);
-  }}
->
-  <Text style={styles.uploadFinalText}>Upload</Text>
-</TouchableOpacity>
-
-  </>
-)}
-<View style={styles.footer}>
-  <TouchableOpacity
-    style={styles.forceQuitButton}
-    onPress={() =>
-      Alert.alert('Force Quit', 'Are you sure you want to quit the match?', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Yes', style: 'destructive', onPress: () => navigation.navigate('Home') },
-      ])
-    }
-  >
-    <Text style={styles.forceQuitText}>Force Quit</Text>
-  </TouchableOpacity>
-</View>
-
+      <TouchableOpacity
+        style={styles.forceQuitButton}
+        onPress={() =>
+          Alert.alert('Force Quit', 'Are you sure you want to quit the match?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Yes',
+              style: 'destructive',
+              onPress: async () => {
+                await forceQuitMatch(userName);
+                navigation.navigate('Home');
+              }
+            },
+          ])
+        }
+      >
+        <Text style={styles.forceQuitText}>Force Quit</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -229,23 +281,6 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
-  footer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-  },
-  forceQuitButton: {
-    backgroundColor: 'rgba(255, 0, 0, 0.7)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  forceQuitText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  
   title: {
     fontSize: 26,
     fontWeight: 'bold',
@@ -253,20 +288,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 10,
   },
-  uploadFinalButton: {
-    backgroundColor: 'rgb(7, 94, 236)',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-    marginTop: 15,
-  },
-  uploadFinalText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  
   timerText: {
     fontSize: 36,
     color: 'white',
@@ -327,13 +348,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
-  startButton: {
-    backgroundColor: 'rgb(7, 94, 236)',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
   confirmText: {
     color: 'white',
     fontSize: 16,
@@ -353,11 +367,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  uploadFinalButton: {
+    backgroundColor: 'rgb(7, 94, 236)',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    marginTop: 15,
+  },
+  uploadFinalText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+  },
   video: {
     width: '100%',
     height: 300,
     marginTop: 20,
     borderRadius: 10,
     backgroundColor: 'black',
+  },
+  forceQuitButton: {
+    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 30,
+  },
+  forceQuitText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

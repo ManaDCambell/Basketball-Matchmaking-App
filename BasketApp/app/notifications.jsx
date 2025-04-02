@@ -7,10 +7,24 @@ import { updateDoc, doc, getDocs, query, where, collection } from 'firebase/fire
 import { db } from '../FirebaseConfig';
 import Footer from './footer';
 import Header from './Header';
+import { useNavigation } from '@react-navigation/native';
+
 
 const Notifications = () => {
   const [requests, setRequests] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [matchRequests, setMatchRequests] = useState([]);
+    const navigation = useNavigation();
+
+    useEffect(() => {
+    async function load() {
+        const user = getLoggedInUser();
+        if (!user) return;
+        const data = await getUser(user);
+        setMatchRequests(data.matchRequestsReceived || []);
+    }
+    load();
+    }, []);
 
   useEffect(() => {
     loadFriendRequests();
@@ -45,7 +59,6 @@ const Notifications = () => {
       const myReceived = userDocs[currentUser].data.friendRequestsReceived || [];
       const fromSent = userDocs[fromUser].data.friendRequestsSent || [];
 
-      // Update both users
       await Promise.all([
         updateDoc(myDoc, {
           friends: [...myFriends, fromUser],
@@ -98,6 +111,43 @@ const Notifications = () => {
     }
   };
 
+  const handleAcceptMatch = async (fromUser) => {
+    const currentUser = getLoggedInUser();
+    if (!currentUser) return;
+  
+    try {
+      const usersRef = query(collection(db, 'users'), where("userName", "in", [currentUser, fromUser]));
+      const snapshot = await getDocs(usersRef);
+  
+      const userDocs = {};
+      snapshot.forEach(docSnap => {
+        userDocs[docSnap.data().userName] = { id: docSnap.id, data: docSnap.data() };
+      });
+  
+      const myDoc = doc(db, 'users', userDocs[currentUser].id);
+      const fromDoc = doc(db, 'users', userDocs[fromUser].id);
+  
+      const myRequests = userDocs[currentUser].data.matchRequestsReceived || [];
+      const fromRequests = userDocs[fromUser].data.matchRequestsSent || [];
+  
+      await Promise.all([
+        updateDoc(myDoc, {
+          matchRequestsReceived: myRequests.filter(name => name !== fromUser),
+          activeMatch: { opponent: fromUser, confirmed: true }
+        }),
+        updateDoc(fromDoc, {
+          matchRequestsSent: fromRequests.filter(name => name !== currentUser),
+          activeMatch: { opponent: currentUser, confirmed: true }
+        })
+      ]);
+  
+      navigation.navigate('Match');
+    } catch (err) {
+      console.error("Error accepting match request:", err);
+    }
+  };
+  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Friend Requests</Text>
@@ -119,6 +169,24 @@ const Notifications = () => {
             </View>
           ))
         )}
+        <Text style={styles.title}>Match Requests</Text>
+            {matchRequests.length === 0 ? (
+            <Text style={styles.empty}>No match requests.</Text>
+            ) : (
+            matchRequests.map((user, index) => (
+                <View key={index} style={styles.requestBox}>
+                <Text style={styles.username}>{user}</Text>
+                <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => handleAcceptMatch(user)}
+            >
+            <Icon name="play-circle-outline" size={30} color="white" />
+            </TouchableOpacity>
+
+                </View>
+            ))
+            )}
+
       </ScrollView>
       <Footer />
     </View>

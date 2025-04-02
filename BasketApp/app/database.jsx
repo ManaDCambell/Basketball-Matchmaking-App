@@ -37,6 +37,9 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
           lookingForMatch : 0,
           playingAgainst : "",
           skillPref : false,
+          matchRequestsSent: [],
+          matchRequestsReceived: [],
+          activeMatch: null
         });
         return true;
       }
@@ -75,10 +78,22 @@ export async function checkCredentials(email,password){
 /**
  * Logs out the current user
  */
-export async function logOut(){
+export async function logOut() {
+  const userName = getLoggedInUser();
+  if (userName) {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docSnapshot = await getDocs(q);
+    const docRef = doc(usersCollection, docSnapshot.docs[0].id);
+
+    await updateDoc(docRef, {
+      activeMatch: null
+    });
+  }
+
   auth.signOut();
   setLoggedInUser(undefined);
 }
+
 
 /**
  * gets the age of the given username from the userdatabse
@@ -569,7 +584,62 @@ export async function removeFriend(userName, friendUserName) {
   }
 }
 
+export async function sendMatchRequest(fromUser, toUser) {
+  try {
+    const q1 = query(usersCollection, where("userName", "==", fromUser));
+    const q2 = query(usersCollection, where("userName", "==", toUser));
+    const [fromSnap, toSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
 
+    if (fromSnap.empty || toSnap.empty) return false;
+
+    const fromDoc = fromSnap.docs[0];
+    const toDoc = toSnap.docs[0];
+
+    const fromRef = doc(usersCollection, fromDoc.id);
+    const toRef = doc(usersCollection, toDoc.id);
+
+    const fromData = fromDoc.data();
+    const toData = toDoc.data();
+
+    const sent = fromData.matchRequestsSent || [];
+    const received = toData.matchRequestsReceived || [];
+
+    if (!sent.includes(toUser)) sent.push(toUser);
+    if (!received.includes(fromUser)) received.push(fromUser);
+
+    await Promise.all([
+      updateDoc(fromRef, { matchRequestsSent: sent }),
+      updateDoc(toRef, { matchRequestsReceived: received })
+    ]);
+
+    return true;
+  } catch (error) {
+    console.error("Error sending match request: ", error);
+    return false;
+  }
+}
+
+export const forceQuitMatch = async (userName) => {
+  const q = query(collection(db, 'users'), where('userName', '==', userName));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) return;
+
+  const userData = snapshot.docs[0].data();
+  const opponent = userData?.activeMatch?.opponent;
+
+  if (!opponent) return;
+
+  const usersToClear = [userName, opponent];
+  const usersQuery = query(collection(db, 'users'), where('userName', 'in', usersToClear));
+  const userDocs = await getDocs(usersQuery);
+
+  for (const docSnap of userDocs.docs) {
+    await updateDoc(doc(db, 'users', docSnap.id), {
+      activeMatch: null,
+    });
+  }
+};
 
 export default function DataBase() {
   return <Text>Nothing Here</Text>;
