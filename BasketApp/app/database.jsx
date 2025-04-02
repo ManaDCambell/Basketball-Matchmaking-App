@@ -22,8 +22,22 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
       email = email.toLowerCase();
       const user = await createUserWithEmailAndPassword(auth,email,password);
       if (user) {
-        await addDoc(usersCollection,  {fullName : fullName , userName: userName, password : password, age : age, phoneNumber :
-           phoneNumber, elo : 100, location : location, email : email, friends : [],lookingForMatch : 0, playingAgainst : "", skillPref : false});
+        await addDoc(usersCollection, {
+          fullName : fullName,
+          userName: userName,
+          password : password,
+          age : age,
+          phoneNumber : phoneNumber,
+          elo : 100,
+          location : location,
+          email : email,
+          friends : [],
+          friendRequestsSent: [], 
+          friendRequestsReceived: [],
+          lookingForMatch : 0,
+          playingAgainst : "",
+          skillPref : false,
+        });
         return true;
       }
       else
@@ -482,6 +496,80 @@ export async function setSkillPref(userName,newSkillPref) {
     console.log("Error updating document: ", error);
   }
 }
+
+export async function sendFriendRequest(userName, targetUserName) {
+  try {
+    if (!targetUserName || targetUserName.trim() === "") return false;
+
+    const q1 = query(usersCollection, where("userName", "==", userName));
+    const q2 = query(usersCollection, where("userName", "==", targetUserName));
+    const [fromSnap, toSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    if (fromSnap.empty || toSnap.empty) return false;
+
+    const fromDoc = fromSnap.docs[0];
+    const toDoc = toSnap.docs[0];
+
+    const fromRef = doc(usersCollection, fromDoc.id);
+    const toRef = doc(usersCollection, toDoc.id);
+
+    const fromData = fromDoc.data();
+    const toData = toDoc.data();
+
+    const sent = fromData.friendRequestsSent || [];
+    const received = toData.friendRequestsReceived || [];
+
+    if (!sent.includes(targetUserName)) sent.push(targetUserName);
+    if (!received.includes(userName)) received.push(userName);
+
+    await Promise.all([
+      updateDoc(fromRef, { friendRequestsSent: sent }),
+      updateDoc(toRef, { friendRequestsReceived: received })
+    ]);
+
+    return true;
+  } catch (error) {
+    console.error("Error sending friend request: ", error);
+    return false;
+  }
+}
+
+export async function removeFriend(userName, friendUserName) {
+  try {
+    const q1 = query(usersCollection, where("userName", "==", userName));
+    const q2 = query(usersCollection, where("userName", "==", friendUserName));
+    const [userSnap, friendSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    if (userSnap.empty || friendSnap.empty) {
+      console.log('One of the users not found.');
+      return false;
+    }
+
+    const userDoc = userSnap.docs[0];
+    const friendDoc = friendSnap.docs[0];
+
+    const userRef = doc(usersCollection, userDoc.id);
+    const friendRef = doc(usersCollection, friendDoc.id);
+
+    const userData = userDoc.data();
+    const friendData = friendDoc.data();
+
+    const updatedUserFriends = (userData.friends || []).filter(name => name !== friendUserName);
+    const updatedFriendFriends = (friendData.friends || []).filter(name => name !== userName);
+
+    await Promise.all([
+      updateDoc(userRef, { friends: updatedUserFriends }),
+      updateDoc(friendRef, { friends: updatedFriendFriends })
+    ]);
+
+    return true;
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    return false;
+  }
+}
+
+
 
 export default function DataBase() {
   return <Text>Nothing Here</Text>;

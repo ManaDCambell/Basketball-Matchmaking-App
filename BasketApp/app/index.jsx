@@ -13,6 +13,8 @@ import Signup from './signup';
 import matchmakingLobbyPage from './matchmakingLobbyPage';
 import MatchmakingReport from './matchmakingReport';
 import Match from './match';
+import Notifications from './notifications';
+
 
 
 
@@ -54,6 +56,8 @@ function Index() {
       <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
       <Stack.Screen name="MatchmakingReport" component={MatchmakingReport} />
       <Stack.Screen name="Match" component={Match} />
+      <Stack.Screen name="Notifications" component={Notifications} />
+
 
 
     </Stack.Navigator>

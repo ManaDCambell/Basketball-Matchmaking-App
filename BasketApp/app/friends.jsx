@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { getUserNames2, getFriends, addFriend } from './database';
+import { getUserNames2, getFriends, addFriend, sendFriendRequest, removeFriend } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Footer from './footer';
 import {getLoggedInUser} from '../FirebaseConfig';
@@ -23,16 +23,23 @@ const Friends = () => {
   const fetchUsers = async () => {
     try {
       const usernameObjects = await getUserNames2();
+      const currentUser = getLoggedInUser();
+  
       if (!usernameObjects || usernameObjects.length === 0) {
         console.log("No users found");
         return;
       }
-      const usersData = usernameObjects.map(obj => ({ userName: obj.userName }));
+
+      const usersData = usernameObjects
+        .filter(obj => obj.userName !== currentUser)
+        .map(obj => ({ userName: obj.userName }));
+  
       setUsers(usersData);
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }
   };
+  
 
   const fetchFriends = async () => {
     try {
@@ -66,12 +73,27 @@ const Friends = () => {
 
   const handleAddFriend = async (friendUserName) => {
     try {
-      const currentUserName = getLoggedInUser();  // Replace this with actual logged-in user’s username if dynamic
-      await addFriend(currentUserName, friendUserName);
-      Alert.alert('Friend added', `${friendUserName} has been added to your friends list.`);
-      fetchFriends();
+      const currentUserName = getLoggedInUser();
+      const success = await sendFriendRequest(currentUserName, friendUserName);
+      if (success) {
+        Alert.alert('Request Sent', `Friend request sent to ${friendUserName}.`);
+      } else {
+        Alert.alert('Error', 'Failed to send friend request.');
+      }
     } catch (error) {
-      console.error('Error adding friend:', error);
+      console.error('Error sending friend request:', error);
+    }
+  };
+  
+  const handleRemoveFriend = async (friendUserName) => {
+    try {
+      const currentUserName = getLoggedInUser();
+      const success = await removeFriend(currentUserName, friendUserName);
+      if (success) {
+        fetchFriends();
+      }
+    } catch (error) {
+      console.error('Error removing friend:', error);
     }
   };
   
@@ -107,11 +129,17 @@ const Friends = () => {
           <View style={styles.profileContainer}>
             <Image source={require('../assets/images/default_profile_picture.jpg')} style={styles.profilePic} />
             <Text style={styles.username}>{user.userName}</Text>
-            {isAddingFriends && !friends.some(friend => friend.userName === user.userName) ? (
-              <TouchableOpacity style={styles.chatButton} onPress={() => handleAddFriend(user.userName)}>
-                <Icon name="add-circle-outline" size={30} color="white" />
+            {isAddingFriends ? (
+              !friends.some(friend => friend.userName === user.userName) && (
+                <TouchableOpacity style={styles.chatButton} onPress={() => handleAddFriend(user.userName)}>
+                  <Icon name="add-circle-outline" size={30} color="white" />
+                </TouchableOpacity>
+              )
+            ) : (
+              <TouchableOpacity style={styles.chatButton} onPress={() => handleRemoveFriend(user.userName)}>
+                <Icon name="remove-circle-outline" size={30} color="white" />
               </TouchableOpacity>
-            ) : null}
+            )}
           </View>
         </View>
       ))}

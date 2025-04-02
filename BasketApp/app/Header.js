@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { logOut } from './database';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const Header = () => {
   const navigation = useNavigation();
@@ -16,13 +16,9 @@ const Header = () => {
   return (
     <View style={styles.header}>
 
-      {/* <TouchableOpacity style={styles.tempButton} onPress={handleSignOut}>
-        <Text style={styles.tempButtonText}>Sign Out</Text>
-      </TouchableOpacity> */}
-      
-      {/* <TouchableOpacity style={styles.tempButton} onPress={() => navigation.navigate('Database')}>
-        <Text style={styles.tempButtonText}>Database</Text>
-      </TouchableOpacity> */}
+      <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+        <Icon name="notifications-outline" size={40} color="white" style={{ marginRight: width * 0.75 }} />
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
         <Icon name="cog-outline" size={40} color="white" />
