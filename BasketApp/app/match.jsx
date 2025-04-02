@@ -122,6 +122,8 @@ const Match = () => {
       startTime: now
     };
 
+    console.log('Host Data:', hostData);
+
     const guestData = {
       opponent: userName,
       setupBy: userName,
@@ -131,6 +133,8 @@ const Match = () => {
       started: true,
       startTime: now
     };
+
+    console.log('Guest Data:', guestData);
 
     await updateDoc(doc(db, 'users', userDoc.id), { activeMatch: hostData });
     await updateDoc(doc(db, 'users', oppDoc.id), { activeMatch: guestData });
@@ -181,7 +185,7 @@ const Match = () => {
 
       <Text style={styles.instructions}>Select match time:</Text>
       <View style={styles.durationButtons}>
-        {[1*60, 20*60, 30*60].map(duration => (                                              //MATCH TIME OPTIONS
+        {[0.15*60, 20*60, 30*60].map(duration => (                                              //MATCH TIME OPTIONS
           <TouchableOpacity
             key={duration}
             style={[
@@ -210,7 +214,7 @@ const Match = () => {
       <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
 
       {userName === setupBy ? renderSetupControls() : (
-        <Text style={styles.instructions}>Please wait while {setupBy} sets up the match...</Text>
+        <Text style={styles.instructions}>{matchStarted ? "Match in progress" : "Please wait while " + setupBy + " sets up the match..."}</Text>
       )}
 
       {matchStarted && userName === setupBy && (
