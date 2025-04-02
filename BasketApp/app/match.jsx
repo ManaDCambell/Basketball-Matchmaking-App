@@ -217,17 +217,17 @@ const Match = () => {
         <Text style={styles.instructions}>{matchStarted ? "Match in progress" : "Please wait while " + setupBy + " sets up the match..."}</Text>
       )}
 
-      {matchStarted && userName === setupBy && (
+      {matchStarted && timeLeft === 0 && (
         <TouchableOpacity
-          style={[styles.uploadButton, timeLeft > 0 && styles.disabledButton]}
+          style={styles.uploadButton}
           onPress={pickVideo}
-          disabled={timeLeft > 0}
         >
           <Text style={styles.uploadText}>
             {video ? "Change Match Video" : "Upload Match Video"}
           </Text>
         </TouchableOpacity>
       )}
+
 
       {video && matchStarted && timeLeft === 0 && (
         <>
@@ -243,14 +243,30 @@ const Match = () => {
           />
           <TouchableOpacity
             style={styles.uploadFinalButton}
-            onPress={() => {
-              Alert.alert('Success', 'Video uploaded!', [
-                { text: 'OK', onPress: () => navigation.navigate('Home') },
-              ]);
+            onPress={async () => {
+              try {
+                const q = query(collection(db, 'users'), where('userName', '==', userName));
+                const snapshot = await getDocs(q);
+                const userDoc = snapshot.docs[0];
+
+                if (userDoc) {
+                  await updateDoc(userDoc.ref, {
+                    activeMatch: null,
+                  });
+                }
+
+                Alert.alert('Success', 'Video uploaded!', [
+                  { text: 'OK', onPress: () => navigation.navigate('Home') },
+                ]);
+              } catch (error) {
+                Alert.alert('Error', 'Something went wrong while uploading.');
+                console.error(error);
+              }
             }}
           >
             <Text style={styles.uploadFinalText}>Upload</Text>
           </TouchableOpacity>
+
         </>
       )}
 

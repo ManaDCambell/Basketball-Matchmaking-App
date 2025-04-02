@@ -3,6 +3,9 @@ import { initializeApp } from "firebase/app";
 import {initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -12,7 +15,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAUO8FDKV1iqsk_PaACNsBWu-I1NfRTfa4",
   authDomain: "basketapp-a14bb.firebaseapp.com",
   projectId: "basketapp-a14bb",
-  storageBucket: "basketapp-a14bb.firebasestorage.app",
+  storageBucket: "basketapp-a14bb.appspot.com",
   messagingSenderId: "219787223865",
   appId: "1:219787223865:web:c2dc20cfcef29114837ee8",
   measurementId: "G-E02WPNCYZE"
@@ -31,3 +34,4 @@ export function getLoggedInUser(){
   return loggedInUser;
 }
 export const db = getFirestore(app);
+export const storage = getStorage(app);
