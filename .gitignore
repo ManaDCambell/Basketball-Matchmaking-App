@@ -18,8 +18,6 @@ runs/
 *.engine
 *.tflite
 *.torchscript
-*.jpg
-*.png
 data/
 *.yaml
 
