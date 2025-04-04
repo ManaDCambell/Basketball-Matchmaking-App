@@ -1,3 +1,4 @@
 .expo/README.md
 .expo/settings.json
 BasketApp/package-lock.json
+node_modules
