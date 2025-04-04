@@ -1,9 +1,10 @@
+# Already in your file
 .expo/README.md
 .expo/settings.json
 BasketApp/package-lock.json
 node_modules
 
-# Ignore Python stuff
+# Add this stuff below:
 __pycache__/
 *.pyc
 *.pyo
