@@ -98,6 +98,50 @@ const Match = () => {
     return `${m}:${s}`;
   };
 
+  const uploadToServer = async (uri) => {
+    const formData = new FormData();
+    formData.append('video', {
+      uri,
+      type: 'video/quicktime',
+      name: 'match_video.mov',
+    });
+  
+    try {
+      const response = await fetch('http://10.0.2.2:5000/upload', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      const json = await response.json();
+  
+      if (response.ok) {
+        Alert.alert('Match Results', `Score: ${json.score}`);
+  
+        const q = query(collection(db, 'users'), where('userName', '==', userName));
+        const snapshot = await getDocs(q);
+        const userDoc = snapshot.docs[0];
+  
+        if (userDoc) {
+          const currentMatch = userDoc.data().activeMatch || {};
+          await updateDoc(userDoc.ref, {
+            prevScore: json.score
+          });
+          
+        }
+      } else {
+        Alert.alert('Upload failed', json.error || 'Unknown error');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Network error', 'Could not connect to the server.');
+    }
+  };
+  
+  
+
   const confirmSettings = async () => {
     if (!basketSide || !matchDuration) {
       Alert.alert("Select basket and match time first.");
@@ -160,7 +204,9 @@ const Match = () => {
     if (!result.canceled) {
       const videoUri = result.assets[0].uri;
       setVideo(videoUri);
-      Alert.alert('Video selected!', videoUri);
+      uploadToServer(videoUri);
+      
+      
     }
   };
 
