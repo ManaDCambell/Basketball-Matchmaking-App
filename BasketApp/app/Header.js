@@ -1,38 +1,55 @@
-import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet, Dimensions, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { logOut } from './database';
+import { logOut, getUser } from './database';
+import { getLoggedInUser } from '../FirebaseConfig';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { height, width } = Dimensions.get('window');
 
 const Header = () => {
   const navigation = useNavigation();
-  const handleSignOut = async () =>{
+  const [hasNotifications, setHasNotifications] = useState(false);
+
+  useEffect(() => {
+    const checkNotifications = async () => {
+      const username = getLoggedInUser();
+      if (!username) return;
+
+      const user = await getUser(username);
+      const hasFriendReqs = user?.friendRequestsReceived?.length > 0;
+      const hasMatchReqs = user?.matchRequestsReceived?.length > 0;
+
+      setHasNotifications(hasFriendReqs || hasMatchReqs);
+    };
+
+    checkNotifications();
+  }, []);
+
+  const handleSignOut = async () => {
     logOut();
     navigation.navigate('Login');
-  }
-  
+  };
+
   return (
     <View style={styles.header}>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-        <Icon name="notifications-outline" size={40} color="white" style={{ marginRight: width * 0.75 }} />
-      </TouchableOpacity>
+      <View style={{ marginRight: width * 0.75 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+          <Icon name="notifications-outline" size={40} color="white" />
+          {hasNotifications && (
+            <View style={styles.notificationDot} />
+          )}
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('UserProfileSettings')}>
         <Icon name="cog-outline" size={40} color="white" />
       </TouchableOpacity>
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
- 
-  iconWrapper: {
-    padding: 10,
-  },
   header: {
     flexDirection: 'row',
     position: 'absolute',
@@ -47,22 +64,14 @@ const styles = StyleSheet.create({
     zIndex: 1,
     paddingHorizontal: 10,
   },
- 
-  tempButton: {
-    backgroundColor: 'white',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#000',
+  notificationDot: {
     position: 'absolute',
-    top: 12,
-    right: 320,
-
-  },
-  tempButtonText: {
-    color: 'black',
-    fontWeight: 'bold',
+    top: -2,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'red',
   },
 });
 

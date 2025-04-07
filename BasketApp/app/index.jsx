@@ -1,44 +1,91 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Text, View, TouchableOpacity, StyleSheet, Image, Dimensions, ScrollView, Button } from 'react-native';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Dimensions,
+  ScrollView,
+  Button,
+} from "react-native";
 
-import { createStackNavigator } from '@react-navigation/stack';
-import { useNavigationState } from '@react-navigation/native';
-import { useIsFocused } from '@react-navigation/native';
+import { createStackNavigator } from "@react-navigation/stack";
+import { useNavigationState } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 
-import { getLoggedInUser, db } from '../FirebaseConfig';
-import { getUser, getFriends, sendMatchRequest } from './database';
-import { getUserNames, getLookingForMatch, getElo, getLocation, getPhoneNumber, setPlayingAgainst, setLookingForMatch } from './database';
+import { getLoggedInUser, db } from "../FirebaseConfig";
+import { getUser, getFriends, sendMatchRequest } from "./database";
+import {
+  getUserNames,
+  getLookingForMatch,
+  getElo,
+  getLocation,
+  getPhoneNumber,
+  setPlayingAgainst,
+  setLookingForMatch,
+} from "./database";
 
-import { onSnapshot, query, where, collection } from 'firebase/firestore';
+import { onSnapshot, query, where, collection } from "firebase/firestore";
 
-import UserProfile from './userProfile';
-import Matchmaking from './matchmaking';
-import Friends from './friends';
-import UserProfileSettings from './userProfileSettings';
-import Tournament from './tournament';
-import Login from './login';
-import Signup from './signup';
-import matchmakingLobbyPage from './matchmakingLobbyPage';
-import MatchmakingReport from './matchmakingReport';
-import Match from './match';
-import Notifications from './notifications';
+import UserProfile from "./userProfile";
+import Matchmaking from "./matchmaking";
+import Friends from "./friends";
+import UserProfileSettings from "./userProfileSettings";
+import Tournament from "./tournament";
+import Login from "./login";
+import Signup from "./signup";
+import matchmakingLobbyPage from "./matchmakingLobbyPage";
+import MatchmakingReport from "./matchmakingReport";
+import Match from "./match";
+import Notifications from "./notifications";
 
-import Header from './Header';
-import Footer from './footer';
+import Header from "./Header";
+import Footer from "./footer";
 
-import logo from '../assets/images/appLogo.png';
-import Icon from 'react-native-vector-icons/Ionicons';
+import logo from "../assets/images/appLogo.png";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const Stack = createStackNavigator();
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 // Placeholder match data (to be replaced with database data later)
 const matchHistory = [
-  { opponent: 'Player1', type: '1v1', score: '21-18', result: 'Win', eloChange: '+15' },
-  { opponent: 'TeamX', type: '3v3', score: '35-40', result: 'Loss', eloChange: '-10' },
-  { opponent: 'DuoTeam', type: '2v2', score: '25-22', result: 'Win', eloChange: '+12' },
-  { opponent: 'Player2', type: '1v1', score: '18-15', result: 'Win', eloChange: '+20' },
-  { opponent: 'TeamY', type: '3v3', score: '30-35', result: 'Loss', eloChange: '-5' }
+  {
+    opponent: "Player1",
+    type: "1v1",
+    score: "21-18",
+    result: "Win",
+    eloChange: "+15",
+  },
+  {
+    opponent: "TeamX",
+    type: "3v3",
+    score: "35-40",
+    result: "Loss",
+    eloChange: "-10",
+  },
+  {
+    opponent: "DuoTeam",
+    type: "2v2",
+    score: "25-22",
+    result: "Win",
+    eloChange: "+12",
+  },
+  {
+    opponent: "Player2",
+    type: "1v1",
+    score: "18-15",
+    result: "Win",
+    eloChange: "+20",
+  },
+  {
+    opponent: "TeamY",
+    type: "3v3",
+    score: "30-35",
+    result: "Loss",
+    eloChange: "-5",
+  },
 ];
 
 function Index() {
@@ -53,11 +100,17 @@ function Index() {
       <Stack.Screen name="UserProfile" component={UserProfile} />
       <Stack.Screen name="Matchmaking" component={Matchmaking} />
       <Stack.Screen name="Friends" component={Friends} />
-      <Stack.Screen name="UserProfileSettings" component={UserProfileSettings} />
+      <Stack.Screen
+        name="UserProfileSettings"
+        component={UserProfileSettings}
+      />
       <Stack.Screen name="Tournament" component={Tournament} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen name="MatchmakingLobbyPage" component={matchmakingLobbyPage} />
+      <Stack.Screen
+        name="MatchmakingLobbyPage"
+        component={matchmakingLobbyPage}
+      />
       <Stack.Screen name="MatchmakingReport" component={MatchmakingReport} />
       <Stack.Screen name="Match" component={Match} />
       <Stack.Screen name="Notifications" component={Notifications} />
@@ -116,8 +169,8 @@ function HomeScreen({ navigation }) {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [players, setPlayers] = useState({
-      lookingForMatch: [],
-    });
+    lookingForMatch: [],
+  });
   const [gameType, setGameType] = useState("1v1");
   const [selectedTeammates, setSelectedTeammates] = useState({
     teammate1: "",
@@ -128,53 +181,65 @@ function HomeScreen({ navigation }) {
   const [showMatchList, setShowMatchList] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [requestedMatchIndex, setRequestedMatchIndex] = useState(null);
+  const [matchmakingFriends, setMatchmakingFriends] = useState([]);
+  const [requestedFriendIndex, setRequestedFriendIndex] = useState(null);
+  const [requestedPlayerIndex, setRequestedPlayerIndex] = useState(null);
+
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchAll() {
       const result = await getUser(getLoggedInUser());
       setUser(result);
       setLoading(false);
+
+      await fetchFriends();
+      await fetchData(); // ✅ now valid
     }
-    fetchUser();
-    fetchFriends();
-    fetchData();
+
+    fetchAll();
   }, []);
 
   const fetchData = async () => {
-        try {
-          const result = await getUser(getLoggedInUser());
-          console.log("Fetched user object:", result);
-          setUser(result);
-          const usernames = await getUserNames();
-          console.log ('Fetched Usernames: ', usernames) //Debug statement
-          // Fetch all usernames
-  
-          // Categorize users based on their LookingForMatch value
-          const lookingForMatchUsers = [];
-  
-          for (const username of usernames) {
-            const lookingForMatch = await getLookingForMatch(username);
-            if (lookingForMatch === 1) {
-              const phoneNumber = await getPhoneNumber(username);
-              const opponentLocation = await getLocation(username);
-              const ranking = await getElo(username);
-              lookingForMatchUsers.push({
-                username, 
-                ranking,
-                opponentLocation,
-               phoneNumber});
-            } 
-          }
-  
-          // Update state with the categorized lists
-          setPlayers({
-            lookingForMatch: lookingForMatchUsers,
+    try {
+      const currentUser = getLoggedInUser();
+      const allUsers = await getUserNames();
+      const friendsList = await getFriends(currentUser);
+
+      const friendMatches = [];
+      const otherMatches = [];
+
+      for (const username of allUsers) {
+        if (username === currentUser) continue;
+
+        const looking = await getLookingForMatch(username);
+        if (looking !== 1) continue;
+
+        const elo = await getElo(username);
+        const location = await getLocation(username);
+
+        const playerData = {
+          userName: username,
+          elo,
+          location,
+        };
+
+        if (friendsList.includes(username)) {
+          friendMatches.push(playerData);
+        } else {
+          otherMatches.push({
+            username, // keep lowercase for others
+            ranking: elo,
+            opponentLocation: location,
           });
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        } finally {
-          setIsLoading(false); // Stop loading
         }
-      };
+      }
+
+      setMatchmakingFriends(friendMatches);
+      setPlayers({ lookingForMatch: otherMatches });
+    } catch (err) {
+      console.error("fetchData failed:", err);
+    }
+  };
+
   const fetchFriends = async () => {
     try {
       const friendList = await getFriends(getLoggedInUser());
@@ -184,10 +249,14 @@ function HomeScreen({ navigation }) {
         return;
       }
 
-      const formattedFriends = friendList.map((friend) => ({
-        userName: friend,
-      }));
-      setFriends(formattedFriends);
+      const enrichedFriends = [];
+      for (const friend of friendList) {
+        const elo = await getElo(friend);
+        const location = await getLocation(friend);
+        enrichedFriends.push({ userName: friend, elo, location });
+      }
+
+      setFriends(enrichedFriends);
     } catch (error) {
       console.error("Failed to fetch friends:", error);
     }
@@ -242,7 +311,7 @@ function HomeScreen({ navigation }) {
         <Text style={styles.friendsTitle}>Friends</Text>
         <ScrollView style={styles.scrollContainer}>
           {friends.map((friend, index) => (
-            <View key={index} style={styles.friendItem}>
+            <View key={`friend-${index}`} style={styles.friendItem}>
               <Image
                 source={require("../assets/images/default_profile_picture.jpg")}
                 style={styles.profilePic}
@@ -429,57 +498,74 @@ function HomeScreen({ navigation }) {
               showsVerticalScrollIndicator={false}
             >
               <Text style={styles.menuTitle}>{gameType} Friends Near You</Text>
-              {friends.map((friend, index) => (
+              {matchmakingFriends.length === 0 ? (
+                <Text
+                  style={{ color: "white", fontSize: 14, marginBottom: 10 }}
+                >
+                  No friends currently looking for a match.
+                </Text>
+              ) : (
+                matchmakingFriends.map((friend, index) => (
+                  <View key={`friend-${index}`} style={styles.matchRequestBox}>
+                    <Text style={styles.matchInfo}>
+                      {friend.userName} – Location: {friend.location} | Elo:{" "}
+                      {friend.elo}
+                    </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.requestButton,
+                        requestedFriendIndex === index &&
+                          styles.requestedButton,
+                      ]}
+                      onPress={async () => {
+                        const from = getLoggedInUser();
+                        const to = friend.userName;
+                        const success = await sendMatchRequest(from, to);
+                        if (success) {
+                          setRequestedFriendIndex(index);
+                          setRequestedMatchIndex(null);
+                        }
+                        await setPlayingAgainst(user.userName, friend.userName);
+                        await setLookingForMatch(user.userName, 2);
+                      }}
+                    >
+                      <Text style={styles.buttonText}>
+                        {requestedFriendIndex === index
+                          ? "Requested"
+                          : "Request"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
+
+              <Text style={styles.menuTitle}>{gameType} Players Near You</Text>
+              {players.lookingForMatch.map((player, index) => (
                 <View key={index} style={styles.matchRequestBox}>
                   <Text style={styles.matchInfo}>
-                    {friend.userName}– OU Rec Center
+                    {player.username} | Location: {player.opponentLocation} |
+                    Elo: {player.ranking}
                   </Text>
                   <TouchableOpacity
                     style={[
                       styles.requestButton,
-                      requestedMatchIndex === index && styles.requestedButton,
+                      requestedPlayerIndex === index && styles.requestedButton,
                     ]}
                     onPress={async () => {
                       const from = getLoggedInUser();
-                      const to = friend.userName;
+                      const to = player.username;
                       const success = await sendMatchRequest(from, to);
-                      if (success) setRequestedMatchIndex(index);
+                      if (success) setRequestedPlayerIndex(index);
                       await setPlayingAgainst(user.userName, player.username);
                       await setLookingForMatch(user.userName, 2);
                     }}
                   >
                     <Text style={styles.buttonText}>
-                      {requestedMatchIndex === index ? "Requested" : "Request"}
+                      {requestedPlayerIndex === index ? "Requested" : "Request"}
                     </Text>
                   </TouchableOpacity>
                 </View>
               ))}
-              <Text style={styles.menuTitle}>{gameType} Players Near You</Text>
-              {players.lookingForMatch.map((player, index) => (
-                        <View key={index} style={styles.matchRequestBox}>
-                        <Text style={styles.matchInfo}>
-                          {player.username}–Location: {player.opponentLocation} | Elo: {player.ranking}
-                        </Text>
-                        <TouchableOpacity
-                          style={[
-                            styles.requestButton,
-                            requestedMatchIndex === index && styles.requestedButton,
-                          ]}
-                          onPress={async () => {
-                            const from = getLoggedInUser();
-                            const to = player.username;
-                            const success = await sendMatchRequest(from, to);
-                            if (success) setRequestedMatchIndex(index);
-                            await setPlayingAgainst(user.userName, player.username);
-                            await setLookingForMatch(user.userName, 2);
-                          }}
-                        >
-                          <Text style={styles.buttonText}>
-                            {requestedMatchIndex === index ? "Requested" : "Request"}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      ))}
             </ScrollView>
           </View>
         </View>
