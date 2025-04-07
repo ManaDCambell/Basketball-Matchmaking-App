@@ -25,7 +25,6 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
         await addDoc(usersCollection, {
           fullName : fullName,
           userName: userName,
-          password : password,
           age : age,
           phoneNumber : phoneNumber,
           elo : 100,
