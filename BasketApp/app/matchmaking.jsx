@@ -84,7 +84,7 @@ const Matchmaking = () => {
   const handleToggle = async (value) => {
     setLooking(value);
     if (user) {
-      await setLookingForMatch(user.userName, value ? 0 : 1);
+      await setLookingForMatch(user.userName, value ? 1 : 0);
     }
   };
 
@@ -109,7 +109,7 @@ const Matchmaking = () => {
           <View style={styles.customToggleContainer}>
             <TouchableOpacity
               style={[styles.toggleOption, !looking && styles.toggleSelected]}
-              onPress={() => handleToggle(true)}
+              onPress={() => handleToggle(false)}
             >
               <Text
                 style={[
@@ -123,7 +123,7 @@ const Matchmaking = () => {
 
             <TouchableOpacity
               style={[styles.toggleOption, looking && styles.toggleSelected]}
-              onPress={() => handleToggle(false)}
+              onPress={() => handleToggle(true)}
             >
               <Text
                 style={[
@@ -355,17 +355,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: 'rgb(121, 62, 20)',
   },
   toggleSelected: {
-    backgroundColor: "rgb(121, 62, 20)",
+    backgroundColor: "white",
   },
   toggleText: {
     fontSize: 14,
-    color: "gray",
+    color: "white",
     fontWeight: "600",
   },
   toggleTextSelected: {
-    color: "white",
+    color: "gray",
   },
 });
 
