@@ -642,7 +642,6 @@ const styles = StyleSheet.create({
   requestedButton: {
     backgroundColor: "rgb(121, 62, 20)",
   },
-
   fullMenu: {
     backgroundColor: "rgb(40, 50, 55)",
     borderRadius: 20,
@@ -660,7 +659,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 10,
   },
-
   friendName: {
     fontSize: 16,
     color: "rgb(255, 255, 255)",

@@ -430,18 +430,26 @@ export async function setLocation(userName,newLocation) {
  * @param {string} userName 
  * @param {number} newLookingForMatch 
  */
-export async function setLookingForMatch(userName,newLookingForMatch) {
+export const setLookingForMatch = async (userName, value) => {
   try {
-    const q = query(usersCollection, where("userName", "==", userName));
-    const docId = await getDocs(q);
-    const docRef = doc(usersCollection, docId.docs[0].id);
-    await updateDoc(docRef, {
-      lookingForMatch: newLookingForMatch
-    });
+    const q = query(collection(db, 'users'), where('userName', '==', userName));
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      const userDoc = snapshot.docs[0];
+      await updateDoc(userDoc.ref, {
+        lookingForMatch: value,
+      });
+      return true;
+    } else {
+      console.warn('User not found');
+      return false;
+    }
   } catch (error) {
-    console.log("Error updating document: ", error);
+    console.error('Error setting lookingForMatch:', error);
+    return false;
   }
-}
+};
 /**
  * set the playingAgainst username of the given username to the newPlayingAgainst
  * @param {string} userName 
@@ -459,6 +467,17 @@ export async function setPlayingAgainst(userName,newPlayingAgainst) {
     console.log("Error updating document: ", error);
   }
 }
+
+export const getAllUsers = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, 'users'));
+    const users = snapshot.docs.map(doc => doc.data());
+    return users;
+  } catch (error) {
+    console.error('Error fetching all users:', error);
+    return [];
+  }
+};
 /**
  * set the PhoneNumber of the given username to the newPhoneNumber
  * @param {string} userName 
