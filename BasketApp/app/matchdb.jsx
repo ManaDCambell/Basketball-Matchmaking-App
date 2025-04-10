@@ -54,10 +54,10 @@ export async function getIsComp(id) {
  */
 export async function getMatchByUserName(userName){
   const matches = [];
-  const allMatches = await getDocs(usersCollection);
-  for (let i = 0; i < users.size; i++) {
+  const allMatches = await getDocs(matchesCollection);
+  for (let i = 0; i < allMatches.size; i++) {
     if (allMatches.docs[i].data().team1.includes(userName) || allMatches.docs[i].data().team2.includes(userName)){
-      matches.push(allMatches.docs[i].id);
+      matches.push(allMatches.docs[i].data());
     }
   }
   return matches;

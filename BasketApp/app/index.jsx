@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import {getMatchByUserName} from "./matchdb";
 import {
   Text,
   View,
@@ -49,44 +50,6 @@ import Icon from "react-native-vector-icons/Ionicons";
 const Stack = createStackNavigator();
 const { width, height } = Dimensions.get("window");
 
-// Placeholder match data (to be replaced with database data later)
-const matchHistory = [
-  {
-    opponent: "Player1",
-    type: "1v1",
-    score: "21-18",
-    result: "Win",
-    eloChange: "+15",
-  },
-  {
-    opponent: "TeamX",
-    type: "3v3",
-    score: "35-40",
-    result: "Loss",
-    eloChange: "-10",
-  },
-  {
-    opponent: "DuoTeam",
-    type: "2v2",
-    score: "25-22",
-    result: "Win",
-    eloChange: "+12",
-  },
-  {
-    opponent: "Player2",
-    type: "1v1",
-    score: "18-15",
-    result: "Win",
-    eloChange: "+20",
-  },
-  {
-    opponent: "TeamY",
-    type: "3v3",
-    score: "30-35",
-    result: "Loss",
-    eloChange: "-5",
-  },
-];
 
 function Index() {
   return (
@@ -165,6 +128,9 @@ function HomeScreen({ navigation }) {
   if (getLoggedInUser() == undefined) {
     return <Text>Loading...</Text>;
   }
+
+  // Placeholder match data (to be replaced with database data later)
+  const [matchHistory, setMatchHistory] = useState([]);
   const [user, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -188,6 +154,8 @@ function HomeScreen({ navigation }) {
   useEffect(() => {
     async function fetchAll() {
       const result = await getUser(getLoggedInUser());
+      const r2 = await getMatchByUserName(getLoggedInUser());
+      setMatchHistory(r2);
       setUser(result);
       setLoading(false);
 
@@ -296,6 +264,61 @@ function HomeScreen({ navigation }) {
     }
   }, [gameType, selectedTeammates]);
 
+    if (num === 0){
+      return "1v1"
+    }
+    else if (num === 1){
+      return "2v2"
+    }
+    else if (num === 2){
+      return "3v3"
+    }
+  }
+
+  function getResult(match){
+    if (match.team1.includes(getLoggedInUser())){
+      if (match.team1Score > match.team2Score){
+        return "Win"
+      }
+      else {
+        return "Loss"
+      }
+    }
+    else {
+      if (match.team1Score < match.team2Score){
+        return "Win"
+      }
+      else {
+        return "Loss"
+      }
+    }
+  }
+
+  function getTeamP1(match){
+    if (match.team1.includes(getLoggedInUser())){
+      return "Allies"
+    }
+    else {
+      return "Oppenent"
+    }
+  }
+  function getTeamP2(match){
+    if (match.team1.includes(getLoggedInUser())){
+      return "Oppenent"
+    }
+    else {
+      return "Allies"
+    }
+  }
+  function getMatchEloChange(match){
+    if (match.team1.includes(getLoggedInUser())){
+      return match.team1EloChange
+    }
+    else {
+      return match.team2EloChange
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Header />
@@ -332,25 +355,25 @@ function HomeScreen({ navigation }) {
       <View style={styles.matchBox}>
         <Text style={styles.matchTitle}>Recent Matches</Text>
         <ScrollView style={styles.scrollContainer}>
-          {matchHistory.slice(0, 5).map((match, index) => (
+          {matchHistory.map((match, index) => (
             <View key={index} style={styles.matchItem}>
               <View style={styles.matchDetailsContainer}>
-                <Text style={styles.matchUsername}>{user?.userName}</Text>
+                <Text style={styles.matchUsername}>{getTeamP1(match)}</Text>
               </View>
               <View style={styles.matchCenterContainer}>
-                <Text style={styles.matchText}>{match.type}</Text>
-                <Text style={styles.matchText}>Score: {match.score}</Text>
+                <Text style={styles.matchText}>{getType(match.matchType)}</Text>
+                <Text style={styles.matchText}>Score: {match.team1Score}-{match.team2Score}</Text>
                 <Text
                   style={[
-                    styles.matchText,
-                    match.result === "Win" ? styles.winText : styles.lossText,
+                    styles.matchText, styles.winText
+                    ,getResult(match) === "Win" ? styles.winText : styles.lossText,
                   ]}
                 >
-                  {match.result} ({match.eloChange})
+                  {getResult(match)} ({getMatchEloChange(match)})
                 </Text>
               </View>
               <View style={styles.matchDetailsContainer}>
-                <Text style={styles.matchUsername}>{match.opponent}</Text>
+                <Text style={styles.matchUsername}>{getTeamP2(match,1)}</Text>
               </View>
             </View>
           ))}

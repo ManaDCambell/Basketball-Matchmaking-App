@@ -38,7 +38,13 @@ export async function createAccount(fullName, userName, password, age, phoneNumb
           skillPref : false,
           matchRequestsSent: [],
           matchRequestsReceived: [],
-          activeMatch: null
+          activeMatch: null,
+          activeMatch: null,
+          friendRequestRevieved : [],
+          friendRequestSent : [],
+          matchRequestRecieved : [],
+          matchRequestSent : [],
+          prevScore : ""
         });
         return true;
       }
