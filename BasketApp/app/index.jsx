@@ -264,6 +264,7 @@ function HomeScreen({ navigation }) {
     }
   }, [gameType, selectedTeammates]);
 
+  function getType(num){
     if (num === 0){
       return "1v1"
     }
