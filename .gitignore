@@ -1,0 +1,27 @@
+# Already in your file
+.expo/README.md
+.expo/settings.json
+BasketApp/package-lock.json
+node_modules
+
+# Add this stuff below:
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.ipynb_checkpoints/
+
+# YOLOv5 outputs and models
+runs/
+*.pt
+*.onnx
+*.engine
+*.tflite
+*.torchscript
+data/
+*.yaml
+
+# VS Code and environments
+.env
+.vscode/
+.venv/

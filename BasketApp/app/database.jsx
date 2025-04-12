@@ -1,438 +1,670 @@
-import { StatusBar } from 'expo-status-bar';
-import { FlatList, Text, View, Pressable, Alert, TextInput } from 'react-native';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { useState, useEffect } from 'react';
-import {AntDesign} from '@expo/vector-icons';
+import { db } from '../FirebaseConfig';
+import {auth} from '../FirebaseConfig';
+import {setLoggedInUser,getLoggedInUser} from '../FirebaseConfig';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,deleteUser, sendPasswordResetEmail} from 'firebase/auth';
+import { collection, addDoc, getDocs, setDoc,updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
-//Initilize the database
-export async function initializeDatabase(db) {
+const usersCollection = collection(db, 'users');
+/**
+ * This Function Allows a user to create an account when logging in
+ * @param {string} fullName 
+ * @param {string} userName 
+ * @param {string} password 
+ * @param {number} age 
+ * @param {number} phoneNumber 
+ * @param {string} location 
+ * @param {string} email 
+ * @returns {boolean} Returns true if account is created and signed in. Returns false otherwise
+ */
+export async function createAccount(fullName, userName, password, age, phoneNumber, location,email){
     try {
-        await db.execAsync(`
-            PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS users (
-                userName TEXT PRIMARY KEY,
-                fullName TEXT,
-                password TEXT,
-                elo INTEGER,
-                age INTEGER,
-                phoneNumber INTEGER,
-                location TEXT,
-                email TEXT
-            );
-        `);
-        console.log('Database initialised') 
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-//
-export function getUser(db,userName) {
-    try {
-        const user = db.getFirstSync('SELECT * FROM Users WHERE userName = ?', userName);
-        if (user == null)
-            return "fail";
-        else
-            return user;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-export function getFullName(db,userName) {
-    try {
-        const variable = db.getFirstSync('SELECT fullName FROM Users WHERE userName = ?', userName);
-        if (variable == null)
-            return "fail";
-        else
-            return variable.fullName;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-export function getElo(db,userName) {
-    try {
-        const variable = db.getFirstSync('SELECT elo FROM Users WHERE userName = ?', userName);
-        if (variable == null)
-            return "fail";
-        else
-            return variable.elo;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-export function getAge(db,userName) {
-    try {
-        const variable = db.getFirstSync('SELECT age FROM Users WHERE userName = ?', userName);
-        if (variable == null)
-            return "fail";
-        else
-            return variable.age;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-//
-export function getPhoneNumber(db,userName) {
-    try {
-        const variable = db.getFirstSync('SELECT phoneNumber FROM Users WHERE userName = ?', userName);
-        if (variable == null)
-            return "fail";
-        else
-            return variable.phoneNumber;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-export function getLocation(db,userName) {
-    try {
-        const variable = db.getFirstSync('SELECT location FROM Users WHERE userName = ?', userName);
-        if (variable == null)
-            return "fail";
-        else
-            return variable.location;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-export function getEmail(db,userName) {
-    try {
-        const variable = db.getFirstSync('SELECT email FROM Users WHERE userName = ?', userName);
-        if (variable == null)
-            return "fail";
-        else
-            return variable.email;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-        return "fail";
-    }
-}
-export function setFullName(db,userName,newFullName) {
-    try {
-        db.getFirstSync('UPDATE users SET fullName = ? WHERE userName = ?', [newFullName, userName]);
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-export function setElo(db,userName,newElo) {
-    try {
-        db.getFirstSync('UPDATE users SET elo = ? WHERE userName = ?', [newElo, userName]);
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-export function setAge(db,userName,newAge) {
-    try {
-        db.getFirstSync('UPDATE users SET age = ? WHERE userName = ?', [newAge, userName]);
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-//
-export function setPhoneNumber(db,userName,newPhoneNumber) {
-    try {
-        db.getFirstSync('UPDATE users SET phoneNumber = ? WHERE userName = ?', [newPhoneNumber, userName]);
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-export function setLocation(db,userName,newLocation) {
-    try {
-        db.getFirstSync('UPDATE users SET location = ? WHERE userName = ?', [newLocation, userName]);
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-export function setEmail(db,userName,newEmail) {
-    try {
-        db.getFirstSync('UPDATE users SET email = ? WHERE userName = ?', [newEmail, userName]);
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
-    }
-}
-export async function checkCredentials(db,userName,password) {
-    try {
-        const user = await db.getFirstAsync('SELECT password FROM Users WHERE userName = ?', userName);
-        if (user)
-            if (password === user.password)
-                return true;
-            else
-                return false;
-        else
-            return false;
-    } catch (error) {
-        console.log('Error while initializing database : ', error);
+      email = email.toLowerCase();
+      const user = await createUserWithEmailAndPassword(auth,email,password);
+      if (user) {
+        await addDoc(usersCollection, {
+          fullName : fullName,
+          userName: userName,
+          age : age,
+          phoneNumber : phoneNumber,
+          elo : 100,
+          location : location,
+          email : email,
+          friends : [],
+          friendRequestsSent: [], 
+          friendRequestsReceived: [],
+          lookingForMatch : 0,
+          playingAgainst : "",
+          skillPref : false,
+          matchRequestsSent: [],
+          matchRequestsReceived: [],
+          activeMatch: null,
+          activeMatch: null,
+          friendRequestRevieved : [],
+          friendRequestSent : [],
+          matchRequestRecieved : [],
+          matchRequestSent : [],
+          prevScore : ""
+        });
+        return true;
+      }
+      else
         return false;
+    } catch(error){
+      console.log(error);
+      alert('sign up failed');
+      return false;
     }
 }
-
-//UserButton component
-const UserButton = ({user, deleteUser, updateUser}) => {
-
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedUser, setEditedUser] = useState({
-        fullName: user.fullName,
-        userName: user.userName,
-        password: user.password,
-        age: user.age,
-        phoneNumber: user.phoneNumber,
-        location: user.location,
-        email: user.email
-    })
-
-    //function to confirm to delete a User
-    const handleDelete = () => {
-        Alert.alert(
-            'Attention!',
-            'Are you sure you want to delete the user?',
-            [
-                { text: 'No', onPress: () => { }, style: 'cancel'},
-                { text: 'Yes', onPress: () =>  deleteUser(user.userName)},
-            ],
-            { cancelable: true } 
-        );
-    };
-
-    const handleEdit = () => {
-        updateUser(user.userName, editedUser.fullName, editedUser.userName, editedUser.password, editedUser.age, editedUser.phoneNumber, editedUser.location, editedUser.email);
-        setIsEditing(false);
+/**
+ * Takes a email and password used to log the user in
+ * @param {string} email 
+ * @param {string} password 
+ * @returns {boolean} return true if the user is able to log in otherwise retun false
+ */
+export async function checkCredentials(email,password){
+    try {
+      email = email.toLowerCase();
+      const user = await signInWithEmailAndPassword(auth,email,password);
+      if (user) {
+        const q = query(usersCollection, where("email", "==", email));
+        const tempData = await getDocs(q);
+        setLoggedInUser(tempData.docs[0].data().userName);
+        return true;
+      }
+      else
+        return false;
+    } catch(error){
+      console.log(error);
+      alert('signin failed');
+      return false;
     }
+}
+/**
+ * Logs out the current user
+ */
+export async function logOut() {
+  const userName = getLoggedInUser();
+  if (userName) {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docSnapshot = await getDocs(q);
+    const docRef = doc(usersCollection, docSnapshot.docs[0].id);
 
-    return (
-        <View>
-            <Pressable
-                onPress={() => {setSelectedUser(selectedUser === user.userName ? null : user.userName)}}
-            >
-                <Text> {user.userName} - {user.fullName}</Text>
-                {selectedUser === user.userName && (
-                    <View >
-                        <AntDesign 
-                            name='edit'
-                            size={18}
-                            color='blue'
-                            onPress={() => setIsEditing(true)}
-                        />
-                        <AntDesign 
-                            name='delete'
-                            size={18}
-                            color='red'
-                            onPress={handleDelete}
-                        />
-                    </View>
-                )}
-            </Pressable>
-            {selectedUser === user.userName && !isEditing &&(
-            <View>
-                <Text>Full Name : {user.fullName}</Text>
-                <Text>UserName : {user.userName}</Text>
-                <Text>Password : {user.password}</Text>
-                <Text>Age : {user.age}</Text>
-                <Text>Phone Number : {user.phoneNumber}</Text>
-                <Text>Location-county : {user.location}</Text>
-                <Text>Email : {user.email}</Text>
+    await updateDoc(docRef, {
+      activeMatch: null
+    });
+  }
 
-            </View>
-            )}
-            {selectedUser === user.userName && isEditing && (
-                <UserForm user={editedUser} setUser={setEditedUser} onSave={handleEdit} setShowForm={setIsEditing}/>
-            )}
-        </View>
-    )
+  auth.signOut();
+  setLoggedInUser(undefined);
 }
 
-//UserForm component
-const UserForm = ({user, setUser, onSave, setShowForm}) => {
 
-    
-    return (
-        <View>
-            <TextInput 
-                placeholder='FullName'
-                value={user.fullName}
-                onChangeText={(text) => setUser({...user, fullName: text})}
-            />
-            <TextInput 
-                placeholder='UserName'
-                value={user.userName}
-                onChangeText={(text) => setUser({...user, userName: text})}
-            />
-            <TextInput 
-                placeholder='Password'
-                value={user.password}
-                onChangeText={(text) => setUser({...user, password: text})}
-            />
-            <TextInput 
-                placeholder='Age'
-                value={user.age}
-                onChangeText={(text) => setUser({...user, age: text})}
-                keyboardType='numeric'
-            />
-            <TextInput 
-                placeholder='Phone Number'
-                value={user.phoneNumber}
-                onChangeText={(text) => setUser({...user, phoneNumber: text})}
-                keyboardType='numeric'
-            />
-            <TextInput 
-                placeholder='county'
-                value={user.location}
-                onChangeText={(text) => setUser({...user, location: text})}
-            />
-            <TextInput 
-                placeholder='email'
-                value={user.email}
-                onChangeText={(text) => setUser({...user, email: text})}
-                keyboardType='email-address'
-            />
+/**
+ * gets the age of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
+export async function getAge(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().age;
+  return data;
+}
+/**
+ * gets the elo of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
+export async function getElo(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().elo;
+  return data;
+}
+/**
+ * gets the email of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
+export async function getEmail(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().email;
+  return data;
+}
+/**
+ * gets the friends array of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {Array} Returns an Array
+ */
+export async function getFriends(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  
+  if (tempData.empty) {
+    console.log("No user found.");
+    return [];
+  }
 
-            <Pressable
-                onPress={onSave}
-            >
-                <Text>Save</Text>
-            </Pressable>
-            <Pressable
-                onPress={() => setShowForm(false)}
-            >
-                <Text>Cancel</Text>
-            </Pressable>
-        </View>
-    )
+  const data = tempData.docs[0].data().friends || [];
+  
+  if (!Array.isArray(data)) {
+    console.log("Friends data is not an array.");
+    return [];
+  }
+
+  return data;
+}
+/**
+ * gets the fullname of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
+export async function getFullName(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().fullName;
+  return data;
+}
+/**
+ * gets the location of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
+export async function getLocation(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().location;
+  return data;
+}
+/**
+ * gets the lookingForMatch Variable of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
+export async function getLookingForMatch(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().lookingForMatch;
+  return data;
+}
+/**
+ * gets the username of who the given username is playing against from the userdatabse
+ * @param {string} userName 
+ * @returns {string} Returns a string
+ */
+export async function getPlayingAgainst(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().playingAgainst;
+  return data;
+}
+/**
+ * gets the phoneNumber of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {number} Returns a number
+ */
+export async function getPhoneNumber(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().phoneNumber;
+  return data;
+}
+/**
+ * gets the user object of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {object}Returns a userObject
+ */
+export async function getUser(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data();
+  return data;
+}
+/**
+ * gets all user names in the user database
+ * @returns {Array}Returns an array will all the users
+ */
+export async function getUserNames() {
+  const userNames = [];
+  const users = await getDocs(usersCollection);
+  for (let i = 0; i < users.size; i++) {
+    userNames.push(users.docs[i].data().userName);
+  }
+  return userNames;
+}
+/**
+ * gets the skillPrefance of the given username from the userdatabse
+ * @param {string} userName 
+ * @returns {boolean} Returns a boolean
+ */
+export async function getSkillPref(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().skillPref;
+  return data;
 }
 
-export default function App() {
-  return (
-    <SQLiteProvider databaseName='example.db' onInit={initializeDatabase}>
-        <View>
-          <Text>List of users</Text>
-          <Content />
-          <StatusBar style="auto" />
-        </View>
-    </SQLiteProvider>
-  );
+export async function fetchFriendsData(setFriends, userName) {
+  try {
+    const friendList = await getFriends(userName);
+    setFriends(friendList || []);
+  } catch (error) {
+    console.error("Failed to fetch friends:", error);
+    setFriends([]);
+  }
+}
+export const getUserNames2 = async () => {
+  try {
+    const usersRef = collection(db, 'users');
+    const snapshot = await getDocs(usersRef);
+    return snapshot.docs.map(doc => ({ userName: doc.data().userName }));
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+};
+
+/**
+ * Adds a username to friends list of a given userName in the userName database
+ * @param {string} userName 
+ * @param {string} FriendUserName 
+ * @returns {boolean} returns true if succeeds else returns false
+ */
+export async function addFriend(userName, FriendUserName) {
+  try {
+    if (!FriendUserName || FriendUserName.trim() === "") {
+      console.log("Invalid FriendUserName:", FriendUserName);
+      return false;
+    }
+    const q = query(usersCollection, where("userName", "==", userName));
+    const tempData = await getDocs(q);
+    if (tempData.empty) {
+      console.log('User not found.');
+      return false;
+    }
+    const userDoc = tempData.docs[0];
+    let data = userDoc.data().friends;
+    console.log("Fetched Friends:", data);
+    if (!Array.isArray(data)) {
+      console.log('Friends array was undefined or not an array. Initializing it.');
+      data = [];
+    }
+    if (data.includes(FriendUserName)) {
+      console.log("This user is already your friend.");
+      return false;
+    }
+    data.push(FriendUserName);
+    const docRef = doc(usersCollection, userDoc.id);
+    await updateDoc(docRef, {
+      friends: data
+    });
+    return true
+  } catch (error) {
+    console.error("Error updating document: ", error);
+    return false
+  }
+}
+/**
+ * Sends an email to the given email with instructions to reset password
+ * @param {string} email 
+ */
+export async function resetPassword(email) {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    // Handle successful password reset request (e.g., display success message)
+  } catch (error) {
+    // Handle errors (e.g., display error message)
+    throw error;
+  }
+}
+/**
+ * set the age of the given username to the newAge
+ * @param {string} userName 
+ * @param {number} newAge
+ */
+export async function setAge(userName,newAge) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      age: newAge
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the elo of the given username to the newElo
+ * @param {string} userName 
+ * @param {number} newElo 
+ */
+export async function setElo(userName,newElo) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      elo: newElo
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the db usur and auth user email to the new email. Requires password
+ * @param {string} userName 
+ * @param {string} newEmail 
+ * @param {string} password 
+ * @returns {boolean} Returns false if an error is thrown 
+ */
+export async function setEmail(userName, newEmail, password) {
+  try {
+    newEmail = newEmail.toLowerCase();
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const user = await signInWithEmailAndPassword(auth,docId.docs[0].data().email,password);
+    if (user){
+      const q = query(usersCollection, where("email", "==", newEmail));
+      const tempData = await getDocs(q);
+      if (tempData != undefined)
+      {
+        const user1 = auth.currentUser;
+        deleteUser(user1);
+        const newUser = await createUserWithEmailAndPassword(auth,newEmail,password);
+        if (newUser){
+          const docRef = doc(usersCollection, docId.docs[0].id);
+          await updateDoc(docRef, {
+            email: newEmail
+          });
+          return true
+        }
+        else{
+          return false
+        }
+      }
+      else{
+        return false
+      }
+    }
+    else {
+      return false
+    }
+  } catch (error) {
+    console.log("Error updating email: ", error);
+    return false
+  }
+}
+/**
+ * set the fullname of the given username to the newFullName
+ * @param {string} userName 
+ * @param {string} newFullName 
+ */
+export async function setFullName(userName,newFullName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      fullName: newFullName
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the Location of the given username to the newLocation
+ * @param {string} userName 
+ * @param {string} newLocation 
+ */
+export async function setLocation(userName,newLocation) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      location: newLocation
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the looking for match for the given username to the newLookingForMatch
+ * @param {string} userName 
+ * @param {number} newLookingForMatch 
+ */
+export const setLookingForMatch = async (userName, value) => {
+  try {
+    const q = query(collection(db, 'users'), where('userName', '==', userName));
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      const userDoc = snapshot.docs[0];
+      await updateDoc(userDoc.ref, {
+        lookingForMatch: value,
+      });
+      return true;
+    } else {
+      console.warn('User not found');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error setting lookingForMatch:', error);
+    return false;
+  }
+};
+/**
+ * set the playingAgainst username of the given username to the newPlayingAgainst
+ * @param {string} userName 
+ * @param {string} newPlayingAgainst 
+ */
+export async function setPlayingAgainst(userName,newPlayingAgainst) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      playingAgainst: newPlayingAgainst
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
 }
 
-const Content = () => {
-    const db = useSQLiteContext();
-    const [users, setUsers] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [user, setUser] = useState({fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
+export const getAllUsers = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, 'users'));
+    const users = snapshot.docs.map(doc => doc.data());
+    return users;
+  } catch (error) {
+    console.error('Error fetching all users:', error);
+    return [];
+  }
+};
+/**
+ * set the PhoneNumber of the given username to the newPhoneNumber
+ * @param {string} userName 
+ * @param {number} newPhoneNumber
+ */
+export async function setPhoneNumber(userName,newPhoneNumber) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      phoneNumber: newPhoneNumber
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * set the userName of the given userName to the newUserName
+ * @param {string} userName 
+ * @param {string} newUserName 
+ */
+export async function setUserName(oldUserName,newUserName) {
+  try {
+    const q = query(usersCollection, where("userName", "==", oldUserName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      userName: newUserName
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
+/**
+ * sets the Skill Prefrance for the given username to the newSkillPref
+ * @param {string} userName 
+ * @param {boolean} newSkillPref 
+ */
+export async function setSkillPref(userName,newSkillPref) {
+  try {
+    const q = query(usersCollection, where("userName", "==", userName));
+    const docId = await getDocs(q);
+    const docRef = doc(usersCollection, docId.docs[0].id);
+    await updateDoc(docRef, {
+      skillPref: newSkillPref
+    });
+  } catch (error) {
+    console.log("Error updating document: ", error);
+  }
+}
 
-    const handleSave = () => {
+export async function sendFriendRequest(userName, targetUserName) {
+  try {
+    if (!targetUserName || targetUserName.trim() === "") return false;
 
-        if(user.fullName.length === 0 || user.userName.length === 0 || user.password.length === 0 ||user.age === 0 || user.phoneNumber === 0 || user.location === 0 || user.email.length ===0 ) {
-            Alert.alert('Attention', 'Please enter all the data !')
-        } else {
-            addUser(user);
-            setUser({fullName:'', userName:'', password:'', age:0, phoneNumber:0, location:'', email:''});
-            setShowForm(false);
-        }
+    const q1 = query(usersCollection, where("userName", "==", userName));
+    const q2 = query(usersCollection, where("userName", "==", targetUserName));
+    const [fromSnap, toSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    if (fromSnap.empty || toSnap.empty) return false;
+
+    const fromDoc = fromSnap.docs[0];
+    const toDoc = toSnap.docs[0];
+
+    const fromRef = doc(usersCollection, fromDoc.id);
+    const toRef = doc(usersCollection, toDoc.id);
+
+    const fromData = fromDoc.data();
+    const toData = toDoc.data();
+
+    const sent = fromData.friendRequestsSent || [];
+    const received = toData.friendRequestsReceived || [];
+
+    if (!sent.includes(targetUserName)) sent.push(targetUserName);
+    if (!received.includes(userName)) received.push(userName);
+
+    await Promise.all([
+      updateDoc(fromRef, { friendRequestsSent: sent }),
+      updateDoc(toRef, { friendRequestsReceived: received })
+    ]);
+
+    return true;
+  } catch (error) {
+    console.error("Error sending friend request: ", error);
+    return false;
+  }
+}
+
+export async function removeFriend(userName, friendUserName) {
+  try {
+    const q1 = query(usersCollection, where("userName", "==", userName));
+    const q2 = query(usersCollection, where("userName", "==", friendUserName));
+    const [userSnap, friendSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    if (userSnap.empty || friendSnap.empty) {
+      console.log('One of the users not found.');
+      return false;
     }
-    
-    //function to get all the users
-    const getUsers = async () => {
-        try {
-            const allRows = await db.getAllAsync('SELECT * FROM users');
-            setUsers(allRows);
-        } catch (error) {
-            console.log('Error while loading user : ', error);
-        }
-    };
 
-    //function to add a user
-    const addUser = async (newUser) => {
-        try {
-            const statement = await db.prepareAsync('INSERT INTO users (userName, fullName,  password, elo, age, phoneNumber, location, email) VALUES (?,?,?,0,?,?,?,?)');
-            await statement.executeAsync([newUser.userName, newUser.fullName, newUser.password, newUser.age, newUser.phoneNumber, newUser.location, newUser.email]);
-            await getUsers();
-        } catch (error) {
-            console.log('Error while adding user : ', error);
-        }
-    };
+    const userDoc = userSnap.docs[0];
+    const friendDoc = friendSnap.docs[0];
 
-    //function to delete all users
-    const deleteAllUsers = async () => {
-        try {
-            await db.runAsync('DELETE FROM users');
-            await getUsers();
-        } catch (error) {
-            console.log('Error while deleting all the users : ', error);
-        }
-    };
+    const userRef = doc(usersCollection, userDoc.id);
+    const friendRef = doc(usersCollection, friendDoc.id);
 
-    //function to confirm deleting all usera
-    const confirmDeleteAll = () => {
-        Alert.alert(
-            'Attention!',
-            'Are you sure you want to delete all the users ?',
-            [
-                { text: 'No', onPress: () => { }, style: 'cancel'},
-                { text: 'Yes', onPress: deleteAllUsers},
-            ],
-            { cancelable: true}
-        )
-    };
+    const userData = userDoc.data();
+    const friendData = friendDoc.data();
 
-    //function to update a user
-    const updateUser = async (userName, newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation, newEmail) => {
-        console.log(userName);
-        try {
-            await db.runAsync('UPDATE users SET fullName = ?, userName = ?, password = ?, age = ?, phoneNumber = ?, location = ?, email = ? WHERE userName = ?', [newFullName, newUserName, newPassword, newAge, newPhoneNumber, newLocation ,newEmail, userName]);
-            await getUsers();
-        } catch (error) {
-            console.log('Error while updating user');
-        }
-    };
+    const updatedUserFriends = (userData.friends || []).filter(name => name !== friendUserName);
+    const updatedFriendFriends = (friendData.friends || []).filter(name => name !== userName);
 
-    //function to delete a user
-    const deleteUser = async (userName) => {
-        try {
-            await db.runAsync('DELETE FROM users WHERE userName = ?', [userName]);
-            await getUsers();
-        } catch (error) {
-            console.log('Error while deleting the user : ', error);
-        }
-    }
+    await Promise.all([
+      updateDoc(userRef, { friends: updatedUserFriends }),
+      updateDoc(friendRef, { friends: updatedFriendFriends })
+    ]);
 
-    //get all the users at  the first render of the app
-    useEffect(() => {
-        getUsers();
-    }, []);
+    return true;
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    return false;
+  }
+}
 
-    return (
-        <View>
-            {user.length === 0 ? (
-              <Text>No users to load !</Text>
-            ) : (
-              <FlatList 
-                  data = {users}
-                  renderItem={({item}) => (
-                      <UserButton user={item} deleteUser={deleteUser} updateUser={updateUser}/>  
-                  )}
-                  keyExtractor={(item) => item.userName.toString()}
-              />
-            )}
-            {showForm && (<UserForm user={user} setUser={setUser} onSave={handleSave} setShowForm={setShowForm}/>)}
-            {<View>
+export async function sendMatchRequest(fromUser, toUser) {
+  try {
+    const q1 = query(usersCollection, where("userName", "==", fromUser));
+    const q2 = query(usersCollection, where("userName", "==", toUser));
+    const [fromSnap, toSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
 
-            <AntDesign 
-                    name='pluscircleo'
-                    size={24}
-                    color='blue'
-                    onPress={() => setShowForm(true)}
-                />
-                <AntDesign 
-                    name='deleteusergroup'
-                    size={24}
-                    color='red'
-                    onPress={confirmDeleteAll}
-                />
+    if (fromSnap.empty || toSnap.empty) return false;
 
-            </View>}
-        </View>
-    )
+    const fromDoc = fromSnap.docs[0];
+    const toDoc = toSnap.docs[0];
+
+    const fromRef = doc(usersCollection, fromDoc.id);
+    const toRef = doc(usersCollection, toDoc.id);
+
+    const fromData = fromDoc.data();
+    const toData = toDoc.data();
+
+    const sent = fromData.matchRequestsSent || [];
+    const received = toData.matchRequestsReceived || [];
+
+    if (!sent.includes(toUser)) sent.push(toUser);
+    if (!received.includes(fromUser)) received.push(fromUser);
+
+    await Promise.all([
+      updateDoc(fromRef, { matchRequestsSent: sent }),
+      updateDoc(toRef, { matchRequestsReceived: received })
+    ]);
+
+    return true;
+  } catch (error) {
+    console.error("Error sending match request: ", error);
+    return false;
+  }
+}
+
+export const forceQuitMatch = async (userName) => {
+  const q = query(collection(db, 'users'), where('userName', '==', userName));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) return;
+
+  const userData = snapshot.docs[0].data();
+  const opponent = userData?.activeMatch?.opponent;
+
+  if (!opponent) return;
+
+  const usersToClear = [userName, opponent];
+  const usersQuery = query(collection(db, 'users'), where('userName', 'in', usersToClear));
+  const userDocs = await getDocs(usersQuery);
+
+  for (const docSnap of userDocs.docs) {
+    await updateDoc(doc(db, 'users', docSnap.id), {
+      activeMatch: null,
+    });
+  }
+};
+
+export default function DataBase() {
+  return <Text>Nothing Here</Text>;
 }
