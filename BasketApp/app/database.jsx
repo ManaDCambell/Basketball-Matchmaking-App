@@ -201,6 +201,17 @@ export async function getPlayingAgainst(userName) {
   return data;
 }
 /**
+ * gets the prevScore of the given username 
+ * @param {string} userName 
+ * @returns {number} Returns an int
+ */
+export async function getPrevScore(userName) {
+  const q = query(usersCollection, where("userName", "==", userName));
+  const tempData = await getDocs(q);
+  const data = tempData.docs[0].data().prevScore;
+  return data;
+}
+/**
  * gets the phoneNumber of the given username from the userdatabse
  * @param {string} userName 
  * @returns {number} Returns a number
