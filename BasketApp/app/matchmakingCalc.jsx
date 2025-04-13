@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { setElo, setLookingForMatch, getPlayingAgainst, getLookingForMatch, getPrevScore, getElo, setLookingForMatch,  } from './database';
+import { setElo, setLookingForMatch, getPlayingAgainst, getLookingForMatch, getPrevScore, getElo } from './database';
 //Pass in the usernames of the player. For outcome, 1 is a win for 1st player, 0 is a win for 2nd player.
 
 const updateElo = async (userName) => {

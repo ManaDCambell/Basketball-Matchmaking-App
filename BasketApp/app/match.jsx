@@ -5,7 +5,7 @@ import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { doc, updateDoc, getDocs, query, where, collection, onSnapshot } from 'firebase/firestore';
 import { db, getLoggedInUser } from '../FirebaseConfig';
-import { getUser, forceQuitMatch, getPlayingAgainst, setLookingForMatch, getPrevScore , getElo, getPrevScore} from './database';
+import { getUser, forceQuitMatch, getPlayingAgainst, setLookingForMatch, getPrevScore , getElo} from './database';
 import updateElo from './matchmakingCalc';
 
 const Match = () => {
