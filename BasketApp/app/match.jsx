@@ -5,7 +5,8 @@ import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { doc, updateDoc, getDocs, query, where, collection, onSnapshot } from 'firebase/firestore';
 import { db, getLoggedInUser } from '../FirebaseConfig';
-import { getUser, forceQuitMatch } from './database';
+import { getUser, forceQuitMatch, getPlayingAgainst, setLookingForMatch, getPrevScore , getElo, getPrevScore} from './database';
+import updateElo from './matchmakingCalc';
 
 const Match = () => {
   const navigation = useNavigation();
@@ -127,9 +128,11 @@ const Match = () => {
         if (userDoc) {
           const currentMatch = userDoc.data().activeMatch || {};
           await updateDoc(userDoc.ref, {
-            prevScore: json.score
+            prevScore: json.score,
+            //Updates lookingfor match to a completed match.
+            lookingForMatch: 2,
           });
-          
+          await updateElo(userName);
         }
       } else {
         Alert.alert('Upload failed', json.error || 'Unknown error');
