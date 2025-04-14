@@ -362,11 +362,11 @@ const Match = () => {
 };
 
 const updateElo = async (userName) => {
-  console.log("⚙️ updateElo running for:", userName);
+  console.log("updateElo running for:", userName);
 
   const userSnap = await getDocs(query(collection(db, 'users'), where('userName', '==', userName)));
   if (userSnap.empty) {
-    console.log("❌ User not found:", userName);
+    console.log("User not found:", userName);
     return;
   }
   const userDoc = userSnap.docs[0];
@@ -374,13 +374,13 @@ const updateElo = async (userName) => {
 
   const opponentName = userData.playingAgainst;
   if (!opponentName) {
-    console.log("❌ No opponent found for:", userName);
+    console.log("No opponent found for:", userName);
     return;
   }
 
   const oppSnap = await getDocs(query(collection(db, 'users'), where('userName', '==', opponentName)));
   if (oppSnap.empty) {
-    console.log("❌ Opponent not found:", opponentName);
+    console.log("Opponent not found:", opponentName);
     return;
   }
   const oppDoc = oppSnap.docs[0];
@@ -392,7 +392,7 @@ const updateElo = async (userName) => {
   const oppElo = Number(oppData.elo);
 
   if ([userScore, oppScore, userElo, oppElo].some(isNaN)) {
-    console.log("❌ Invalid score or elo values");
+    console.log("Invalid score or elo values");
     return;
   }
 
@@ -419,7 +419,7 @@ const updateElo = async (userName) => {
     activeMatch: null,
   });
 
-  console.log(`✅ Elo updated: ${userName} → ${newUserElo}, ${opponentName} → ${newOppElo}`);
+  console.log(`Elo updated: ${userName} → ${newUserElo}, ${opponentName} → ${newOppElo}`);
 };
 
 export default Match;
