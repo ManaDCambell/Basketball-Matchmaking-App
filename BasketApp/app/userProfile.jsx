@@ -104,7 +104,8 @@ const Content = () => {
 
       {/* Menu Buttons with Underline */}
       <View style={styles.menuContainer}>
-        {['Availability', 'Match History'].map((label) => (
+        {/* {['Availability', 'Match History'].map((label) => ( */}
+        {['Availability'].map((label) => (
           <TouchableOpacity
             key={label}
             onPress={() => setSelectedMenu(label)}

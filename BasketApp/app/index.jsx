@@ -295,22 +295,18 @@ function HomeScreen({ navigation }) {
     }
   }
 
-  function getTeamP1(match){
-    if (match.team1.includes(getLoggedInUser())){
-      return "Allies"
-    }
-    else {
-      return "Oppenent"
-    }
+  function getTeamP1(match) {
+    const currentUser = getLoggedInUser();
+    return currentUser;
   }
-  function getTeamP2(match){
-    if (match.team1.includes(getLoggedInUser())){
-      return "Oppenent"
-    }
-    else {
-      return "Allies"
-    }
+  
+  function getTeamP2(match) {
+    const currentUser = getLoggedInUser();
+    const allPlayers = [...(match.team1 || []), ...(match.team2 || [])];
+    const opponents = allPlayers.filter((player) => player !== currentUser);
+    return opponents.join(", ");
   }
+  
   function getMatchEloChange(match){
     if (match.team1.includes(getLoggedInUser())){
       return match.team1EloChange
