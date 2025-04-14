@@ -62,6 +62,17 @@ export async function getMatchByUserName(userName){
   }
   return matches;
 }
+export async function getInProgressGame(userName){
+  const allMatches = await getDocs(matchesCollection);
+  for (let i = 0; i < allMatches.size; i++) {
+    if (allMatches.docs[i].data().team1.includes(userName) || allMatches.docs[i].data().team2.includes(userName)){
+      if (allMatches.docs[i].data().inProgress === True){
+        return allMatches.docs[i]
+      }
+    }
+  }
+  return null;
+}
 /**
  * gets the matchType variable for the given match id
  * @param {number} id 
