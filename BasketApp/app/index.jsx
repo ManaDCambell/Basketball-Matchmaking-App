@@ -51,8 +51,6 @@ const Stack = createStackNavigator();
 const { width, height } = Dimensions.get("window");
 
 
-
-
 function Index() {
   return (
     <Stack.Navigator
@@ -85,7 +83,6 @@ function Index() {
 
 function HomeScreen({ navigation }) {
   const isFocused = useIsFocused();
-
 
   const isOnMatchScreen = useNavigationState((state) => {
     const currentRoute = state.routes[state.index];
@@ -388,9 +385,7 @@ function HomeScreen({ navigation }) {
       <View style={styles.matchButtonContainer}>
         <TouchableOpacity
           style={styles.matchButton}
-          onPress={toggleMatchmakingMenu
-            
-          }
+          onPress={toggleMatchmakingMenu}
         >
           <View style={styles.ring}>
             <Image source={logo} style={styles.logo} />
