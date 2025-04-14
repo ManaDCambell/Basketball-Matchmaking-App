@@ -6,7 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { doc, updateDoc, getDocs, query, where, collection, onSnapshot } from 'firebase/firestore';
 import { db, getLoggedInUser } from '../FirebaseConfig';
 import { getUser, forceQuitMatch, getPlayingAgainst, setLookingForMatch, getPrevScore , getElo} from './database';
-import updateElo from './matchmakingCalc';
+
+const matchesCollection = collection(db, "matches");
 
 const Match = () => {
   const navigation = useNavigation();
@@ -141,6 +142,25 @@ const Match = () => {
       console.error(err);
       Alert.alert('Network error', 'Could not connect to the server.');
     }
+
+    await addDoc(matchesCollection, {
+      matchType: 0, // or 1, 2
+      confirmed: true,
+      inProgress: false,
+      isComp: false, // or true if it's ranked
+      durationInSeconds: "600",
+      startTime: Date.now().toString(),
+      setupBy: setupBy, // or userName
+      team1: [userName],
+      team1Score: userScore,
+      team1Basket: "Left", // or whatever
+      team1EloChange: userElo - prevUserElo,
+      team2: [opponent],
+      team2Score: oppScore,
+      team2Basket: "Right", // or whatever
+      team2EloChange: oppElo - prevOppElo,
+    });
+    
   };
   
   
@@ -339,6 +359,67 @@ const Match = () => {
       </TouchableOpacity>
     </View>
   );
+};
+
+const updateElo = async (userName) => {
+  console.log("⚙️ updateElo running for:", userName);
+
+  const userSnap = await getDocs(query(collection(db, 'users'), where('userName', '==', userName)));
+  if (userSnap.empty) {
+    console.log("❌ User not found:", userName);
+    return;
+  }
+  const userDoc = userSnap.docs[0];
+  const userData = userDoc.data();
+
+  const opponentName = userData.playingAgainst;
+  if (!opponentName) {
+    console.log("❌ No opponent found for:", userName);
+    return;
+  }
+
+  const oppSnap = await getDocs(query(collection(db, 'users'), where('userName', '==', opponentName)));
+  if (oppSnap.empty) {
+    console.log("❌ Opponent not found:", opponentName);
+    return;
+  }
+  const oppDoc = oppSnap.docs[0];
+  const oppData = oppDoc.data();
+
+  const userScore = Number(userData.prevScore);
+  const oppScore = Number(oppData.prevScore);
+  const userElo = Number(userData.elo);
+  const oppElo = Number(oppData.elo);
+
+  if ([userScore, oppScore, userElo, oppElo].some(isNaN)) {
+    console.log("❌ Invalid score or elo values");
+    return;
+  }
+
+  const outcome = userScore > oppScore ? 1 : userScore === oppScore ? 0.5 : 0;
+  const K = 30;
+  const prob = (a, b) => 1 / (1 + Math.pow(10, (b - a) / 200));
+
+  const newUserElo = Math.round(userElo + K * (outcome - prob(userElo, oppElo)));
+  const newOppElo = Math.round(oppElo + K * ((1 - outcome) - prob(oppElo, userElo)));
+
+  await updateDoc(userDoc.ref, {
+    elo: newUserElo,
+    playingAgainst: '',
+    prevScore: '',
+    lookingForMatch: 0,
+    activeMatch: null,
+  });
+
+  await updateDoc(oppDoc.ref, {
+    elo: newOppElo,
+    playingAgainst: '',
+    prevScore: '',
+    lookingForMatch: 0,
+    activeMatch: null,
+  });
+
+  console.log(`✅ Elo updated: ${userName} → ${newUserElo}, ${opponentName} → ${newOppElo}`);
 };
 
 export default Match;

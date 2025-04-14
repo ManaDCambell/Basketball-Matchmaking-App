@@ -186,9 +186,16 @@ export async function getLocation(userName) {
 export async function getLookingForMatch(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().lookingForMatch;
-  return data;
+  
+  if (tempData.empty || !tempData.docs[0]) {
+    console.warn(`getLookingForMatch: No user found for ${userName}`);
+    return null;
+  }
+
+  return tempData.docs[0].data().lookingForMatch;
 }
+
+
 /**
  * gets the username of who the given username is playing against from the userdatabse
  * @param {string} userName 
@@ -197,9 +204,15 @@ export async function getLookingForMatch(userName) {
 export async function getPlayingAgainst(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().playingAgainst;
-  return data;
+
+  if (tempData.empty || !tempData.docs[0]) {
+    console.warn(`getPlayingAgainst: No user found for ${userName}`);
+    return null;
+  }
+
+  return tempData.docs[0].data().playingAgainst;
 }
+
 /**
  * gets the prevScore of the given username 
  * @param {string} userName 
@@ -208,9 +221,15 @@ export async function getPlayingAgainst(userName) {
 export async function getPrevScore(userName) {
   const q = query(usersCollection, where("userName", "==", userName));
   const tempData = await getDocs(q);
-  const data = tempData.docs[0].data().prevScore;
-  return data;
+
+  if (tempData.empty || !tempData.docs[0]) {
+    console.warn(`getPrevScore: No user found for ${userName}`);
+    return null;
+  }
+
+  return tempData.docs[0].data().prevScore;
 }
+
 /**
  * gets the phoneNumber of the given username from the userdatabse
  * @param {string} userName 
