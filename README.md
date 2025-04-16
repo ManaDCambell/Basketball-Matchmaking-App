@@ -25,7 +25,7 @@ Our AI system uses **YOLOv5** and **OpenCV** to detect made baskets from uploade
 - **Frontend**: React Native, React.js  
 - **Backend**: Node.js, Flask  
 - **AI/ML**: YOLOv5, Python, OpenCV  
-- **Database**: FireBase
+- **Database**: Firebase  
 - **Other**: GitHub, Agile Methodology
 
 ---
@@ -53,27 +53,28 @@ npm start
 cd backend
 pip install -r requirements.txt
 python app.py
-
+📂 Folder Structure
+bash
+Copy
+Edit
 BasketballBuddies/
 ├── mobile-app/       # React Native frontend
 ├── backend/          # Flask + Node.js backend
 ├── ai-referee/       # YOLOv5 & OpenCV scripts
 └── README.md
-
 👥 Team
 Aiden Baraiac – AI Refereeing System, OpenCV, Frontend Integration
 
-Bryce Benedetto - Front End Devloper(Profile Page, Home Page, Friends Page, Settings Page, Match Page)
+Bryce Benedetto – Front-End Development (Profile, Home, Friends, Settings, Match Pages)
 
-Pablo Avila - Matchmaking, Ranked System
+Pablo Avila – Matchmaking, Ranking System
 
-Christopher Brouhard - User Database, Match Database, Cloud Storage
+Christopher Brouhard – User Database, Match Database, Cloud Storage
 
-Viswa Ponnusamy - Login Page, Signup Page
+Viswa Ponnusamy – Login Page, Signup Page
 
-Evan Bruce - Team Lead
+Evan Bruce – Team Lead
 
-## 📄 License
-
-This project was built for educational and portfolio purposes only.  
+📄 License
+This project was built for educational and portfolio purposes only.
 Please do not copy, redistribute, or commercialize without permission.
