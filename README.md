@@ -7,7 +7,7 @@
 ## 📱 Features
 
 - 🔍 Search for nearby pickup games  
-- 👥 Team up with friends in 3v3 or 5v5 mode  
+- 👥 Team up with friends in 1v1, 2v2, or 3v3 mode  
 - 🏅 Elo-based ranking system (Bronze → Silver → Gold → Platinum)  
 - 🤖 AI-powered refereeing system to detect made shots  
 - 📈 Real-time performance feedback
